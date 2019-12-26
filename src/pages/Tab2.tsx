@@ -6,7 +6,7 @@ const Tab2: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Tab lala</IonTitle>
+          <IonTitle>Tab</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
