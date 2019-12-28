@@ -7,15 +7,31 @@ import {
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
-  IonTabs
+  IonTabs,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonMenuButton,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { checkbox, logoUsd, people } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
-import PPal from './pages/PPal';
-import Details from './pages/Details';
+
+/* vistas de la app */
+
+import Home from './pages/home';
+import Cobros from './pages/cobros';
+import Asistencia from './pages/asistencia';
+import Jugadores from './pages/jugadores';
+import Emergencia from './pages/emergencia';
+import Listado from './pages/listado';
+import Jugador from './pages/jugador';
+import Configuracion from './pages/configuracion';
+import LogIn from './pages/logIn';
+import OpcionesAdmin from './pages/opcionesAdmin';
+import Peticiones from './pages/peticiones';
+import SignUp from './pages/signUp';
+import Usuarios from './pages/usuarios';
+import About from './pages/about';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,34 +51,42 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import SideMenu from './components/SideMenu';
 
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/tab1" component={Tab1} exact={true} />
-          <Route path="/tab2" component={Tab2} exact={true} />
-          <Route path="/tab2/details" component={Details} />
-          <Route path="/tab3" component={Tab3} exact={true}/>
-          <Route path="/ppal" component={PPal} exact={true}/>
-          <Route path="/" component={PPal} exact  />
+    <SideMenu />
+    <IonHeader>
+        <IonToolbar>
+            <IonButtons slot="start">
+                <IonMenuButton autoHide={false}></IonMenuButton>
+            </IonButtons>
+        </IonToolbar>
+    </IonHeader> 
+    <IonTabs>
+        <IonRouterOutlet id = "main">
+            <Route path="/jugadores" component={Jugadores} exact={true} />
+            <Route path="/cobros" component={Cobros} exact={true} />
+            <Route path="/Asistencia" component={Asistencia} exact={true}/>
+            <Route path="/Home" component={Home} exact={true}/>
+            <Route path="/" component={Home} exact  />
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-          <IonIcon icon={people} />
-                        <IonLabel>Alumnos</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-          <IonIcon icon={logoUsd} />
+            <IonTabButton tab="jugadores" href="/jugadores">
+            <IonIcon icon={people} />
+                        <IonLabel>Jugadores</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="Cobros" href="/cobros">
+            <IonIcon icon={logoUsd} />
             <IonLabel>Cobros</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
+            </IonTabButton>
+            <IonTabButton tab="Asistencia" href="/asistencia">
                         <IonIcon icon={checkbox} />
             <IonLabel>Asistencia</IonLabel>
-          </IonTabButton>
+            </IonTabButton>
         </IonTabBar>
-      </IonTabs>
+    </IonTabs>
     </IonReactRouter>
   </IonApp>
 );
