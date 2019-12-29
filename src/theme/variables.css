@@ -76,6 +76,10 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-tint: #f5f6f9;
 }
 
+.SideMenu {
+    --padding-top: 0px;
+}
+
 ion-content {
-    --padding-top: 50px;
+    --padding-top: 75px;
 }

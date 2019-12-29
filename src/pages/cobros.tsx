@@ -5,7 +5,7 @@ import { checkmarkCircle } from 'ionicons/icons';
 const Cobros: React.FC = () => {
   return (
     <IonPage>
-          <IonContent>
+          <IonContent class="Cobro">
               <IonItemGroup>
                   <IonItem>
                       <IonLabel>Cobros</IonLabel>
