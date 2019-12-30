@@ -22,16 +22,17 @@ import Home from './pages/home';
 import Cobros from './pages/cobros';
 import Asistencia from './pages/asistencia';
 import Jugadores from './pages/jugadores';
-import Emergencia from './pages/Emergencia';
-//import Listado from './pages/listado';
-//import Jugador from './pages/jugador';
-//import Configuracion from './pages/configuracion';
-//import LogIn from './pages/logIn';
-//import OpcionesAdmin from './pages/opcionesAdmin';
-//import Peticiones from './pages/peticiones';
-//import SignUp from './pages/signUp';
-//import Usuarios from './pages/usuarios';
-//import About from './pages/about';
+import Emergencia from './pages/emergencia';
+import Listado from './pages/listado';
+import Jugador from './pages/jugador';
+import Configuracion from './pages/configuracion';
+import LogIn from './pages/logIn';
+import OpcionesAdmin from './pages/opcionesAdmin';
+import Peticiones from './pages/peticiones';
+import SignUp from './pages/signUp';
+import Usuarios from './pages/usuarios';
+import About from './pages/about';
+import Historial from './pages/historialCobros';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -58,7 +59,7 @@ const App: React.FC = () => (
     <IonReactRouter>
     <SideMenu/>
     <IonHeader>
-        <IonToolbar> Club 2 de mayo 
+        <IonToolbar> Club Dos de Mayo 
             <IonButtons slot="start">
                 <IonMenuButton autoHide={false}></IonMenuButton>
             </IonButtons>
@@ -69,9 +70,19 @@ const App: React.FC = () => (
             <Route path="/jugadores" component={Jugadores} exact={true} />
             <Route path="/cobros" component={Cobros} exact={true} />
             <Route path="/Asistencia" component={Asistencia} exact={true}/>
-            <Route path="/Home" component={Home} exact={true}/>
-            <Route path="/" component={Home} exact />
-            <Route path="/emergencia" component={Emergencia} exact />
+            <Route path="/home" component={Home} exact={true}/>
+            <Route path="/" component={Home} exact={true} />
+            <Route path="/emergencia" component={Emergencia} exact={true} />
+            <Route path="/listado" component={Listado} exact={true} />
+            <Route path="/jugador" component={Jugador} exact={true} />
+            <Route path="/configuracion" component={Configuracion} exact={true} />
+            <Route path="/logIn" component={LogIn} exact={true} />
+            <Route path="/peticiones" component={Peticiones} exact={true} />
+            <Route path="/signUp" component={SignUp} exact={true} />
+            <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />
+            <Route path="/usuarios" component={Usuarios} exact={true} />
+            <Route path="/about" component={About} exact={true} />
+            <Route path="/historial" component={Historial} exact={true} />
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
                     <IonTabButton tab="jugadores" href="/jugadores">

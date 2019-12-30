@@ -2,10 +2,11 @@ import React from 'react';
 import {IonPage, IonContent, IonItem, IonLabel, IonInput, IonItemGroup, IonButton, IonIcon, IonText, IonRow, IonCol, IonGrid} from '@ionic/react';
 import { checkmarkCircle } from 'ionicons/icons';
 
+
 const Cobros: React.FC = () => {
   return (
     <IonPage>
-          <IonContent class="Cobro">
+          <IonContent class="Cobro">  
               <IonItemGroup>
                   <IonItem>
                       <IonLabel>Cobros</IonLabel>
@@ -19,6 +20,15 @@ const Cobros: React.FC = () => {
                           <IonIcon icon={checkmarkCircle} />
                       </IonButton>
                   </IonItem>
+                  <IonGrid>
+                      <IonRow align-content-center>
+                          <IonCol>
+                              <IonButton fill="outline">
+                                  Generar Comprobante
+                              </IonButton>
+                          </IonCol>
+                      </IonRow>
+                  </IonGrid>  
               </IonItemGroup>
               <IonItemGroup>
                   <IonItem>
@@ -35,7 +45,7 @@ const Cobros: React.FC = () => {
                   <IonGrid>
                       <IonRow align-content-center>
                           <IonCol>
-                              <IonButton fill = "outline">
+                              <IonButton fill="outline" href="/historial">
                                   Historial de Cobros
                               </IonButton>
                           </IonCol>  
@@ -48,8 +58,3 @@ const Cobros: React.FC = () => {
 };
 
 export default Cobros; 
-
-/*
- - Usamos teclado específico para inputs numericos?
- - Falta Boton Comprobante
- */

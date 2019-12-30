@@ -62,3 +62,11 @@ const SideMenu = ({ history }: Props) => {
 export default withRouter(
     SideMenu
 );
+
+/*
+ * ARREGLAR 
+ * 
+ * padding
+ * cuando esta seleccionada una tab no deberia quedar azul ninguna opcion del menu, y viceversa
+ * 
+ */
