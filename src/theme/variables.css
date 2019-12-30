@@ -83,3 +83,7 @@ http://ionicframework.com/docs/theming/ */
 ion-content {
     --padding-top: 75px;
 }
+
+.usuarioActivo {
+    --padding-bottom: 10px;
+}
