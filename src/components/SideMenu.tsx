@@ -25,7 +25,7 @@ const SideMenu = ({ history }: Props) => {
         return pages.map((page: Page) => (
             <IonMenuToggle key={page.title} auto-hide="false">
                 <IonItem button
-                    color={page.title === activePage ? 'primary' : ''}
+                    color={(window.location.pathname === page.path) ? 'primary' : ''}
                     onClick={() => navigateToPage(page)}>
                     <IonIcon slot="start" icon={page.icon}></IonIcon>
                     <IonLabel>
@@ -42,7 +42,7 @@ const SideMenu = ({ history }: Props) => {
     }
 
     return (
-        <IonMenu type="overlay" contentId="main">
+        <IonMenu type="overlay" contentId="main" >
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>
@@ -50,7 +50,7 @@ const SideMenu = ({ history }: Props) => {
                     </IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent>
+            <IonContent class="SideMenu">
                 <IonList>
                     {renderMenuItems()}
                 </IonList>
@@ -66,7 +66,6 @@ export default withRouter(
 /*
  * ARREGLAR 
  * 
- * padding
  * cuando esta seleccionada una tab no deberia quedar azul ninguna opcion del menu, y viceversa
  * 
  */
