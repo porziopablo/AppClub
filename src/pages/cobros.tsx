@@ -58,3 +58,4 @@ const Cobros: React.FC = () => {
 };
 
 export default Cobros; 
+/*UTF8*/

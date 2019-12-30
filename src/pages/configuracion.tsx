@@ -11,3 +11,4 @@ const Configuracion: React.FC = () => {
 };
 
 export default Configuracion;
+/*UTF8*/

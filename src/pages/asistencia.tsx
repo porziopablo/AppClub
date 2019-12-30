@@ -12,3 +12,4 @@ const Asistencia: React.FC = () => {
 };
 
 export default Asistencia;
+/*UTF8*/

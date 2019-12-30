@@ -11,3 +11,4 @@ const Jugador: React.FC = () => {
 };
 
 export default Jugador;
+/*UTF8*/

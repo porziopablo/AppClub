@@ -11,3 +11,4 @@ const Emergencia: React.FC = () => {
 };
 
 export default Emergencia;
+/*UTF8*/

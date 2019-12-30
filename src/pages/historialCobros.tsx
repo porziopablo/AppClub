@@ -10,3 +10,4 @@ const Historial: React.FC = () => {
     );
 };
 export default Historial;
+/*UTF8*/

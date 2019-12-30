@@ -84,18 +84,18 @@ const App: React.FC = () => (
             <Route path="/about" component={About} exact={true} />
             <Route path="/historial" component={Historial} exact={true} />
         </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-                    <IonTabButton tab="jugadores" href="/jugadores">
-            <IonIcon icon={people} />
+                <IonTabBar slot="bottom">
+                    <IonTabButton tab="jugadores" href="/jugadores" selected={(window.location.pathname === "/jugadores") ?  true : false}>
+                        <IonIcon icon={people} />
                         <IonLabel>Jugadores</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="Cobros" href="/cobros">
-            <IonIcon icon={logoUsd} />
-            <IonLabel>Cobros</IonLabel>
+                    <IonTabButton tab="Cobros" href="/cobros" selected={(window.location.pathname === "/cobros") ? true : false}>
+                        <IonIcon icon={logoUsd} />
+                        <IonLabel>Cobros</IonLabel>
             </IonTabButton>
-            <IonTabButton tab="Asistencia" href="/asistencia">
+                    <IonTabButton tab="Asistencia" href="/asistencia" selected={(window.location.pathname === "/asistencia") ? true : false}>
                         <IonIcon icon={checkbox} />
-            <IonLabel>Asistencia</IonLabel>
+                        <IonLabel>Asistencia</IonLabel>
             </IonTabButton>
         </IonTabBar>
     </IonTabs>
@@ -104,3 +104,5 @@ const App: React.FC = () => (
 );
 
 export default App;
+
+/*UTF8*/

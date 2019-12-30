@@ -11,3 +11,4 @@ const OpcionesAdmin: React.FC = () => {
 };
 
 export default OpcionesAdmin;
+/*UTF8*/

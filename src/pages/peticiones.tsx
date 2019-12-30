@@ -11,3 +11,4 @@ const Peticiones: React.FC = () => {
 };
 
 export default Peticiones;
+/*UTF8*/

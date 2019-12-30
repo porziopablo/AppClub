@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonButton, IonText, IonAlert } from "@ionic/react";
+import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonGrid, IonRow, IonCol, IonButton, IonAlert, IonText } from "@ionic/react";
 import { RouteComponentProps, withRouter } from 'react-router';
 import {cog, medical, informationCircle } from 'ionicons/icons';
 
@@ -10,21 +11,20 @@ interface Page {
 }
 
 const pages: Page[] = [
-    { title: 'Emergencias', path: '/emergencia', icon: medical },
-    { title: 'Configuración', path: '/configuracion', icon: cog },
+    { title: 'Emergencia', path: '/emergencia', icon: medical },
+    { title: 'Configuracion', path: '/configuracion', icon: cog },
     { title: 'Acerca de esta App', path: '/about', icon: informationCircle }
 ];
 
 type Props = RouteComponentProps<{}>;
 
 const SideMenu = ({ history }: Props) => {
-    const [activePage, setActivePage] = useState(pages[0].title);
-
+ 
     const renderMenuItems = () => {
         return pages.map((page: Page) => (
             <IonMenuToggle key={page.title} auto-hide="false">
-                <IonItem button
-                    color={page.title === activePage ? 'primary' : ''}
+                <IonItem button 
+                    color={(window.location.pathname === page.path) ? 'primary' : ''}
                     onClick={() => navigateToPage(page)}>
                     <IonIcon slot="start" icon={page.icon}></IonIcon>
                     <IonLabel>
@@ -37,18 +37,17 @@ const SideMenu = ({ history }: Props) => {
 
     const navigateToPage = (page: Page) => {
         history.push(page.path);
-        setActivePage(page.title);
     }
 
     const usuarioActivo = () => {
         return (
-            <IonItem class = "usuarioActivo" >
+            <IonItem>
                 <IonText>
-                    <h4>Nombre Usuario</h4>
+                    <h4>Usuario Activo</h4>
                     email@email.com
                 </IonText>
             </IonItem>
-            );
+        );
     }
 
     const BotonCerrarSesion: React.FC = () => {
@@ -69,10 +68,10 @@ const SideMenu = ({ history }: Props) => {
                             buttons={['Cancelar', 'Cerrar Sesión']}
                         />
                     </IonCol>
-                </IonRow> 
+                </IonRow>
             </IonGrid>
 
-            );
+        );
     }
 
     return (
@@ -89,11 +88,12 @@ const SideMenu = ({ history }: Props) => {
                 <IonList>
                     {renderMenuItems()}
                 </IonList>
-                <BotonCerrarSesion/>
+                <BotonCerrarSesion />
             </IonContent>
         </IonMenu>
     );
 }
+
 
 export default withRouter(
     SideMenu
@@ -102,6 +102,8 @@ export default withRouter(
 /*
  * ARREGLAR 
  * 
- * cuando esta seleccionada una tab no deberia quedar azul ninguna opcion del menu, y viceversa
+ *  cuando estas en una pestaña, hija de algun elemento de esos, que no se deseleccione
  * 
  */
+
+/*UTF8*/

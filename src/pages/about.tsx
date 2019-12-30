@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { IonHeader, IonPage, IonContent } from '@ionic/react';
 
 const About: React.FC = () => {
@@ -12,3 +12,4 @@ const About: React.FC = () => {
 };
 
 export default About;
+/*UTF8*/
