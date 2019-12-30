@@ -89,11 +89,11 @@ const App: React.FC = () => (
                         <IonIcon icon={people} />
                         <IonLabel>Jugadores</IonLabel>
             </IonTabButton>
-                    <IonTabButton tab="Cobros" href="/cobros" selected={(window.location.pathname === "/jugadores") ? true : false}>
+                    <IonTabButton tab="Cobros" href="/cobros" selected={(window.location.pathname === "/cobros") ? true : false}>
                         <IonIcon icon={logoUsd} />
                         <IonLabel>Cobros</IonLabel>
             </IonTabButton>
-                    <IonTabButton tab="Asistencia" href="/asistencia" selected={(window.location.pathname === "/jugadores") ? true : false}>
+                    <IonTabButton tab="Asistencia" href="/asistencia" selected={(window.location.pathname === "/asistencia") ? true : false}>
                         <IonIcon icon={checkbox} />
                         <IonLabel>Asistencia</IonLabel>
             </IonTabButton>

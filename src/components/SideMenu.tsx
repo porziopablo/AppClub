@@ -24,7 +24,7 @@ const SideMenu = ({ history }: Props) => {
     const renderMenuItems = () => {
         return pages.map((page: Page) => (
             <IonMenuToggle key={page.title} auto-hide="false">
-                <IonItem button
+                <IonItem button 
                     color={(window.location.pathname === page.path) ? 'primary' : ''}
                     onClick={() => navigateToPage(page)}>
                     <IonIcon slot="start" icon={page.icon}></IonIcon>
