@@ -1,0 +1,43 @@
+﻿#logoClub {
+    display: block;
+    margin: 0 auto;
+}
+/*
+.label1 {
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    margin: 50px auto 0;
+}
+    */
+
+#div1 {
+    margin-top: 20px;
+}
+
+.label2 {
+    font-size: 25px;
+}
+
+#verPas {
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    margin: 20px auto 0;
+}
+
+.CB{
+    margin-left:10px;
+}
+
+#botModal {
+    display: block;
+    margin-top:50px;
+    margin-left:25%;
+    margin-right:25%;
+    
+}
+
+prueba{
+    visibility:hidden;
+}
