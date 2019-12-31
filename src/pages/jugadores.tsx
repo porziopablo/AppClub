@@ -1,15 +1,22 @@
 import {
-  IonHeader,
   IonPage,
+  IonContent,
+  IonText,
+  IonButton,
 } from '@ionic/react';
 import React from 'react';
-import './Tab1.css';
+import '../theme/jugadores.css';
 
 const Jugadores: React.FC = () => {
   return (
     <IonPage>
-      <IonHeader>
-      </IonHeader>
+          <IonContent>
+              <div id = 'textoJugadores'>
+                  <IonText>Jugadores</IonText>
+              </div> 
+              <IonButton className = "botonJugadores" fill="outline">Registrar Jugador</IonButton>
+              <IonButton className="botonJugadores" fill="outline" href="/listado">Listado</IonButton>
+          </IonContent>  
     </IonPage>
   );
 };

@@ -12,7 +12,7 @@ interface Page {
 
 const pages: Page[] = [
     { title: 'Emergencia', path: '/emergencia', icon: medical },
-    { title: 'Configuracion', path: '/configuracion', icon: cog },
+    { title: 'Configuración', path: '/configuracion', icon: cog },
     { title: 'Acerca de esta App', path: '/about', icon: informationCircle }
 ];
 
@@ -79,7 +79,7 @@ const SideMenu = ({ history }: Props) => {
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>
-                        Menu
+                        Menú
                     </IonTitle>
                 </IonToolbar>
             </IonHeader>

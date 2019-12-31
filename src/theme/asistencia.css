@@ -1,0 +1,9 @@
+#boton {
+    display: block;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 2%;
+    margin-right: 2%;
+    width: 150px;
+    height: 100px;
+}
