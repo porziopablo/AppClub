@@ -10,6 +10,8 @@ interface iJugador {
     dni: string,
     categoria: string,
     deporte: string,
+    telResponsable: string,
+    fechaNacimiento: Date
 }
 
 interface iOpcion {
@@ -18,16 +20,16 @@ interface iOpcion {
 }
 
 const jugadores: iJugador[] = [
-    { nombre: 'Ivan Aprea', dni: '12345678', categoria: '1', deporte: 'futbol' },
-    { nombre: 'Mariquena Gros', dni: '91011121', categoria: '2', deporte: 'basket' },
-    { nombre: 'Martín Casas', dni: '33333333', categoria: '3', deporte: 'futbol' },
-    { nombre: 'Pablo Porzio', dni: '44444444', categoria: '4', deporte: 'futbol' },
-    { nombre: 'Adolfo Spinelli', dni: '5', categoria: '1', deporte: 'futbol' },
-    { nombre: 'Leonel Guccione', dni: '6', categoria: '2', deporte: 'basket' },
-    { nombre: '"Bigote" Dematteis', dni: '7', categoria: '3', deporte: 'futbol' },
-    { nombre: 'Felipe Evans', dni: '8', categoria: '4', deporte: 'futbol' },
-    { nombre: 'Marito Baracus', dni: '9', categoria: '1', deporte: 'futbol' },
-    { nombre: 'Benito Mussolinni', dni: '10', categoria: '2', deporte: 'basket' },
+    { nombre: 'Ivan Aprea', dni: '12345678', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96,9,19) },
+    { nombre: 'Mariquena Gros', dni: '91011121', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Martín Casas', dni: '33333333', categoria: '3', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Pablo Porzio', dni: '44444444', categoria: '4', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Adolfo Spinelli', dni: '5', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Leonel Guccione', dni: '6', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: '"Bigote" Dematteis', dni: '7', categoria: '3', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Felipe Evans', dni: '8', categoria: '4', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Marito Baracus', dni: '9', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
+    { nombre: 'Benito Mussolinni', dni: '10', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
 ];
 
 const deportes: iOpcion[] = [
@@ -53,16 +55,14 @@ const Listado: React.FC = () => {
     const renderJugadores = () => {
         return (
             jugadores.map((jugador: iJugador) => (
-                //<Link to={{ pathname: `/listado/jugador/${jugador.dni}`, state: jugador }}>
-                <IonItem key={jugador.dni}>
-                    
-                    <IonLabel>
-                        <h2>{jugador.nombre}</h2>
-                        <h3 className = 'datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + jugador.categoria}</h3>
-                    </IonLabel>
-                   
-                </IonItem>
-                //<>
+                <Link to={`/listado/jugador/${jugador.dni}`} style={{  textDecoration: 'none' }} key={jugador.dni}>
+                    <IonItem>
+                        <IonLabel>
+                            <h2>{jugador.nombre}</h2>
+                            <h3 className = 'datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + jugador.categoria}</h3>
+                        </IonLabel>
+                    </IonItem>
+                </Link>    
             )));
     }
 

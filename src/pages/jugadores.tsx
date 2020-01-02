@@ -15,7 +15,7 @@ const Jugadores: React.FC = () => {
                   <IonText>Jugadores</IonText>
               </div> 
               <IonButton className = "botonJugadores" fill="outline">Registrar Jugador</IonButton>
-              <IonButton className="botonJugadores" fill="outline" href="/listado">Listado</IonButton>
+              <IonButton className ="botonJugadores" fill="outline" href="/listado">Listado</IonButton>
           </IonContent>  
     </IonPage>
   );
