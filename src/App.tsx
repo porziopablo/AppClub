@@ -33,6 +33,7 @@ import SignUp from './pages/signUp';
 import Usuarios from './pages/usuarios';
 import About from './pages/about';
 import Historial from './pages/historialCobros';
+import asistenciaCat from './pages/asistenciaCategoria';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -74,7 +75,7 @@ const App: React.FC = () => (
             <Route path="/" component={Home} exact={true} />
             <Route path="/emergencia" component={Emergencia} exact={true} />
             <Route path="/listado" component={Listado} exact={true} />
-            <Route path="/jugador" component={Jugador} exact={true} />
+            <Route path="/listado/jugador/:dni" component={Jugador} />
             <Route path="/configuracion" component={Configuracion} exact={true} />
             <Route path="/logIn" component={LogIn} exact={true} />
             <Route path="/peticiones" component={Peticiones} exact={true} />
@@ -83,6 +84,7 @@ const App: React.FC = () => (
             <Route path="/usuarios" component={Usuarios} exact={true} />
             <Route path="/about" component={About} exact={true} />
             <Route path="/historial" component={Historial} exact={true} />
+            <Route path="/asistenciaCat" component={asistenciaCat} exact={true} />
         </IonRouterOutlet>
                 <IonTabBar slot="bottom">
                     <IonTabButton tab="jugadores" href="/jugadores" selected={(window.location.pathname === "/jugadores") ?  true : false}>
