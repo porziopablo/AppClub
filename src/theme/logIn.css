@@ -2,21 +2,24 @@
     display: block;
     margin: 0 auto;
 }
-/*
-.label1 {
-    font-size: 20px;
-    text-align: center;
-    display: block;
-    margin: 50px auto 0;
-}
-    */
 
 #div1 {
     margin-top: 20px;
 }
 
-.label2 {
+.label-login {
     font-size: 25px;
+}
+
+.label-modal {
+    font-size: 20px;
+}
+
+.warning {
+    display: block;
+    font-weight: bolder;
+    text-align: center;
+    margin: 25px auto 0;
 }
 
 #verPas {
@@ -40,4 +43,8 @@
 
 prueba{
     visibility:hidden;
+}
+
+.login-modal{
+
 }
