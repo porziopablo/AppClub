@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader} from '@ionic/react';
+import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar} from '@ionic/react';
 import '../theme/listado.css';
 import { Link } from 'react-router-dom';
 
@@ -48,60 +48,80 @@ const categorias: iOpcion[] = [
     { nombre: '15° Mixta', value: '15' },
 ]
 
+
 /**************************/
 
-const Listado: React.FC = () => {
+const renderOpciones = (opciones: iOpcion[]) => {
+    return (
+        opciones.map((opcion: iOpcion) => (
+            <IonSelectOption value={opcion.value} key={opcion.value}>{opcion.nombre}</IonSelectOption>
+        )));
+}
 
-    const renderJugadores = () => {
+class ListadoFiltrable extends React.Component<{jugadores: iJugador[]}> {
+    state = {
+        jugadores: [],
+        jugadoresMostrados: []
+    }
+
+    handleInput = (event: CustomEvent) => {
+
+        const query = (event.target as HTMLTextAreaElement).value;
+        const jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => jugador.nombre.toLowerCase().indexOf(query) > -1)
+
+        this.setState({ jugadoresMostrados: jugadoresBuscados });
+    }
+
+    componentDidMount = () => {
+        this.setState({
+            jugadores: this.props.jugadores,
+            jugadoresMostrados: this.props.jugadores
+        })
+    }
+
+    renderJugadores = () => {
         return (
-            jugadores.map((jugador: iJugador) => (
-                <Link to={`/listado/jugador/${jugador.dni}`} style={{  textDecoration: 'none' }} key={jugador.dni}>
+            this.state.jugadoresMostrados.map((jugador: iJugador) => (
+                <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
                     <IonItem>
                         <IonLabel>
                             <h2>{jugador.nombre}</h2>
-                            <h3 className = 'datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + jugador.categoria}</h3>
+                            <h3 className='datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + jugador.categoria}</h3>
                         </IonLabel>
                     </IonItem>
-                </Link>    
+                </Link>
             )));
     }
 
-    const renderOpciones = (opciones: iOpcion[]) => {
+    render() {
         return (
-            opciones.map((opcion: iOpcion) => (
-                <IonSelectOption value={opcion.value} key={opcion.value}>{opcion.nombre}</IonSelectOption>
-            )));
-    }
-
-    const FiltroCategoria: React.FC = () => {
-        return (
-            <IonSelect interface='action-sheet' placeholder='Categoría'>
-                {renderOpciones(categorias)}
-            </IonSelect>
-            );
-    }
-
-    const FiltroDeporte: React.FC = () => {
-        return (
-            <IonSelect interface='action-sheet' placeholder='Deporte'>
-                {renderOpciones(deportes)}
-            </IonSelect>
+            <div>
+                <IonHeader>
+                    <IonItem>
+                        <IonLabel>Filtros</IonLabel>
+                        <IonSelect interface='action-sheet' placeholder='Deporte'>
+                            {renderOpciones(deportes)}
+                        </IonSelect>
+                        <IonSelect interface='action-sheet' placeholder='Categoría'>
+                            {renderOpciones(categorias)}
+                        </IonSelect>
+                    </IonItem>
+                    <IonSearchbar onIonInput={this.handleInput} placeholder="Nombre del Jugador" />
+                </IonHeader>
+                <IonList>
+                    {this.renderJugadores()}
+                </IonList>
+            </div>
         );
     }
+}
+
+const Listado: React.FC = () => {
 
     return (
         <IonPage>
             <IonContent>
-                <IonHeader>
-                    <IonItem>
-                        <IonLabel>Filtros</IonLabel>
-                        <FiltroDeporte />
-                        <FiltroCategoria />
-                    </IonItem>
-                </IonHeader>
-                <IonList>
-                    {renderJugadores()}
-                </IonList>
+                <ListadoFiltrable jugadores = {jugadores}/>
             </IonContent>
         </IonPage>
     );
@@ -110,7 +130,7 @@ const Listado: React.FC = () => {
 export default Listado;
 /*UTF8*/
 
-/* AGREGAR 
+/* AGREGAR
    - Posibilidad de deshacer filtro elegido, ver ion-chips
    - Filtros quede flotando?
  */

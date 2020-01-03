@@ -29,7 +29,6 @@ import Configuracion from './pages/configuracion';
 import LogIn from './pages/logIn';
 import OpcionesAdmin from './pages/opcionesAdmin';
 import Peticiones from './pages/peticiones';
-import SignUp from './pages/signUp';
 import Usuarios from './pages/usuarios';
 import About from './pages/about';
 import Historial from './pages/historialCobros';
@@ -83,7 +82,6 @@ const App: React.FC = () => (
             <Route path="/configuracion" component={Configuracion} exact={true} />
             <Route path="/logIn" component={LogIn} exact={true} />
             <Route path="/peticiones" component={Peticiones} exact={true} />
-            <Route path="/signUp" component={SignUp} exact={true} />
             <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />
             <Route path="/usuarios" component={Usuarios} exact={true} />
             <Route path="/about" component={About} exact={true} />
