@@ -1,0 +1,36 @@
+.label-modal {
+    font-size: 20px;
+}
+
+.warning {
+    display: block;
+    font-weight: bolder;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#verPas {
+    font-size: 20px;
+    text-align: center;
+    display: block;
+    margin: 20px auto 0;
+}
+
+.CB {
+    margin-left: 10px;
+}
+
+#botModal {
+    display: block;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+prueba {
+    visibility: hidden;
+}
+
+.login-modal {
+}
