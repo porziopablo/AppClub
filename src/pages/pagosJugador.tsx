@@ -1,4 +1,5 @@
-﻿import React from 'react';
+import React from 'react';
+import '../theme/jugadores.css';
 import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent } from '@ionic/react';
 
 interface iProfesor {
@@ -15,7 +16,7 @@ interface iFecha {
     id: string
 }
 
-interface iCobro {
+interface iPago {
     fecha: iFecha,
     profesor: iProfesor,
     monto: number,
@@ -32,26 +33,26 @@ const fechas: iFecha[] = [
     { day: 2, month: 3, year: 2020, id: "bb" }
 ];
 
-const cobros: iCobro[] = [
-    { fecha: fechas[0], profesor: profesores[0], monto: 5120 },
-    { fecha: fechas[1], profesor: profesores[1], monto: 8000 }
+const pagos: iPago[] = [
+    { fecha: fechas[1], profesor: profesores[1], monto: 100 },
+    { fecha: fechas[0], profesor: profesores[0], monto: 200 }
 ];
 
 
-const Historial: React.FC = () => {
+const pagosJugador: React.FC = () => {
 
-    const renderCobros = () => {
+    const renderPagos = () => {
         return (
-            cobros.map((cobro: iCobro) => (
-                <IonItem key={cobro.fecha.day}>
+            pagos.map((pago: iPago) => (
+                <IonItem key={pago.fecha.day}>
                     <IonLabel>
-                        <h2>{cobro.fecha.day}/{cobro.fecha.month}/{cobro.fecha.year}</h2>
+                        {pago.fecha.day}/{pago.fecha.month}/{pago.fecha.year}
                     </IonLabel>
                     <IonLabel>
-                        <h2>{cobro.profesor.nombre}</h2>
+                        <b>${pago.monto}</b> 
                     </IonLabel>
-                    <IonLabel >
-                        <h2> <b>${cobro.monto}</b> </h2>
+                    <IonLabel>
+                        cobrado por {pago.profesor.nombre}
                     </IonLabel>
                 </IonItem>
             )));
@@ -62,16 +63,16 @@ const Historial: React.FC = () => {
             <IonContent>
                 <IonHeader>
                     <IonItem>
-                        <b> Historial de cobros </b>
+                        <b> Pagos realizados </b>
                     </IonItem>
                 </IonHeader>
                 <IonList>
-                    {renderCobros()}
+                    {renderPagos()}
                 </IonList>
             </IonContent>
         </IonPage>
     );
 };
 
-export default Historial;
+export default pagosJugador;
 /*UTF8*/

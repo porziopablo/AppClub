@@ -37,6 +37,7 @@ import AsistenciaCatVer from './pages/asistenciaCategoriaV';
 import AsistenciaList from './pages/asistenciaListado';
 import AsistenciaHistJ from './pages/asistenciaHistorialJ';
 import AsistenciaHistF from './pages/asistenciaHistorialF';
+import PagosJugador from './pages/pagosJugador';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -91,6 +92,7 @@ const App: React.FC = () => (
             <Route path="/asistenciaList/:id" component={AsistenciaList} />
             <Route path="/asistenciaHistJ/:id" component={AsistenciaHistJ} />
             <Route path="/asistenciaHistF/:id" component={AsistenciaHistF} />
+            <Route path="/pagosJugador/:dni" component={PagosJugador} />
         </IonRouterOutlet>
                 <IonTabBar slot="bottom">
                     <IonTabButton tab="jugadores" href="/jugadores" selected={(window.location.pathname === "/jugadores") ?  true : false}>
