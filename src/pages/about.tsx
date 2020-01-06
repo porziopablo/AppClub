@@ -1,6 +1,5 @@
 import React from 'react';
-import { IonHeader, IonPage, IonContent, IonItem } from '@ionic/react';
-import { calendar, pin, more } from 'ionicons/icons';
+import { IonPage, IonContent, IonItem } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/about.css';
 

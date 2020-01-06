@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { IonHeader, IonPage, IonItem, IonLabel, IonContent, IonList, IonButton } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
+import '../theme/usuarios.css';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     tipo: string;
@@ -44,7 +45,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
     const renderBotones = () => {
         if (nuevos) {
             return (
-                <IonLabel>
+                <IonLabel class="botonCont">
                     <IonButton color="primary" fill="outline" size="small" slot="end">Aceptar</IonButton>
                     <IonButton color="primary" fill="outline" size="small" slot="end">Rechazar</IonButton>
                 </IonLabel>
@@ -52,7 +53,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         }
         else {
             return (
-                <IonLabel>
+                <IonLabel class="botonCont">
                     <IonButton color="primary" fill="outline" size="small" slot="end">Eliminar usuario</IonButton>
                 </IonLabel>
             );
@@ -71,7 +72,9 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 <IonList>
                     {renderProfesores()}
                 </IonList>
-                {renderBotones()}
+                <div>
+                    {renderBotones()}
+                </div>
             </IonContent>
         </IonPage>
     );

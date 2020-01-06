@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { IonHeader, IonPage, IonContent, IonButton, IonText } from '@ionic/react';
+import { IonPage, IonContent, IonButton, IonText } from '@ionic/react';
 import '../theme/jugadores.css';
 
 const OpcionesAdmin: React.FC = () => {
