@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonHeader, IonPage, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonPage, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
 import '../theme/registrarJugador.css';
 
 const RegistrarJugador: React.FC = () => {
