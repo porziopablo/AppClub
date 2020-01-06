@@ -98,7 +98,7 @@ const Jugador: React.FC<jugadorProps> = ({match}) => {
                             <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
                         </IonCol>
                         <IonCol size = '6'>
-                            <IonButton className="botonJugador" fill="outline">Pagos</IonButton>
+                            <IonButton className="botonJugador" fill="outline" href={`/pagosJugador/${jugador.dni}`}>Pagos</IonButton>
                         </IonCol>
                     </IonRow>
                     <IonRow>
