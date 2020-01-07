@@ -26,30 +26,30 @@ export interface iJugador {
     '_id': string,
     nombre: string,
     dni: number, /* ID */
-    categoria: CATEGORIAS,
-    deporte: DEPORTES[],
+    categoria: number,
+    deporte: number[],
     telResponsable: string,
-    fechaNacimiento: Date,
+    fechaNacimiento: string, /* ISO-8601 string */
     planillaMedica: string /* ruta */
 }
 
 export interface iPago {
     '_id': string,
-    fecha: Date,
-    profesor: iProfesor,
+    fecha: string, /* ISO-8601 string */
+    dniProfesor: number,
     monto: number,
-    jugador: iJugador,
+    dniJugador: number,
 }
 
 export interface iBalance {
     '_id': string,
-    fecha: Date,
+    fecha: string, /* ISO-8601 string */
     total: number
 }
 
 export interface iAsistencia {
     '_id': string,
-    categoria: CATEGORIAS,
-    fecha: Date,
-    jugadoresPresentes: iJugador[]
+    categoria: string,
+    fecha: string, /* ISO-8601 string */
+    dniJugadoresPresentes: number[]
 }
