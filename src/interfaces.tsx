@@ -27,7 +27,7 @@ export interface iJugador {
     nombre: string,
     dni: number, /* ID */
     categoria: number,
-    deporte: number[],
+    deportes: number[],
     telResponsable: string,
     fechaNacimiento: string, /* ISO-8601 string */
     planillaMedica: string /* ruta */

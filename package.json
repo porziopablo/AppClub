@@ -12,6 +12,7 @@
     "@types/react-router": "^5.1.1",
     "@types/react-router-dom": "^5.1.0",
     "ionicons": "^4.6.3",
+    "pouchdb": "^7.1.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-router": "^5.1.0",
@@ -40,5 +41,8 @@
       "last 1 safari version"
     ]
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "devDependencies": {
+    "@types/pouchdb": "^6.4.0"
+  }
 }
