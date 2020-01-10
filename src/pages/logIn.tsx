@@ -1,14 +1,18 @@
-﻿import React, { useState } from 'react';
-import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal  } from '@ionic/react';
+﻿import React, { useState, FormEvent } from 'react';
+import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
-
 
 const LogIn: React.FC = () => {
 
     const [showPass, setShowPass] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    let data
 
+    function handleSubmit(event: FormEvent) {
+        event.preventDefault();
+        data = new FormData(event.target as HTMLFormElement);
+    }
 
     return (
         <IonPage>
@@ -22,7 +26,7 @@ const LogIn: React.FC = () => {
                 </IonItem>
                 <IonItem>
                     <IonLabel position="floating"><IonText class='label-login'>Contraseña</IonText></IonLabel>
-                    <IonInput required type={(showPass===true) ? 'text' : 'password'}></IonInput>
+                    <IonInput required type={(showPass === true) ? 'text' : 'password'}></IonInput>
                 </IonItem>
                 <div id='verPas'>
                     <IonLabel >Mostrar contraseña</IonLabel>
@@ -30,38 +34,38 @@ const LogIn: React.FC = () => {
                 </div>
                 <IonButton id='botModal'>Iniciar Sesion</IonButton>
                 <IonModal isOpen={showModal}>
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <IonText class='warning'>Es obligatorio completar todos los campos.</IonText>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Nombre</IonText></IonLabel>
-                            <IonInput required type="text" ></IonInput>
+                            <IonInput name='nombre' required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Apellido</IonText></IonLabel>
-                            <IonInput required type="text" ></IonInput>
+                            <IonInput name='apellido' required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>DNI</IonText></IonLabel>
-                            <IonInput required type="number" ></IonInput>
+                            <IonInput name='dni' required type="text" min={"0"}></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Contraseña</IonText></IonLabel>
-                            <IonInput required type="password" ></IonInput>
+                            <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Confirmar contraseña</IonText></IonLabel>
-                            <IonInput required type="password" ></IonInput>
+                            <IonInput id='passConf' name='passconf' required type="password"></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Correo electronico</IonText></IonLabel>
-                            <IonInput required type="email" ></IonInput>
+                            <IonInput name='email' required type="email" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating"><IonText class='label-modal'>Confirmar correo electronico</IonText></IonLabel>
-                            <IonInput required type="email" ></IonInput>
+                            <IonInput name='emailconf' required type="email" ></IonInput>
                         </IonItem>
                         <div>
-                            <IonButton type='submit' onClick={() => setShowModal(false)} id='botModal'>Registrarse</IonButton>
+                            <IonButton type='submit' id='botModal'>Registrarse</IonButton>
                             <IonButton onClick={() => setShowModal(false)} id='botModal'>Cancelar</IonButton>
                         </div>
                     </form>
