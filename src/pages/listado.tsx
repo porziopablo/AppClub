@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar} from '@ionic/react';
+import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent} from '@ionic/react';
 import '../theme/listado.css';
 import { Link } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS } from '../interfaces';
@@ -18,6 +18,7 @@ const deportes: iOpcion[] = [
 ];
 
 const categorias: iOpcion[] = [
+    { nombre: 'Sin Filtro',      valor: 0 },
     { nombre: '1° Femenina',  valor: CATEGORIAS.primeraFemenina },
     { nombre: '1° Masculina', valor: CATEGORIAS.primeraMasculina },
     { nombre: '5°',           valor: CATEGORIAS.quinta },
@@ -69,7 +70,12 @@ class Listado extends React.Component {
     filtrarPorCategoria = (event: CustomEvent) => {
 
         const nroCat = parseInt((event.target as HTMLTextAreaElement).value);
-        const jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === nroCat));
+        let jugadoresBuscados = [];
+
+        if (nroCat !== 0) /* filtro por deporte y categoria */
+            jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === nroCat));
+        else /* filtro solo por deporte */
+            jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados));
 
         this.setState({ jugadoresMostrados: jugadoresBuscados, categoriaMostrada: nroCat });
     }
@@ -100,6 +106,23 @@ class Listado extends React.Component {
             this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
     }
 
+    actualizaLista = (event: CustomEvent) => {
+
+        let jugadoresRecibidos: iJugador[] = [];
+        const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
+
+        jugadoresDB.allDocs({ include_docs: true })
+            .then((resultado) => {
+                jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
+                this.setState({
+                    jugadores: jugadoresRecibidos,
+                    jugadoresMostrados: jugadoresRecibidos
+                });
+                setTimeout(() => { event.detail.complete() }, 500); /* para que dure un poco mas la animacion */
+            })
+            .catch(console.log); // ESTO O QUE TIRE CARTELITO O QUE ?
+    }
+
     componentDidMount = () => {
 
         let jugadoresRecibidos: iJugador[] = []; 
@@ -118,7 +141,7 @@ class Listado extends React.Component {
 
     renderJugadores = () => {
 
-        const getCategoria = (nroCat: number) => ((nroCat !== 0) ? categorias.find(cat => cat.valor === nroCat)!.nombre : '-' );
+        //const getCategoria = (nroCat: number) => ((nroCat !== 0) ? categorias.find(cat => cat.valor === nroCat)!.nombre : '-' );
 
         return (
             this.state.jugadoresMostrados.map((jugador: iJugador) => (
@@ -126,7 +149,7 @@ class Listado extends React.Component {
                     <IonItem>
                         <IonLabel>
                             <h2>{jugador.nombre}</h2>
-                            <h3 className='datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + getCategoria(jugador.categoria)}</h3>
+                            <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
                         </IonLabel>
                     </IonItem>
                 </Link>
@@ -136,19 +159,22 @@ class Listado extends React.Component {
     render() {
         return (
             <IonPage>
-                <IonContent>
-                    <IonHeader>
-                        <IonItem>
-                            <IonLabel>Filtros</IonLabel>
-                            <IonSelect cancelText = 'CANCELAR' multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
-                                {this.renderOpciones(deportes)}
-                            </IonSelect>
-                            <IonSelect cancelText='CANCELAR' placeholder='Categoría' disabled={ this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
-                                {this.renderOpciones(categorias)}
-                            </IonSelect>
-                        </IonItem>
-                        <IonSearchbar onIonInput={this.buscarJugador} placeholder="Nombre del Jugador" />
-                    </IonHeader>
+                <IonHeader>
+                    <IonItem id="filtros">
+                        <IonLabel>Filtros</IonLabel>
+                        <IonSelect cancelText="Cancelar" multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
+                            {this.renderOpciones(deportes)}
+                        </IonSelect>
+                        <IonSelect cancelText="Cancelar" placeholder='Categoría' disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
+                            {this.renderOpciones(categorias)}
+                        </IonSelect>
+                    </IonItem>
+                    <IonSearchbar onIonInput={this.buscarJugador} placeholder="Nombre o DNI del Jugador" />
+                </IonHeader>
+                <IonContent id = "contenido">
+                    <IonRefresher slot="fixed" onIonRefresh={this.actualizaLista}>
+                        <IonRefresherContent></IonRefresherContent>
+                    </IonRefresher>
                     <IonList>
                         {this.renderJugadores()}
                     </IonList>

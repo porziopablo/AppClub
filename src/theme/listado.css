@@ -4,3 +4,9 @@
 .select-disabled{
     display: none;
 }
+#filtros{
+    --padding-top: 60px;
+}
+#contenido{
+    --padding-top: 0px;
+}
