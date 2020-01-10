@@ -87,3 +87,7 @@ ion-content {
 .usuarioActivo {
     --padding-bottom: 10px;
 }
+
+#esconder{
+    visibility:hidden;
+}
