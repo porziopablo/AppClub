@@ -33,7 +33,8 @@ class Listado extends React.Component {
     state = {
         jugadores: [],
         jugadoresMostrados: [],
-        deporteMostrado: 0,
+        deportesMostrados: [],
+        categoriaMostrada: 0,
     }
 
     renderOpciones = (opciones: iOpcion[]) => {
@@ -46,7 +47,21 @@ class Listado extends React.Component {
     buscarJugador = (event: CustomEvent) => {
 
         const query = (event.target as HTMLTextAreaElement).value;
-        const jugadoresBuscados = this.state.jugadoresMostrados.filter((jugador: iJugador) => jugador.nombre.toLowerCase().indexOf(query) > -1)
+        let criterioBusqueda: Function;
+        let jugadoresBuscados;
+
+        if ((query[0] >= '0') && (query[0] <= '9')) /* busco por DNI */
+            criterioBusqueda = (jugador: iJugador): boolean => jugador.dni.toString().indexOf(query) > -1;
+        else
+            criterioBusqueda = (jugador: iJugador): boolean => jugador.nombre.toLowerCase().indexOf(query) > -1;
+
+        if (this.state.deportesMostrados.length !== 0)
+            if (this.state.categoriaMostrada !== 0) /* se filtro por Deporte y Categoria */
+                jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === this.state.categoriaMostrada && criterioBusqueda(jugador));
+            else /* se filtro por Deporte */
+                jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados) && criterioBusqueda(jugador));
+        else /* no se aplico ningun filtro */ 
+            jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => criterioBusqueda(jugador));
 
         this.setState({ jugadoresMostrados: jugadoresBuscados });
     }
@@ -54,38 +69,35 @@ class Listado extends React.Component {
     filtrarPorCategoria = (event: CustomEvent) => {
 
         const nroCat = parseInt((event.target as HTMLTextAreaElement).value);
-        const jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (jugador.deportes[0] === this.state.deporteMostrado && jugador.categoria === nroCat));
+        const jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === nroCat));
 
-        this.setState({ jugadoresMostrados: jugadoresBuscados });
+        this.setState({ jugadoresMostrados: jugadoresBuscados, categoriaMostrada: nroCat });
+    }
+
+    criterioDeporte = (jugador: iJugador, deportesBuscados: number[]) => {
+        let respuesta = true;
+        let i = 0;
+
+        if (jugador.deportes.length === deportesBuscados.length) {
+            while (respuesta && i < deportesBuscados.length) {
+                respuesta = jugador.deportes.includes(deportesBuscados[i]);
+                i++;
+            }
+        }
+        else
+            respuesta = false;
+
+        return respuesta;
     }
 
     filtrarPorDeporte = (event: any) => {
 
         const deportesBuscados: number[] = event.target.value;
 
-        function cumpleCriterio(jugador: iJugador) {
-            let respuesta = true;
-            let i = 0;
-
-            if (jugador.deportes.length === deportesBuscados.length) {
-                while (respuesta && i < deportesBuscados.length) {
-                    respuesta = jugador.deportes.includes(deportesBuscados[i]);
-                    i++;
-                } 
-            }
-            else
-                respuesta = false;
-
-            return respuesta;
-        }
-
-        if (deportesBuscados.length !== 0)         
-            if ((deportesBuscados.length === 1) && (deportesBuscados[0] !== DEPORTES.basket)) /* si basket tuviera categorias, borrar 2da parte */
-                this.setState({ jugadoresMostrados: this.state.jugadores.filter(cumpleCriterio), deporteMostrado: deportesBuscados[0] });
-            else
-                this.setState({ jugadoresMostrados: this.state.jugadores.filter(cumpleCriterio), deporteMostrado: 0 });
+        if (deportesBuscados.length !== 0)
+            this.setState({ jugadoresMostrados: this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, deportesBuscados)), deportesMostrados: deportesBuscados });
         else
-            this.setState({ jugadoresMostrados: this.state.jugadores, deporteMostrado: 0});
+            this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
     }
 
     componentDidMount = () => {
@@ -131,7 +143,7 @@ class Listado extends React.Component {
                             <IonSelect cancelText = 'CANCELAR' multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
                                 {this.renderOpciones(deportes)}
                             </IonSelect>
-                            <IonSelect cancelText='CANCELAR' placeholder='Categoría' disabled={this.state.deporteMostrado === 0} onIonChange={this.filtrarPorCategoria}>
+                            <IonSelect cancelText='CANCELAR' placeholder='Categoría' disabled={ this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
                                 {this.renderOpciones(categorias)}
                             </IonSelect>
                         </IonItem>

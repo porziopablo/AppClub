@@ -1,3 +1,6 @@
 ﻿.datos{
     color:dimgrey;
 }
+.select-disabled{
+    display: none;
+}
