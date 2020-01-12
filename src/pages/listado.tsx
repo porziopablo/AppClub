@@ -2,31 +2,29 @@
 import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent} from '@ionic/react';
 import '../theme/listado.css';
 import { Link } from 'react-router-dom';
-import { iJugador, DEPORTES, CATEGORIAS } from '../interfaces';
-import PouchDB from 'pouchdb'; 
+import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
+import BD from '../BD';
 
 interface iOpcion {
     nombre: string,
     valor:  number,
 }
 
-const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
-
 const deportes: iOpcion[] = [
-    { nombre: 'Basket', valor: DEPORTES.basket },
-    { nombre: 'Fútbol', valor: DEPORTES.futbol },
+    { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+    { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
 ];
 
 const categorias: iOpcion[] = [
     { nombre: 'Sin Filtro',      valor: 0 },
-    { nombre: '1° Femenina',  valor: CATEGORIAS.primeraFemenina },
-    { nombre: '1° Masculina', valor: CATEGORIAS.primeraMasculina },
-    { nombre: '5°',           valor: CATEGORIAS.quinta },
-    { nombre: '7° Mixta',     valor: CATEGORIAS.septima },
-    { nombre: '9° Mixta',     valor: CATEGORIAS.novena },
-    { nombre: '11° Mixta',    valor: CATEGORIAS.undecima },
-    { nombre: '13° Mixta',    valor: CATEGORIAS.decimoTercera },
-    { nombre: '15° Mixta',    valor: CATEGORIAS.decimoQuinta },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina],  valor: CATEGORIAS.primeraFemenina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta],           valor: CATEGORIAS.quinta },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima],          valor: CATEGORIAS.septima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena],           valor: CATEGORIAS.novena },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima],         valor: CATEGORIAS.undecima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera],    valor: CATEGORIAS.decimoTercera },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta],     valor: CATEGORIAS.decimoQuinta },
 ]
 
 class Listado extends React.Component {
@@ -111,7 +109,7 @@ class Listado extends React.Component {
         let jugadoresRecibidos: iJugador[] = [];
         const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
 
-        jugadoresDB.allDocs({ include_docs: true })
+        BD.getJugadoresDB().allDocs({ include_docs: true })
             .then((resultado) => {
                 jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
                 this.setState({
@@ -128,7 +126,7 @@ class Listado extends React.Component {
         let jugadoresRecibidos: iJugador[] = []; 
         const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
 
-        jugadoresDB.allDocs({ include_docs: true })
+        BD.getJugadoresDB().allDocs({ include_docs: true })
             .then((resultado) => {
                 jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
                 this.setState({
@@ -140,8 +138,6 @@ class Listado extends React.Component {
     }
 
     renderJugadores = () => {
-
-        //const getCategoria = (nroCat: number) => ((nroCat !== 0) ? categorias.find(cat => cat.valor === nroCat)!.nombre : '-' );
 
         return (
             this.state.jugadoresMostrados.map((jugador: iJugador) => (

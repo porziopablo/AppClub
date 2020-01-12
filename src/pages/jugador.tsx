@@ -3,10 +3,8 @@ import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, I
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugadores.css';
-import { iJugador, DEPORTES } from '../interfaces';
-import PouchDB from 'pouchdb'; 
-
-const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
+import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
+import BD from '../BD';
 
 interface jugadorProps extends RouteComponentProps<{
     dni: string,
@@ -34,9 +32,9 @@ const BotonEliminarJugador: React.FC = () => {
 
 class Jugador extends React.Component<jugadorProps> {
 
-    state: {jugador: iJugador} = { /* jugador por defecto */
+    state: {jugador: iJugador} = { 
 
-        jugador: {
+        jugador: {              /* jugador por defecto */
             '_id': '0',
             nombre: ' ',
             dni: 0,
@@ -50,7 +48,7 @@ class Jugador extends React.Component<jugadorProps> {
 
     componentDidMount = () => {
 
-        jugadoresDB.get(this.props.match.params.dni)
+        BD.getJugadoresDB().get(this.props.match.params.dni)
             .then((doc) => { this.setState({ jugador: doc }) })
             .catch(console.log);
     }
@@ -60,17 +58,27 @@ class Jugador extends React.Component<jugadorProps> {
         return new Date(stringOriginal).toLocaleDateString('es-AR');
     }
 
+    renderDeportes = (deportes: number[]): string => {
+
+        let respuesta = '';
+
+        for (let i = 0; i < (deportes.length - 1); i++)
+            respuesta = respuesta + NOMBRE_DEPORTES[deportes[i]] + ', ';
+
+        respuesta += NOMBRE_DEPORTES[deportes[deportes.length - 1]]; /* ultimo deporte no lleva coma al final */
+
+        return respuesta;
+    }
+
     renderCategoria = () => {
 
         let respuesta = null;
-
-        const categorias = ['1° Femenina', '1° Masculina', '5°', '7° Mixta', '9° Mixta', '11° Mixta', '13° Mixta', '15° Mixta'] 
 
         if (this.state.jugador.deportes.includes(DEPORTES.futbol))
             respuesta = (
                 <IonItem>
                     <IonLabel>Categoría Fútbol</IonLabel>
-                    <h4>{categorias[this.state.jugador.categoria - 1]}</h4>
+                    <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
                 </IonItem>
             );
 
@@ -94,8 +102,8 @@ class Jugador extends React.Component<jugadorProps> {
                         <h4>{this.formatearFecha(this.state.jugador.fechaNacimiento)}</h4>
                     </IonItem>
                     <IonItem>
-                        <IonLabel>Deporte</IonLabel>
-                        <h4>{}</h4>
+                        <IonLabel>{(this.state.jugador.deportes.length === 1)? 'Deporte' : 'Deportes'}</IonLabel>
+                        <h4>{this.renderDeportes(this.state.jugador.deportes)}</h4>
                     </IonItem>
                     {this.renderCategoria()}
                     <IonItem>
@@ -130,3 +138,9 @@ class Jugador extends React.Component<jugadorProps> {
 }
 
 export default Jugador;
+
+
+/*
+ - boton llamada funcional
+ - botones editar, eliminar, planilla medica
+ */

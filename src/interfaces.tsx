@@ -53,3 +53,7 @@ export interface iAsistencia {
     fecha: string, /* ISO-8601 string */
     dniJugadoresPresentes: number[]
 }
+
+export const NOMBRE_DEPORTES: string[] = ['','Basket', 'Fútbol']; /* [0] === '' para que el resto coincida con ENUMS */
+
+export const NOMBRE_CAT_FUTBOL: string[] = ['','1° Femenina', '1° Masculina', '5°', '7° Mixta', '9° Mixta', '11° Mixta', '13° Mixta', '15° Mixta'];
