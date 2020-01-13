@@ -1,0 +1,10 @@
+﻿.native-input.sc-ion-input-md[type = "text"] {
+    text-align:end;
+}
+.native-input.sc-ion-input-md {
+    font-size: 20px;
+}
+.botonJugador {
+    display: block;
+}
+

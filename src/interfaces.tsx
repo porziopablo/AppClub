@@ -30,7 +30,7 @@ export interface iJugador {
     deportes: number[],
     telResponsable: string,
     fechaNacimiento: string, /* ISO-8601 string */
-    planillaMedica: string /* ruta */
+    planillaMedica: string, /* ruta */
 }
 
 export interface iPago {
