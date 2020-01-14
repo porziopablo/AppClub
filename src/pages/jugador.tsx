@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol } from '@ionic/react';
+import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
-import '../theme/jugadores.css';
+import '../theme/jugador.css';
 import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
 import BD from '../BD';
 
 interface jugadorProps extends RouteComponentProps<{
     dni: string,
-}> { }
+}> { };
+
+interface iState {
+
+    jugador: iJugador,
+    jugadorTemp: iJugador,
+    isReadOnly: boolean,
+};
 
 const BotonEliminarJugador: React.FC = () => {
 
@@ -16,9 +23,9 @@ const BotonEliminarJugador: React.FC = () => {
 
     return (
         <div>
-            <IonButton className = "botonJugador" fill="outline" color = "danger" onClick={() => { setShowAlert(true) }}>
+            <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { setShowAlert(true) }}>
                 Eliminar
-                </IonButton>
+            </IonButton>
             <IonAlert
                 isOpen={showAlert}
                 onDidDismiss={() => setShowAlert(false)}
@@ -28,28 +35,32 @@ const BotonEliminarJugador: React.FC = () => {
             />
         </div>
     );
-}
+};
+
+const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
+    '_id': '0',
+    nombre: ' ',
+    dni: 0,
+    categoria: 0,
+    deportes: [],
+    telResponsable: '0',
+    fechaNacimiento: '2013-09-19T17:00:00.000',
+    planillaMedica: ' '
+};
 
 class Jugador extends React.Component<jugadorProps> {
 
-    state: {jugador: iJugador} = { 
+    state: iState = {
 
-        jugador: {              /* jugador por defecto */
-            '_id': '0',
-            nombre: ' ',
-            dni: 0,
-            categoria: 0,
-            deportes: [],
-            telResponsable: '0',
-            fechaNacimiento: '2013-09-19T17:00:00.000',
-            planillaMedica: ' '
-        },
+        jugador: jugadorPorDefecto,
+        jugadorTemp: jugadorPorDefecto,
+        isReadOnly: true,
     }
 
     componentDidMount = () => {
 
         BD.getJugadoresDB().get(this.props.match.params.dni)
-            .then((doc) => { this.setState({ jugador: doc }) })
+            .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
             .catch(console.log);
     }
 
@@ -85,13 +96,59 @@ class Jugador extends React.Component<jugadorProps> {
         return respuesta;
     }
 
+    //cancelarEdicion = () => {
+
+    //    this.setState({ jugadorTemporal: this.state.jugador, isReadOnly: true });
+    //}
+
+    renderBotonCancelar = () => {
+
+        let respuesta = null;
+
+        if (!this.state.isReadOnly)
+            respuesta = (
+                <IonCol size='4'>
+                    <IonButton className="botonJugador" fill="outline" href={`/listado/jugador/${this.state.jugador.dni}`} >Cancelar</IonButton>
+                </IonCol>
+            );
+
+        return respuesta;
+    }
+
+    guardarNuevoNombre = (event: any) => {
+
+        const jugador: iJugador = this.state.jugadorTemp;
+
+        jugador.nombre = event.target.value;
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    guardarNuevoTelefono = (event: any) => {
+
+        const jugador: iJugador = this.state.jugadorTemp;
+
+        jugador.telResponsable = event.target.value;
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    actualizarJugador = () => {
+
+        BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
+            .then(console.log)
+            .catch(console.log);
+
+        this.setState({ jugador: this.state.jugadorTemp, isReadOnly: true });
+    }
+
     render() {
         return (
             <IonPage>
                 <IonContent>
                     <IonItem>
                         <IonLabel>Nombre</IonLabel>
-                        <h4>{this.state.jugador.nombre}</h4>
+                        <IonInput type="text" value={this.state.jugador.nombre} readonly={this.state.isReadOnly} clearInput={true} minlength={1} inputMode="text" onIonInput={this.guardarNuevoNombre}/>
                     </IonItem>
                     <IonItem>
                         <IonLabel>DNI</IonLabel>
@@ -111,7 +168,7 @@ class Jugador extends React.Component<jugadorProps> {
                         <IonButton size="default" color="success" fill="outline"><IonIcon icon={call} /></IonButton>
                     </IonItem>
                     <IonItem>
-                        <h4>{this.state.jugador.telResponsable}</h4>
+                        <IonInput type="tel" value={this.state.jugador.telResponsable} readonly={this.state.isReadOnly} clearInput={true} inputMode="tel" minlength={1} onIonInput={this.guardarNuevoTelefono}/>
                     </IonItem>
                     <IonGrid>
                         <IonRow>
@@ -123,10 +180,15 @@ class Jugador extends React.Component<jugadorProps> {
                             </IonCol>
                         </IonRow>
                         <IonRow>
-                            <IonCol size='6'>
-                                <IonButton className="botonJugador" fill="outline">Editar</IonButton>
+                            <IonCol size={(this.state.isReadOnly)? '6' : '4'}>
+                                {
+                                    (this.state.isReadOnly) ?
+                                        <IonButton className="botonJugador" fill="outline" onClick={() => this.setState({ isReadOnly: false })}>Editar</IonButton> :
+                                        <IonButton className="botonJugador" fill="outline" onClick={this.actualizarJugador}>Guardar</IonButton>
+                                }
                             </IonCol>
-                            <IonCol size='6'>
+                            {this.renderBotonCancelar()}
+                            <IonCol size={(this.state.isReadOnly) ? '6' : '4'}>
                                 <BotonEliminarJugador />
                             </IonCol>
                         </IonRow>
@@ -143,4 +205,8 @@ export default Jugador;
 /*
  - boton llamada funcional
  - botones editar, eliminar, planilla medica
+ - VARIOS TELEFONOS??
+ - VALIDACION DATOS?
+ - DNI EDITABLE?
+ - BORRO PAGOS SI ELIMINO A UN JUGADOR?
  */

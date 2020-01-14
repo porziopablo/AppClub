@@ -1,6 +1,7 @@
-﻿import PouchDB from 'pouchdb'; 
+import PouchDB from 'pouchdb'; 
 import Find from 'pouchdb-find';
 PouchDB.plugin(Find);
+PouchDB.plugin(require('pouchdb-upsert'));
 
 class BaseDatos {
 
