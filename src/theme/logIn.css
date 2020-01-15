@@ -11,8 +11,18 @@
     font-size: 25px;
 }
 
+.label-login-warning {
+    color: red;
+    font-size: 25px;
+}
+
 .label-modal {
     font-size: 20px;
+}
+
+.label-modal-warning {
+    font-size: 20px;
+    color:red;
 }
 
 .warning {
@@ -33,18 +43,21 @@
     margin-left:10px;
 }
 
-#botModal {
+
+.botLog {
     display: block;
-    margin-top:50px;
-    margin-left:25%;
-    margin-right:25%;
-    
+    margin-top: 50px;
+    margin-left: 25%;
+    margin-right: 25%;
 }
 
-prueba{
-    visibility:hidden;
+.regError{
+    display:block;
+    color:red;
+    font-size:15px;
+    padding-left: 20px;
 }
 
-.login-modal{
-
+.esconder {
+    display: none;
 }

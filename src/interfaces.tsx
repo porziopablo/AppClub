@@ -17,7 +17,7 @@ export enum DEPORTES {
 export interface iProfesor {
     '_id': string,
     nombre: string,
-    dni: number, /* ID */
+    dni: string, /* ID */
     email: string,
     pass: string,
 }
@@ -36,9 +36,9 @@ export interface iJugador {
 export interface iPago {
     '_id': string,
     fecha: string, /* ISO-8601 string */
-    dniProfesor: number,
+    dniProfesor: string,
     monto: number,
-    dniJugador: number,
+    dniJugador: string,
 }
 
 export interface iBalance {
@@ -51,7 +51,7 @@ export interface iAsistencia {
     '_id': string,
     categoria: string,
     fecha: string, /* ISO-8601 string */
-    dniJugadoresPresentes: number[]
+    dniJugadoresPresentes: string[]
 }
 
 export const NOMBRE_DEPORTES: string[] = ['','Basket', 'Fútbol']; /* [0] === '' para que el resto coincida con ENUMS */
