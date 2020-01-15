@@ -25,7 +25,7 @@ export interface iProfesor {
 export interface iJugador {
     '_id': string,
     nombre: string,
-    dni: number, /* ID */
+    dni: string, /* ID */
     categoria: number,
     deportes: number[],
     telResponsable: string,

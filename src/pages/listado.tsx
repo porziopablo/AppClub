@@ -50,7 +50,7 @@ class Listado extends React.Component {
         let jugadoresBuscados;
 
         if ((query[0] >= '0') && (query[0] <= '9')) /* busco por DNI */
-            criterioBusqueda = (jugador: iJugador): boolean => jugador.dni.toString().indexOf(query) > -1;
+            criterioBusqueda = (jugador: iJugador): boolean => jugador.dni.indexOf(query) > -1;
         else
             criterioBusqueda = (jugador: iJugador): boolean => jugador.nombre.toLowerCase().indexOf(query) > -1;
 

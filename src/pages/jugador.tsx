@@ -40,7 +40,7 @@ const BotonEliminarJugador: React.FC = () => {
 const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
     '_id': '0',
     nombre: ' ',
-    dni: 0,
+    dni: '0',
     categoria: 0,
     deportes: [],
     telResponsable: '0',
@@ -96,11 +96,6 @@ class Jugador extends React.Component<jugadorProps> {
         return respuesta;
     }
 
-    //cancelarEdicion = () => {
-
-    //    this.setState({ jugadorTemporal: this.state.jugador, isReadOnly: true });
-    //}
-
     renderBotonCancelar = () => {
 
         let respuesta = null;
@@ -108,7 +103,11 @@ class Jugador extends React.Component<jugadorProps> {
         if (!this.state.isReadOnly)
             respuesta = (
                 <IonCol size='4'>
-                    <IonButton className="botonJugador" fill="outline" href={`/listado/jugador/${this.state.jugador.dni}`} >Cancelar</IonButton>
+                    <IonButton
+                        className="botonJugador"
+                        fill="outline"
+                        onClick={() => { this.setState({ jugadorTemp: this.state.jugador, isReadOnly: true }) }}
+                    >Cancelar</IonButton>
                 </IonCol>
             );
 
@@ -117,18 +116,32 @@ class Jugador extends React.Component<jugadorProps> {
 
     guardarNuevoNombre = (event: any) => {
 
-        const jugador: iJugador = this.state.jugadorTemp;
-
-        jugador.nombre = event.target.value;
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: event.target.value,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
 
         this.setState({ jugadorTemp: jugador });
     }
 
     guardarNuevoTelefono = (event: any) => {
 
-        const jugador: iJugador = this.state.jugadorTemp;
-
-        jugador.telResponsable = event.target.value;
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: event.target.value,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
 
         this.setState({ jugadorTemp: jugador });
     }
@@ -148,7 +161,14 @@ class Jugador extends React.Component<jugadorProps> {
                 <IonContent>
                     <IonItem>
                         <IonLabel>Nombre</IonLabel>
-                        <IonInput type="text" value={this.state.jugador.nombre} readonly={this.state.isReadOnly} clearInput={true} minlength={1} inputMode="text" onIonInput={this.guardarNuevoNombre}/>
+                        <IonInput
+                            type="text" value={(this.state.isReadOnly) ? this.state.jugador.nombre : this.state.jugadorTemp.nombre}
+                            readonly={this.state.isReadOnly}
+                            clearInput={true}
+                            minlength={1}
+                            inputMode="text"
+                            onIonInput={this.guardarNuevoNombre}
+                        />
                     </IonItem>
                     <IonItem>
                         <IonLabel>DNI</IonLabel>
@@ -159,7 +179,7 @@ class Jugador extends React.Component<jugadorProps> {
                         <h4>{this.formatearFecha(this.state.jugador.fechaNacimiento)}</h4>
                     </IonItem>
                     <IonItem>
-                        <IonLabel>{(this.state.jugador.deportes.length === 1)? 'Deporte' : 'Deportes'}</IonLabel>
+                        <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
                         <h4>{this.renderDeportes(this.state.jugador.deportes)}</h4>
                     </IonItem>
                     {this.renderCategoria()}
@@ -168,7 +188,15 @@ class Jugador extends React.Component<jugadorProps> {
                         <IonButton size="default" color="success" fill="outline"><IonIcon icon={call} /></IonButton>
                     </IonItem>
                     <IonItem>
-                        <IonInput type="tel" value={this.state.jugador.telResponsable} readonly={this.state.isReadOnly} clearInput={true} inputMode="tel" minlength={1} onIonInput={this.guardarNuevoTelefono}/>
+                        <IonInput
+                            type="tel"
+                            value={(this.state.isReadOnly) ? this.state.jugador.telResponsable : this.state.jugadorTemp.telResponsable}
+                            readonly={this.state.isReadOnly}
+                            clearInput={true}
+                            inputMode="tel"
+                            minlength={1}
+                            onIonInput={this.guardarNuevoTelefono}
+                        />
                     </IonItem>
                     <IonGrid>
                         <IonRow>
@@ -180,7 +208,7 @@ class Jugador extends React.Component<jugadorProps> {
                             </IonCol>
                         </IonRow>
                         <IonRow>
-                            <IonCol size={(this.state.isReadOnly)? '6' : '4'}>
+                            <IonCol size={(this.state.isReadOnly) ? '6' : '4'}>
                                 {
                                     (this.state.isReadOnly) ?
                                         <IonButton className="botonJugador" fill="outline" onClick={() => this.setState({ isReadOnly: false })}>Editar</IonButton> :
@@ -204,9 +232,10 @@ export default Jugador;
 
 /*
  - boton llamada funcional
- - botones editar, eliminar, planilla medica
+ - botones eliminar, planilla medica
  - VARIOS TELEFONOS??
  - VALIDACION DATOS?
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?
+ - DESACTIVAR BOTONES SI ESTOY EN MODO EDITAR
  */
