@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput } from '@ionic/react';
-import { RouteComponentProps } from 'react-router';
+import React from 'react';
+import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
+import { RouteComponentProps} from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
 import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
@@ -15,26 +15,7 @@ interface iState {
     jugador: iJugador,
     jugadorTemp: iJugador,
     isReadOnly: boolean,
-};
-
-const BotonEliminarJugador: React.FC = () => {
-
-    const [showAlert, setShowAlert] = useState(false);
-
-    return (
-        <div>
-            <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { setShowAlert(true) }}>
-                Eliminar
-            </IonButton>
-            <IonAlert
-                isOpen={showAlert}
-                onDidDismiss={() => setShowAlert(false)}
-                header={'¿Estás seguro que quieres eliminar este jugador?'}
-                subHeader={'Esta acción no puede deshacerse.'}
-                buttons={['Cancelar', 'Eliminar']}
-            />
-        </div>
-    );
+    showAlert: boolean,
 };
 
 const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
@@ -50,11 +31,18 @@ const jugadorPorDefecto: iJugador = {              /* valores por defecto para i
 
 class Jugador extends React.Component<jugadorProps> {
 
-    state: iState = {
+    state: iState; 
 
-        jugador: jugadorPorDefecto,
-        jugadorTemp: jugadorPorDefecto,
-        isReadOnly: true,
+    constructor(props: jugadorProps) {
+
+        super(props);
+        this.state = {
+
+            jugador: jugadorPorDefecto,
+            jugadorTemp: jugadorPorDefecto,
+            isReadOnly: true,
+            showAlert: false
+        }
     }
 
     componentDidMount = () => {
@@ -64,14 +52,10 @@ class Jugador extends React.Component<jugadorProps> {
             .catch(console.log);
     }
 
-    formatearFecha = (stringOriginal: string): string => {
-
-        return new Date(stringOriginal).toLocaleDateString('es-AR');
-    }
-
-    renderDeportes = (deportes: number[]): string => {
+    renderDeportes = (): string => {
 
         let respuesta = '';
+        const deportes = this.state.jugador.deportes;
 
         for (let i = 0; i < (deportes.length - 1); i++)
             respuesta = respuesta + NOMBRE_DEPORTES[deportes[i]] + ', ';
@@ -91,24 +75,6 @@ class Jugador extends React.Component<jugadorProps> {
                     <IonLabel>Categoría Fútbol</IonLabel>
                     <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
                 </IonItem>
-            );
-
-        return respuesta;
-    }
-
-    renderBotonCancelar = () => {
-
-        let respuesta = null;
-
-        if (!this.state.isReadOnly)
-            respuesta = (
-                <IonCol size='4'>
-                    <IonButton
-                        className="botonJugador"
-                        fill="outline"
-                        onClick={() => { this.setState({ jugadorTemp: this.state.jugador, isReadOnly: true }) }}
-                    >Cancelar</IonButton>
-                </IonCol>
             );
 
         return respuesta;
@@ -146,6 +112,46 @@ class Jugador extends React.Component<jugadorProps> {
         this.setState({ jugadorTemp: jugador });
     }
 
+    guardarFechaNacimiento = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: event.target.value.split('T')[0],
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    guardarDeportes = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: event.target.value,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    eliminarJugador = () => {
+
+        BD.getJugadoresDB().get(this.state.jugador.dni)
+            .then((doc) => BD.getJugadoresDB().remove(doc))
+            .then((resultado) => { console.log(resultado); this.props.history.push('/jugadores') })
+            .catch(console.log);
+    }
+
     actualizarJugador = () => {
 
         BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
@@ -153,6 +159,19 @@ class Jugador extends React.Component<jugadorProps> {
             .catch(console.log);
 
         this.setState({ jugador: this.state.jugadorTemp, isReadOnly: true });
+    } 
+
+    renderSelectDeportes = () => {
+
+        const deportes = [
+            { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+            { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
+        ];
+
+        return (
+            deportes.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
     }
 
     render() {
@@ -176,12 +195,32 @@ class Jugador extends React.Component<jugadorProps> {
                     </IonItem>
                     <IonItem>
                         <IonLabel>Fecha de Nacimiento</IonLabel>
-                        <h4>{this.formatearFecha(this.state.jugador.fechaNacimiento)}</h4>
+                        <IonDatetime
+                            displayFormat="DD/MM/YYYY"
+                            pickerFormat="DD/MMM/YYYY"
+                            monthShortNames={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
+                            max={new Date().toISOString().split('T')[0]}
+                            value={(this.state.isReadOnly) ? this.state.jugador.fechaNacimiento : this.state.jugadorTemp.fechaNacimiento}
+                            readonly={this.state.isReadOnly}
+                            cancelText="Cancelar"
+                            doneText="OK"
+                            onIonChange={this.guardarFechaNacimiento}
+                        />
                     </IonItem>
-                    <IonItem>
-                        <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
-                        <h4>{this.renderDeportes(this.state.jugador.deportes)}</h4>
-                    </IonItem>
+                    {
+                        (this.state.isReadOnly) ?
+                            <IonItem>
+                                <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
+                                <h4>{this.renderDeportes()}</h4>
+                            </IonItem>
+                        :
+                            <IonItem>
+                                <IonLabel>Deportes</IonLabel>
+                                <IonSelect multiple={true} cancelText="Cancelar" onIonChange={this.guardarDeportes}>
+                                    {this.renderSelectDeportes()}
+                                </IonSelect>
+                            </IonItem>
+                    }
                     {this.renderCategoria()}
                     <IonItem>
                         <IonLabel>Teléfono del Responsable</IonLabel>
@@ -199,25 +238,53 @@ class Jugador extends React.Component<jugadorProps> {
                         />
                     </IonItem>
                     <IonGrid>
-                        <IonRow>
+                        <IonRow hidden={!this.state.isReadOnly}>
                             <IonCol size='6'>
                                 <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
                             </IonCol>
                             <IonCol size='6'>
-                                <IonButton className="botonJugador" fill="outline" href={`/pagosJugador/${this.state.jugador.dni}`}>Pagos</IonButton>
+                                <IonButton
+                                    className="botonJugador"
+                                    fill="outline"
+                                    href={`/pagosJugador/${this.state.jugador.dni}`}
+                                >Pagos</IonButton>
                             </IonCol>
                         </IonRow>
                         <IonRow>
-                            <IonCol size={(this.state.isReadOnly) ? '6' : '4'}>
+                            <IonCol size='6'>
                                 {
                                     (this.state.isReadOnly) ?
-                                        <IonButton className="botonJugador" fill="outline" onClick={() => this.setState({ isReadOnly: false })}>Editar</IonButton> :
-                                        <IonButton className="botonJugador" fill="outline" onClick={this.actualizarJugador}>Guardar</IonButton>
+                                        <IonButton
+                                            className="botonJugador"
+                                            fill="outline"
+                                            onClick={() => this.setState({ isReadOnly: false })}
+                                        >Editar</IonButton>
+                                    :
+                                        <IonButton
+                                            className="botonJugador"
+                                            fill="outline"
+                                            onClick={this.actualizarJugador}
+                                        >Guardar</IonButton>
                                 }
                             </IonCol>
-                            {this.renderBotonCancelar()}
-                            <IonCol size={(this.state.isReadOnly) ? '6' : '4'}>
-                                <BotonEliminarJugador />
+                            <IonCol hidden={this.state.isReadOnly} size='6'>
+                                <IonButton
+                                    className="botonJugador"
+                                    fill="outline"
+                                    onClick={() => { this.setState({ jugadorTemp: this.state.jugador, isReadOnly: true }) }}
+                                >Cancelar</IonButton>
+                            </IonCol>
+                            <IonCol hidden={!this.state.isReadOnly} size='6'>
+                                <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { this.setState({ showAlert: true }) }}>
+                                    Eliminar
+                                </IonButton>
+                                <IonAlert
+                                    isOpen={this.state.showAlert}
+                                    onDidDismiss={() => { this.setState({ showAlert: false }) }}
+                                    header={'¿Estás seguro que quieres eliminar este jugador?'}
+                                    subHeader={'Esta acción no puede deshacerse.'}
+                                    buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarJugador }]}
+                                />
                             </IonCol>
                         </IonRow>
                     </IonGrid>
@@ -232,10 +299,13 @@ export default Jugador;
 
 /*
  - boton llamada funcional
- - botones eliminar, planilla medica
- - VARIOS TELEFONOS??
+ - botones planilla medica
  - VALIDACION DATOS?
+ - boton volver atras
+ - como hacer que al eliminar jugador y volver al listado, este se actualice automaticamente
+ 
+ 
+ - VARIOS TELEFONOS??
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?
- - DESACTIVAR BOTONES SI ESTOY EN MODO EDITAR
  */

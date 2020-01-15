@@ -4,6 +4,9 @@
 .native-input.sc-ion-input-md {
     font-size: 20px;
 }
+ion-datetime {
+    font-size: 20px;
+}
 .botonJugador {
     display: block;
 }
