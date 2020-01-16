@@ -45,7 +45,7 @@ class Listado extends React.Component {
 
     buscarJugador = (event: CustomEvent) => {
 
-        const query = (event.target as HTMLTextAreaElement).value;
+        const query = (event.target as HTMLTextAreaElement).value.toLowerCase();
         let criterioBusqueda: Function;
         let jugadoresBuscados;
 

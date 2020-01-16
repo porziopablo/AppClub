@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput, IonDatetime, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { RouteComponentProps} from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
@@ -16,6 +16,12 @@ interface iState {
     jugadorTemp: iJugador,
     isReadOnly: boolean,
     showAlert: boolean,
+    toastParams: {
+        showToast: boolean,
+        showCancel: boolean,
+        volverCuandoCancela: boolean,
+        toastMessage: string
+    }
 };
 
 const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
@@ -41,7 +47,13 @@ class Jugador extends React.Component<jugadorProps> {
             jugador: jugadorPorDefecto,
             jugadorTemp: jugadorPorDefecto,
             isReadOnly: true,
-            showAlert: false
+            showAlert: false,
+            toastParams: {
+                showToast: false,
+                showCancel: false,
+                volverCuandoCancela: false,
+                toastMessage: ""
+            }
         }
     }
 
@@ -49,7 +61,7 @@ class Jugador extends React.Component<jugadorProps> {
 
         BD.getJugadoresDB().get(this.props.match.params.dni)
             .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
-            .catch(console.log);
+            .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: true, volverCuandoCancela: true, toastMessage: "No se pudo cargar el perfil del jugador." } }) });
     }
 
     renderDeportes = (): string => {
@@ -148,17 +160,34 @@ class Jugador extends React.Component<jugadorProps> {
 
         BD.getJugadoresDB().get(this.state.jugador.dni)
             .then((doc) => BD.getJugadoresDB().remove(doc))
-            .then((resultado) => { console.log(resultado); this.props.history.push('/jugadores') })
-            .catch(console.log);
+            .then(() => {
+                this.setState({ toastParams: { showToast: true, toastMessage: "Perfil eliminado." } });
+                this.props.history.push('/jugadores')
+            })
+            .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "No se pudo eliminar el perfil del jugador." } }) });
     }
 
     actualizarJugador = () => {
 
-        BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
-            .then(console.log)
-            .catch(console.log);
+        const nombre = this.state.jugadorTemp.nombre;
 
-        this.setState({ jugador: this.state.jugadorTemp, isReadOnly: true });
+        if (this.state.jugadorTemp.deportes.length < 1)
+            this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "Debe seleccionar al menos un deporte." } })
+        else if (! /^[A-Za-zÀ-ÖØ-öø-ÿ]+( [A-Za-zÀ-ÖØ-öø-ÿ']+)*$/.test(nombre))
+            this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
+        else 
+            BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
+                .then(() => {
+                    this.setState({
+                        jugador: this.state.jugadorTemp,
+                        isReadOnly: true,
+                        toastParams: {
+                            showToast: true,
+                            toastMessage: "Perfil actualizado."
+                        }
+                    });
+                })
+                .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: false, toastMessage: "No se pudo actualizar el perfil del jugador." } }) });
     } 
 
     renderSelectDeportes = () => {
@@ -177,7 +206,19 @@ class Jugador extends React.Component<jugadorProps> {
     render() {
         return (
             <IonPage>
-                <IonContent>
+                <IonContent className="vistaJugador">
+                    <IonToast
+                        isOpen={this.state.toastParams.showToast}
+                        onDidDismiss={() => this.setState({ toastParams: { showToast: false, showCancel: false, volverCuandoCancela: false } })}
+                        message={this.state.toastParams.toastMessage}
+                        color={(this.state.toastParams.showCancel) ? "danger" : "success"}
+                        duration={(this.state.toastParams.showCancel) ? 0 : 1000}
+                        buttons={(this.state.toastParams.showCancel) ?
+                                    [{ text: 'CERRAR', handler: () => { if (this.state.toastParams.volverCuandoCancela) this.props.history.push("/listado") } }]
+                                :
+                                    []
+                                }
+                    />
                     <IonItem>
                         <IonLabel>Nombre</IonLabel>
                         <IonInput
@@ -187,6 +228,7 @@ class Jugador extends React.Component<jugadorProps> {
                             minlength={1}
                             inputMode="text"
                             onIonInput={this.guardarNuevoNombre}
+                            id="inputNombre"
                         />
                     </IonItem>
                     <IonItem>
@@ -237,7 +279,7 @@ class Jugador extends React.Component<jugadorProps> {
                             onIonInput={this.guardarNuevoTelefono}
                         />
                     </IonItem>
-                    <IonGrid>
+                    <IonGrid hidden={this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0}>
                         <IonRow hidden={!this.state.isReadOnly}>
                             <IonCol size='6'>
                                 <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
@@ -299,13 +341,15 @@ export default Jugador;
 
 /*
  - boton llamada funcional
- - botones planilla medica
- - VALIDACION DATOS?
  - boton volver atras
- - como hacer que al eliminar jugador y volver al listado, este se actualice automaticamente
- 
- 
- - VARIOS TELEFONOS??
+ - apellidos con apostrofes
+
+
+ - como hacer que al volver al listado, este se actualice automaticamente
+
+ - PLANILLA MEDICA 
+ - VALIDAR TELEFONO
+ - VARIOS TELEFONOS? 
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?
  */
