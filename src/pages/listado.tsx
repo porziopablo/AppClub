@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent} from '@ionic/react';
+import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent, IonToast} from '@ionic/react';
 import '../theme/listado.css';
 import { Link } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
@@ -8,6 +8,17 @@ import BD from '../BD';
 interface iOpcion {
     nombre: string,
     valor:  number,
+}
+
+interface iState {
+    jugadores: iJugador[],
+    jugadoresMostrados: iJugador[],
+    deportesMostrados: number[],
+    categoriaMostrada: number,
+    toastParams: {
+        showToast: boolean,
+        toastMessage: string
+    }
 }
 
 const deportes: iOpcion[] = [
@@ -29,11 +40,15 @@ const categorias: iOpcion[] = [
 
 class Listado extends React.Component {
 
-    state = {
+    state: iState = {
         jugadores: [],
         jugadoresMostrados: [],
         deportesMostrados: [],
         categoriaMostrada: 0,
+        toastParams: {
+            showToast: false,
+            toastMessage: ""
+        }
     }
 
     renderOpciones = (opciones: iOpcion[]) => {
@@ -94,7 +109,7 @@ class Listado extends React.Component {
         return respuesta;
     }
 
-    filtrarPorDeporte = (event: any) => {
+    filtrarPorDeporte = (event: any) => {  
 
         const deportesBuscados: number[] = event.target.value;
 
@@ -107,34 +122,31 @@ class Listado extends React.Component {
     actualizaLista = (event: CustomEvent) => {
 
         let jugadoresRecibidos: iJugador[] = [];
-        const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
+        const docToJugador = (doc: any): iJugador => doc; 
 
-        BD.getJugadoresDB().allDocs({ include_docs: true })
+        BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre'] })
             .then((resultado) => {
-                jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
-                this.setState({
-                    jugadores: jugadoresRecibidos,
-                    jugadoresMostrados: jugadoresRecibidos
-                });
+                jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
+                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
                 setTimeout(() => { event.detail.complete() }, 500); /* para que dure un poco mas la animacion */
             })
-            .catch(console.log); // ESTO O QUE TIRE CARTELITO O QUE ?
+            .catch(() => {
+                this.setState({ toastParams: { showToast: true, toastMessage: "No se pudo descargar la lista de jugadores." } });
+                setTimeout(() => { event.detail.complete() }, 500); 
+            });
     }
 
     componentDidMount = () => {
 
         let jugadoresRecibidos: iJugador[] = []; 
-        const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
+        const docToJugador = (doc: any): iJugador => doc;
 
-        BD.getJugadoresDB().allDocs({ include_docs: true })
+        BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre']})
             .then((resultado) => {
-                jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
-                this.setState({
-                    jugadores: jugadoresRecibidos,
-                    jugadoresMostrados: jugadoresRecibidos
-                });
+                jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
+                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
             })
-            .catch(console.log); // ESTO O QUE TIRE CARTELITO O QUE ?
+            .catch(() => { this.setState({ toastParams: { showToast: true, toastMessage: "No se pudo descargar la lista de jugadores." } }) });
     }
 
     renderJugadores = () => {
@@ -167,7 +179,15 @@ class Listado extends React.Component {
                     </IonItem>
                     <IonSearchbar onIonInput={this.buscarJugador} placeholder="Nombre o DNI del Jugador" />
                 </IonHeader>
-                <IonContent id = "contenido">
+                <IonContent id="contenido">
+                    <IonToast
+                        isOpen={this.state.toastParams.showToast}
+                        onDidDismiss={() => this.setState({ toastParams: { showToast: false } })}
+                        message={this.state.toastParams.toastMessage}
+                        color="danger"
+                        showCloseButton={true}
+                        closeButtonText="CERRAR"
+                    />
                     <IonRefresher slot="fixed" onIonRefresh={this.actualizaLista}>
                         <IonRefresherContent></IonRefresherContent>
                     </IonRefresher>
@@ -181,7 +201,3 @@ class Listado extends React.Component {
 }
 
 export default Listado;
-
-/* AGREGAR
-   - Posibilidad de deshacer filtro elegido, ver ion-chips
- */

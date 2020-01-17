@@ -7,6 +7,8 @@ const RegistrarJugador: React.FC = () => {
     const [showPass, setShowPass] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
+    setShowPass(showPass); setShowModal(showModal);
+
     return (
         <IonPage>
             <IonContent>

@@ -2,7 +2,6 @@
 import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
-import { iProfesor } from '../interfaces';
 import db from '../BD';
 
 

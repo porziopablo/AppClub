@@ -68,6 +68,8 @@ const asistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
             )));
     }
 
+    renderOpciones(categorias); // SOLO PARA QUE NO ROMPAN LAS BOLAS LOS WARNING X NO USARLOS
+
     return (
         <IonPage>
             <IonContent>
