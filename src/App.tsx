@@ -28,15 +28,13 @@ import Jugador from './pages/jugador';
 import Configuracion from './pages/configuracion';
 import LogIn from './pages/logIn';
 import OpcionesAdmin from './pages/opcionesAdmin';
-import Peticiones from './pages/peticiones';
 import Usuarios from './pages/usuarios';
 import About from './pages/about';
 import Historial from './pages/historialCobros';
 import AsistenciaCatTomar from './pages/asistenciaCategoriaT';
 import AsistenciaCatVer from './pages/asistenciaCategoriaV';
 import AsistenciaList from './pages/asistenciaListado';
-import AsistenciaHistJ from './pages/asistenciaHistorialJ';
-import AsistenciaHistF from './pages/asistenciaHistorialF';
+import AsistenciaHist from './pages/asistenciaHistorial';
 import PagosJugador from './pages/pagosJugador';
 import RegistrarJugador from './pages/registrarJugador';
 
@@ -84,7 +82,6 @@ const App: React.FC = () => (
                     <Route path="/listado/jugador/:dni" component={Jugador} />
                     <Route path="/configuracion" component={Configuracion} exact={true} />
                     <Route path="/logIn" component={LogIn} exact={true} />
-                    <Route path="/peticiones" component={Peticiones} exact={true} />
                     <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />
                     <Route path="/usuarios" component={Usuarios} exact={true} />
                     <Route path="/about" component={About} exact={true} />
@@ -92,8 +89,7 @@ const App: React.FC = () => (
                     <Route path="/asistenciaCatTomar" component={AsistenciaCatTomar} exact={true} />
                     <Route path="/asistenciaCatVer" component={AsistenciaCatVer} exact={true} />
                     <Route path="/asistenciaList/:id" component={AsistenciaList} />
-                    <Route path="/asistenciaHistJ/:id" component={AsistenciaHistJ} />
-                    <Route path="/asistenciaHistF/:id" component={AsistenciaHistF} />
+                    <Route path="/asistenciaHist/:id" component={AsistenciaHist} />
                     <Route path="/pagosJugador/:dni" component={PagosJugador} />
                     <Route path="/usuarios/:tipo" component={Usuarios} />
                     <Route path="/registrarJugador" component={RegistrarJugador} exact={true} />

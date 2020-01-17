@@ -47,11 +47,14 @@ export interface iBalance {
     total: number
 }
 
+export interface iAsistItem {
+    nombre: string,
+    dni: string
+}
+
 export interface iAsistencia {
-    '_id': string,
-    categoria: string,
-    fecha: string, /* ISO-8601 string */
-    dniJugadoresPresentes: string[]
+    '_id': string, /* ISO-8601 string */
+    presentes: iAsistItem[]
 }
 
 export const NOMBRE_DEPORTES: string[] = ['','Basket', 'Fútbol']; /* [0] === '' para que el resto coincida con ENUMS */
