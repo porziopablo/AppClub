@@ -8,9 +8,9 @@ class BaseDatos {
     private static instance: BaseDatos;
     private jugadoresDB!: PouchDB.Database<{}>;
     private profesoresDB!: PouchDB.Database<{}>;
-    private pagosDB!: PouchDB.Database<{}>;
 
     constructor() {
+
 
         if (!BaseDatos.instance) {
 
@@ -18,13 +18,6 @@ class BaseDatos {
 
             this.jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
             this.profesoresDB = new PouchDB('http://localhost:5984/profesoresdb');
-            this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
-
-            /* creacion de indice de nombre para jugadoresDB */
-
-            this.jugadoresDB.createIndex({ index: { fields: ['nombre'], name: "indiceNombre", ddoc: "indiceNombre" } })
-                .catch(console.log)
-
             BaseDatos.instance = this;
         }
 
@@ -40,12 +33,8 @@ class BaseDatos {
 
     getProfesoresDB() {
 
+
         return this.profesoresDB;
-    }
-
-    getPagosDB() {
-
-        return this.pagosDB;
     }
 }
 

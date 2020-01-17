@@ -266,15 +266,7 @@ class Jugador extends React.Component<jugadorProps> {
                     {this.renderCategoria()}
                     <IonItem>
                         <IonLabel>Teléfono del Responsable</IonLabel>
-                        <IonButton
-                            hidden={!this.state.isReadOnly || (this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0)}
-                            size="default"
-                            color="success"
-                            fill="outline"
-                            href={`tel:${this.state.jugador.telResponsable}`}
-                        >
-                            <IonIcon icon={call} />
-                        </IonButton>
+                        <IonButton size="default" color="success" fill="outline"><IonIcon icon={call} /></IonButton>
                     </IonItem>
                     <IonItem>
                         <IonInput
@@ -348,7 +340,9 @@ export default Jugador;
 
 
 /*
+ - boton llamada funcional
  - boton volver atras
+ - apellidos con apostrofes
 
 
  - como hacer que al volver al listado, este se actualice automaticamente
