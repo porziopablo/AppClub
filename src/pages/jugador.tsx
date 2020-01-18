@@ -1,6 +1,6 @@
 import React from 'react';
 import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput, IonDatetime, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
-import { RouteComponentProps} from 'react-router';
+import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
 import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
@@ -37,7 +37,7 @@ const jugadorPorDefecto: iJugador = {              /* valores por defecto para i
 
 class Jugador extends React.Component<jugadorProps> {
 
-    state: iState; 
+    state: iState;
 
     constructor(props: jugadorProps) {
 
@@ -175,7 +175,7 @@ class Jugador extends React.Component<jugadorProps> {
             this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "Debe seleccionar al menos un deporte." } })
         else if (! /^[A-Za-zÀ-ÖØ-öø-ÿ]+( [A-Za-zÀ-ÖØ-öø-ÿ']+)*$/.test(nombre))
             this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
-        else 
+        else
             BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
                 .then(() => {
                     this.setState({
@@ -188,7 +188,7 @@ class Jugador extends React.Component<jugadorProps> {
                     });
                 })
                 .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: false, toastMessage: "No se pudo actualizar el perfil del jugador." } }) });
-    } 
+    }
 
     renderSelectDeportes = () => {
 
@@ -214,10 +214,10 @@ class Jugador extends React.Component<jugadorProps> {
                         color={(this.state.toastParams.showCancel) ? "danger" : "success"}
                         duration={(this.state.toastParams.showCancel) ? 0 : 1000}
                         buttons={(this.state.toastParams.showCancel) ?
-                                    [{ text: 'CERRAR', handler: () => { if (this.state.toastParams.volverCuandoCancela) this.props.history.push("/listado") } }]
-                                :
-                                    []
-                                }
+                            [{ text: 'CERRAR', handler: () => { if (this.state.toastParams.volverCuandoCancela) this.props.history.push("/listado") } }]
+                            :
+                            []
+                        }
                     />
                     <IonItem>
                         <IonLabel>Nombre</IonLabel>
@@ -255,7 +255,7 @@ class Jugador extends React.Component<jugadorProps> {
                                 <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
                                 <h4>{this.renderDeportes()}</h4>
                             </IonItem>
-                        :
+                            :
                             <IonItem>
                                 <IonLabel>Deportes</IonLabel>
                                 <IonSelect multiple={true} cancelText="Cancelar" onIonChange={this.guardarDeportes}>
@@ -266,7 +266,15 @@ class Jugador extends React.Component<jugadorProps> {
                     {this.renderCategoria()}
                     <IonItem>
                         <IonLabel>Teléfono del Responsable</IonLabel>
-                        <IonButton size="default" color="success" fill="outline"><IonIcon icon={call} /></IonButton>
+                        <IonButton
+                            hidden={!this.state.isReadOnly || (this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0)}
+                            size="default"
+                            color="success"
+                            fill="outline"
+                            href={`tel:${this.state.jugador.telResponsable}`}
+                        >
+                            <IonIcon icon={call} />
+                        </IonButton>
                     </IonItem>
                     <IonItem>
                         <IonInput
@@ -301,7 +309,7 @@ class Jugador extends React.Component<jugadorProps> {
                                             fill="outline"
                                             onClick={() => this.setState({ isReadOnly: false })}
                                         >Editar</IonButton>
-                                    :
+                                        :
                                         <IonButton
                                             className="botonJugador"
                                             fill="outline"
@@ -340,16 +348,11 @@ export default Jugador;
 
 
 /*
- - boton llamada funcional
  - boton volver atras
- - apellidos con apostrofes
-
-
  - como hacer que al volver al listado, este se actualice automaticamente
-
- - PLANILLA MEDICA 
+ - PLANILLA MEDICA
  - VALIDAR TELEFONO
- - VARIOS TELEFONOS? 
+ - VARIOS TELEFONOS?
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?
  */

@@ -16,6 +16,7 @@ class BaseDatos {
     private cat11DB!: PouchDB.Database<{}>; 
     private cat13DB!: PouchDB.Database<{}>; 
     private cat15DB!: PouchDB.Database<{}>; 
+    private pagosDB!: PouchDB.Database<{}>;
 
     constructor() {
 
@@ -34,6 +35,15 @@ class BaseDatos {
             this.cat11DB = new PouchDB('http://localhost:5984/asist11');
             this.cat13DB = new PouchDB('http://localhost:5984/asist13');
             this.cat15DB = new PouchDB('http://localhost:5984/asist15');
+
+            this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
+
+            /* creacion de indice de nombre para jugadoresDB */
+
+            this.jugadoresDB.createIndex({ index: { fields: ['nombre'], name: "indiceNombre", ddoc: "indiceNombre" } })
+                .catch(console.log)
+
+
             BaseDatos.instance = this;
         }
 
@@ -73,6 +83,11 @@ class BaseDatos {
     }
     getCat15DB() {
         return this.cat15DB;
+    }
+
+    getPagosDB() {
+
+        return this.pagosDB;
     }
 }
 
