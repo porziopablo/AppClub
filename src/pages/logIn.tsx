@@ -2,9 +2,19 @@
 import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
-import { iProfesor } from '../interfaces';
+import { maxNumDni,regEmail,regDni,regNombre,iProfesor } from '../interfaces';
 import db from '../BD';
 
+const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ1-9]+([A-Za-zÀ-ÖØ-öø-ÿ1-9]+)*$/;
+
+
+const profesor: iProfesor = {
+    '_id': '',
+    nombre: '',
+    dni: '',
+    email: '',
+    pass: '',
+}
 
 const LogIn: React.FC = () => {
 
@@ -16,6 +26,11 @@ const LogIn: React.FC = () => {
     const [showSuccessReg, setShowSuccessReg] = useState(false);
     const [noExistingUserLog, setNoExistingUserLog] = useState(false);
     const [incorrectPass, setIncorrectPass] = useState(false);
+    const [invalidName, setIvalidName] = useState(false);
+    const [invalidDni, setInvalidDni] = useState(false);
+    const [invalidEmail, setInvalidEmail] = useState(false);
+    const [invalidPass, setInvalidPass] = useState(false);
+
 
     function handleSubmit(event: FormEvent) {
         event.preventDefault();
@@ -23,19 +38,27 @@ const LogIn: React.FC = () => {
         setDifferentPass(false);
         setDifferentDni(false);
         setExistingUserReg(false);
-        if ((data.get('dni') === data.get('dniconf')) && (data.get('pass') === data.get('passconf'))) {
-            const dni = String(data.get('dni'));
+        setInvalidDni(false);
+        setInvalidEmail(false);
+        setInvalidPass(false);
+        setIvalidName(false);
+
+        profesor.dni = String(data.get('dni'));
+        profesor.pass = String(data.get('pass'));
+        profesor.nombre = String(data.get('nombre')) + String(data.get('apellido'));
+        profesor.email = String(data.get('email'));
+        
+
+
+        if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email)) {
             db.getProfesoresDB().find({  
-                selector: { _id: { $eq: dni } } //Busca un id igual al dni en forma de string, si no falla, entra el then
+                selector: { _id: { $eq: profesor.dni } } //Busca un id igual al dni en forma de string, si no falla, entra el then
             }).then(function (result) {
                 if (result.docs.length === 0) {  //si el resultado del find es un array de long 0 agrega, else informa usuario existente.
-                    db.getProfesoresDB().put({
-                        _id: String(dni),
-                        nombre: data.get('nombre') + String(data.get('apellido')),
-                        dni: dni,
-                        email: data.get('email'),
-                        pass: data.get('pass')
-                    }).then((respuesta) => {
+                    profesor._id = profesor.dni;
+                    db.getProfesoresDB().put(
+                        profesor
+                    ).then((respuesta) => {
                         if (respuesta.ok)
                             setShowSuccessReg(true);
                         else
@@ -47,25 +70,66 @@ const LogIn: React.FC = () => {
                 else {
                     setExistingUserReg(true);
                     (document.getElementById('dni') as HTMLInputElement).value = '';
+                    (document.getElementById('dniconf') as HTMLInputElement).value = '';
                     (document.getElementById('pass') as HTMLInputElement).value = '';
                     (document.getElementById('passConf') as HTMLInputElement).value = '';
-                    console.log('el usuario ya existe');
                     
                 }
             }).catch(function (err) { console.log(err) });
         }
         else {
-            //ERROR EN LOS DATOS DE ENTRADA
-            if (data.get('dni') !== data.get('dniconf')) {
-                setDifferentDni(true);
-                (document.getElementById('dniconf') as HTMLInputElement).value = '';
+            
+            //ERRORES EN LOS DATOS DE ENTRADA
+            if (!regNombre.test(profesor.nombre)) {
+                //nombre invalido
+                (document.getElementById('nombre') as HTMLInputElement).value = '';
+                (document.getElementById('apellido') as HTMLInputElement).value = '';
                 (document.getElementById('pass') as HTMLInputElement).value = '';
                 (document.getElementById('passConf') as HTMLInputElement).value = '';
+                setIvalidName(true);
             }
             else {
-                (document.getElementById('pass') as HTMLInputElement).value = '';
-                (document.getElementById('passConf') as HTMLInputElement).value = '';
-                setDifferentPass(true);
+                if (!regDni.test(profesor.dni)) {
+                    //dni ivalido
+                    (document.getElementById('dni') as HTMLInputElement).value = '';
+                    (document.getElementById('dniconf') as HTMLInputElement).value = '';
+                    (document.getElementById('pass') as HTMLInputElement).value = '';
+                    (document.getElementById('passConf') as HTMLInputElement).value = '';
+                    setInvalidDni(true);
+                }
+                else {
+                    if (profesor.dni !== data.get('dniconf')) {
+                        // dni y dni conf iguales
+                        setDifferentDni(true);
+                        (document.getElementById('dniconf') as HTMLInputElement).value = '';
+                        (document.getElementById('pass') as HTMLInputElement).value = '';
+                        (document.getElementById('passConf') as HTMLInputElement).value = '';
+                    }
+                    else {
+                        if (!regPass.test(profesor.pass)) {
+                            //contraseña con caracteres no validos
+                            (document.getElementById('pass') as HTMLInputElement).value = '';
+                            (document.getElementById('passConf') as HTMLInputElement).value = '';
+                            setInvalidPass(true);
+                        }
+                        else {
+                            if (profesor.pass !== data.get('passconf')) {
+                                //pass y pass conf iguales
+                                (document.getElementById('pass') as HTMLInputElement).value = '';
+                                (document.getElementById('passConf') as HTMLInputElement).value = '';
+                                setDifferentPass(true);
+                            }
+                            else {
+                                if (!regEmail.test(profesor.email)) {
+                                    //email invalido
+                                    (document.getElementById('pass') as HTMLInputElement).value = '';
+                                    (document.getElementById('passConf') as HTMLInputElement).value = '';
+                                    setInvalidEmail(true);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,7 +176,7 @@ const LogIn: React.FC = () => {
                             <IonText class={(noExistingUserLog) ? 'label-login-warning' : 'label-login'}>DNI</IonText>
                             <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Inegrese un dni valido</IonText>
                         </IonLabel>
-                        <IonInput id='usuario' required name='usuario' type="text" ></IonInput>
+                        <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" ></IonInput>
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating">
@@ -131,29 +195,36 @@ const LogIn: React.FC = () => {
                     <form id='registro' onSubmit={handleSubmit}>
                         <IonText class='warning'>Es obligatorio completar todos los campos.</IonText>
                         <IonItem>
-                            <IonLabel position="floating"><IonText class='label-modal'>Nombre</IonText></IonLabel>
+                            <IonLabel position="floating"><IonText class={(invalidName) ? 'label-modal-warning' : 'label-modal'}>Nombre</IonText></IonLabel>
                             <IonInput id='nombre' name='nombre' required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
-                            <IonLabel position="floating"><IonText class='label-modal'>Apellido</IonText></IonLabel>
+                            <IonLabel position="floating">
+                                <IonText class={(invalidName) ? 'label-modal-warning' : 'label-modal'}>Apellido</IonText>
+                                <IonText class={(invalidName) ? 'regError' : 'esconder'}>Nombre o apellido con caracteres invalidos.</IonText>
+                            </IonLabel>
                             <IonInput id='apellido' name='apellido' required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(existingUserReg || differentDni) ? 'label-modal-warning' : 'label-modal'}>DNI</IonText>
+                                <IonText class={(existingUserReg || invalidDni || differentDni) ? 'label-modal-warning' : 'label-modal'}>DNI</IonText>
                                 <IonText class={(existingUserReg) ? 'regError' : 'esconder'}>El DNI ingresado ya existe.</IonText>
+                                <IonText class={(invalidDni) ? 'regError' : 'esconder'}>El DNI ingresado contiene caracteres invalidos.</IonText>
                             </IonLabel>
-                            <IonInput id='dni' name='dni' required type="text" min={"0"}></IonInput>
+                            <IonInput id='dni' name='dni' maxlength={maxNumDni} required type="text" min={"0"}></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentDni) ? 'label-modal-warning' : 'label-modal'}>Confirmar DNI</IonText>
                                 <IonText class={(differentDni) ? 'regError' : 'esconder'}>Ingrese el DNI correcto.</IonText>
                             </IonLabel>
-                            <IonInput id='dniconf' name='dniconf' required type="text" ></IonInput>
+                            <IonInput id='dniconf' name='dniconf' maxlength={maxNumDni} required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
-                            <IonLabel position="floating"><IonText class={(differentPass) ? 'label-modal-warning' : 'label-modal'}>Contraseña</IonText></IonLabel>
+                            <IonLabel position="floating">
+                                <IonText class={(differentPass || invalidPass) ? 'label-modal-warning' : 'label-modal'}>Contraseña</IonText>
+                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres invalidos.</IonText>
+                            </IonLabel>
                             <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>
                         <IonItem>
@@ -164,7 +235,10 @@ const LogIn: React.FC = () => {
                             <IonInput id='passConf' name='passconf' required type="password"></IonInput>
                         </IonItem>
                         <IonItem>
-                            <IonLabel position="floating"><IonText class='label-modal'>Correo electronico</IonText></IonLabel>
+                            <IonLabel position="floating">
+                                <IonText class={(invalidEmail) ? 'label-modal-warning' : 'label-modal'}>Correo electronico</IonText>
+                                <IonText class={(invalidEmail) ? 'regError' : 'esconder'}>El correo electronico no es valido.</IonText>
+                            </IonLabel>
                             <IonInput name='email' required type="email" ></IonInput>
                         </IonItem>
                         <IonAlert
