@@ -119,7 +119,6 @@ const RegistrarJugador: React.FC = () => {
         }
     }
 
-    setShowPass(showPass); setShowModal(showModal);
 
     return (
         <IonPage>

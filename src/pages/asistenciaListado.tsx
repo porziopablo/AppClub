@@ -106,7 +106,6 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         categoriaDB.post(aPostear);
     }
 
-    renderOpciones(categorias); // SOLO PARA QUE NO ROMPAN LAS BOLAS LOS WARNING X NO USARLOS
 
     return (
         <IonPage>
