@@ -2,7 +2,9 @@
 import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
+
 import { maxNumDni,regEmail,regDni,regNombre,iProfesor } from '../interfaces';
+
 import db from '../BD';
 
 const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ1-9]+([A-Za-zÀ-ÖØ-öø-ÿ1-9]+)*$/;
