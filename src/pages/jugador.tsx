@@ -3,7 +3,7 @@ import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, I
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
-import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
+import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre } from '../interfaces';
 import BD from '../BD';
 
 interface jugadorProps extends RouteComponentProps<{
@@ -17,10 +17,10 @@ interface iState {
     isReadOnly: boolean,
     showAlert: boolean,
     toastParams: {
-        showToast: boolean,
-        showCancel: boolean,
+        mostrar: boolean,
+        esError: boolean,
         volverCuandoCancela: boolean,
-        toastMessage: string
+        mensaje: string
     }
 };
 
@@ -49,10 +49,10 @@ class Jugador extends React.Component<jugadorProps> {
             isReadOnly: true,
             showAlert: false,
             toastParams: {
-                showToast: false,
-                showCancel: false,
+                mostrar: false,
+                esError: false,
                 volverCuandoCancela: false,
-                toastMessage: ""
+                mensaje: ""
             }
         }
     }
@@ -61,7 +61,7 @@ class Jugador extends React.Component<jugadorProps> {
 
         BD.getJugadoresDB().get(this.props.match.params.dni)
             .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
-            .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: true, volverCuandoCancela: true, toastMessage: "No se pudo cargar el perfil del jugador." } }) });
+            .catch(() => { this.setState({ toastParams: { mostrar: true, esError: true, volverCuandoCancela: true, mensaje: "No se pudo cargar el perfil del jugador." } }) });
     }
 
     renderDeportes = (): string => {
@@ -161,10 +161,10 @@ class Jugador extends React.Component<jugadorProps> {
         BD.getJugadoresDB().get(this.state.jugador.dni)
             .then((doc) => BD.getJugadoresDB().remove(doc))
             .then(() => {
-                this.setState({ toastParams: { showToast: true, toastMessage: "Perfil eliminado." } });
+                this.setState({ toastParams: { mostrar: true, mensaje: "Perfil eliminado." } });
                 this.props.history.push('/jugadores')
             })
-            .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "No se pudo eliminar el perfil del jugador." } }) });
+            .catch(() => { this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "No se pudo eliminar el perfil del jugador." } }) });
     }
 
     actualizarJugador = () => {
@@ -172,9 +172,9 @@ class Jugador extends React.Component<jugadorProps> {
         const nombre = this.state.jugadorTemp.nombre;
 
         if (this.state.jugadorTemp.deportes.length < 1)
-            this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "Debe seleccionar al menos un deporte." } })
-        else if (! /^[A-Za-zÀ-ÖØ-öø-ÿ]+( [A-Za-zÀ-ÖØ-öø-ÿ']+)*$/.test(nombre))
-            this.setState({ toastParams: { showToast: true, showCancel: true, toastMessage: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } })
+        else if (! regNombre.test(nombre))
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
         else
             BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
                 .then(() => {
@@ -182,12 +182,12 @@ class Jugador extends React.Component<jugadorProps> {
                         jugador: this.state.jugadorTemp,
                         isReadOnly: true,
                         toastParams: {
-                            showToast: true,
-                            toastMessage: "Perfil actualizado."
+                            mostrar: true,
+                            mensaje: "Perfil actualizado."
                         }
                     });
                 })
-                .catch(() => { this.setState({ toastParams: { showToast: true, showCancel: false, toastMessage: "No se pudo actualizar el perfil del jugador." } }) });
+                .catch(() => { this.setState({ toastParams: { mostrar: true, esError: false, mensaje: "No se pudo actualizar el perfil del jugador." } }) });
     }
 
     renderSelectDeportes = () => {
@@ -208,12 +208,12 @@ class Jugador extends React.Component<jugadorProps> {
             <IonPage>
                 <IonContent className="vistaJugador">
                     <IonToast
-                        isOpen={this.state.toastParams.showToast}
-                        onDidDismiss={() => this.setState({ toastParams: { showToast: false, showCancel: false, volverCuandoCancela: false } })}
-                        message={this.state.toastParams.toastMessage}
-                        color={(this.state.toastParams.showCancel) ? "danger" : "success"}
-                        duration={(this.state.toastParams.showCancel) ? 0 : 1000}
-                        buttons={(this.state.toastParams.showCancel) ?
+                        isOpen={this.state.toastParams.mostrar}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false, volverCuandoCancela: false } })}
+                        message={this.state.toastParams.mensaje}
+                        color={(this.state.toastParams.esError) ? "danger" : "success"}
+                        duration={(this.state.toastParams.esError) ? 0 : 1000}
+                        buttons={(this.state.toastParams.esError) ?
                             [{ text: 'CERRAR', handler: () => { if (this.state.toastParams.volverCuandoCancela) this.props.history.push("/listado") } }]
                             :
                             []

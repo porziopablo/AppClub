@@ -16,8 +16,8 @@ interface iState {
     deportesMostrados: number[],
     categoriaMostrada: number,
     toastParams: {
-        showToast: boolean,
-        toastMessage: string
+        mostrar: boolean,
+        mensaje: string
     }
 }
 
@@ -46,8 +46,8 @@ class Listado extends React.Component {
         deportesMostrados: [],
         categoriaMostrada: 0,
         toastParams: {
-            showToast: false,
-            toastMessage: ""
+            mostrar: false,
+            mensaje: ""
         }
     }
 
@@ -131,7 +131,7 @@ class Listado extends React.Component {
                 setTimeout(() => { event.detail.complete() }, 500); /* para que dure un poco mas la animacion */
             })
             .catch(() => {
-                this.setState({ toastParams: { showToast: true, toastMessage: "No se pudo descargar la lista de jugadores." } });
+                this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } });
                 setTimeout(() => { event.detail.complete() }, 500);
             });
     }
@@ -146,7 +146,7 @@ class Listado extends React.Component {
                 jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
                 this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
             })
-            .catch(() => { this.setState({ toastParams: { showToast: true, toastMessage: "No se pudo descargar la lista de jugadores." } }) });
+            .catch(() => { this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } }) });
     }
 
     renderJugadores = () => {
@@ -181,9 +181,9 @@ class Listado extends React.Component {
                 </IonHeader>
                 <IonContent id="contenido">
                     <IonToast
-                        isOpen={this.state.toastParams.showToast}
-                        onDidDismiss={() => this.setState({ toastParams: { showToast: false } })}
-                        message={this.state.toastParams.toastMessage}
+                        isOpen={this.state.toastParams.mostrar}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false } })}
+                        message={this.state.toastParams.mensaje}
                         color="danger"
                         showCloseButton={true}
                         closeButtonText="CERRAR"

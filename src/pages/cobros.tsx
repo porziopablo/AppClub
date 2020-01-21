@@ -1,32 +1,40 @@
 import React, { FormEvent } from 'react';
 import { IonPage, IonContent, IonItem, IonLabel, IonInput, IonItemGroup, IonButton, IonIcon, IonText, IonRow, IonCol, IonGrid, IonToast } from '@ionic/react';
 import { checkmarkCircle } from 'ionicons/icons';
-import { iPago, iProfesor } from '../interfaces';
+import { iPago, iProfesor, iBalance } from '../interfaces';
 import BD from '../BD';
 
 const usuarioActual: iProfesor = { /* solo para probar */
-    _id: "1234",
+    _id: "5678",
     nombre: "Usuario Actual",
-    dni: "1234",
+    dni: "5678",
     email: "usuario@dale.com",
     pass: "dale"
 }
 
 const pagoPorDefecto: iPago = {
     _id: "0",
-    fecha: "2020-10-01",
+    fecha: "",
     dniProfesor: "0",
     monto: 0,
     dniJugador: "0"
+}
+
+const balancePorDefecto: iBalance = {
+    _id: "0",
+    fechaCancelacion: "",
+    total: -1 
 }
 
 interface iState {
     ocultarBotonComprobante: boolean,
     toastParams: {
         mostrar: boolean,
-        mensaje: string
-    }
-    pagoActual: iPago
+        mensaje: string,
+        esError: boolean,
+    },
+    pagoActual: iPago,
+    balance: iBalance
 }
 
 class Cobros extends React.Component {
@@ -40,10 +48,27 @@ class Cobros extends React.Component {
             ocultarBotonComprobante: true,
             toastParams: {
                 mostrar: false,
-                mensaje: ""
+                mensaje: "",
+                esError: false
             },
-            pagoActual: pagoPorDefecto
+            pagoActual: pagoPorDefecto,
+            balance: balancePorDefecto,
         };
+    }
+
+    componentDidMount = () => {
+
+        BD.getBalancesDB().get(usuarioActual.dni)
+            .then((doc) => { this.setState({ balance: doc }) })
+            .catch(() => {
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "No se pudo cargar el balance actual.",
+                        esError: true
+                    }
+                })
+            })
     }
 
     registrarPago = async (event: FormEvent) => {
@@ -54,32 +79,58 @@ class Cobros extends React.Component {
         const dni = String(data.get("dni"));
         const monto = parseFloat(String(data.get("monto")));
 
-        try {
-            await BD.getJugadoresDB().get(dni); /* busca dni en DB */
+        if (dni.length !== 0)
+            try {
+                await BD.getJugadoresDB().get(dni); /* busca dni en DB */
 
-            let fechaActual = new Date().toISOString().split('T')[0];
+                const fechaActual = new Date(); 
+                fechaActual.setHours(fechaActual.getHours() - 3)
+                const fechaString = fechaActual.toISOString();
 
-            const pago: iPago = {
-                _id: dni + "/" + fechaActual + "/" + usuarioActual.dni,
-                fecha: fechaActual,
-                dniProfesor: usuarioActual.dni,
-                monto: monto,
-                dniJugador: dni
-            };
+                const pago: iPago = {
+                    _id: dni + "/" + fechaString.split('T')[0] + "/" + usuarioActual.dni,
+                    fecha: fechaString,
+                    dniProfesor: usuarioActual.dni,
+                    monto: monto,
+                    dniJugador: dni
+                };
+                await BD.getPagosDB().put(pago);
 
-            await BD.getPagosDB().put(pago);
+                const balance: iBalance = {         /* actualizacion del balance */
+                    "_id": this.state.balance._id,
+                    fechaCancelacion: "",
+                    total: this.state.balance.total + monto
+                }
+                await BD.getBalancesDB().upsert(balance._id, () => balance);
 
-            (document.getElementById("dni") as HTMLInputElement).value = "";      /* limpia campos */
-            (document.getElementById("monto") as HTMLInputElement).value = "";
+                (document.getElementById("dni") as HTMLInputElement).value = "";      /* limpia campos */
+                (document.getElementById("monto") as HTMLInputElement).value = "";
 
-            this.setState({ ocultarBotonComprobante: false, pagoActual: pago });
-        }
-        catch (error) {
-            if (error.status === 404)
-                this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado." } });
-            else
-                this.setState({ toastParams: { mostrar: true, mensaje: "Error al intentar registrar el pago." } });
-        }
+                this.setState({
+                    ocultarBotonComprobante: false,
+                    pagoActual: pago,
+                    balance: balance,
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "Pago registrado exitosamente.",
+                        esError: false
+                    }
+                });
+            }
+            catch (error) {
+                if (error.status === 404)
+                    this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
+                else
+                    this.setState({
+                        toastParams: {
+                            mostrar: true,
+                            mensaje: "Error al intentar registrar el pago.",
+                            esError: true
+                        }
+                    });
+            }
+        else
+            this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
     }
 
     generarComprobante = () => {
@@ -87,17 +138,51 @@ class Cobros extends React.Component {
         this.setState({ ocultarBotonComprobante: true });
     }
 
+    cancelarBalance = () => {
+
+        const fechaActual = new Date();
+        fechaActual.setHours(fechaActual.getHours() - 3)
+ 
+        const balance: iBalance = {         
+            "_id": this.state.balance._id,
+            fechaCancelacion: fechaActual.toISOString(),
+            total: 0
+        }
+
+        BD.getBalancesDB().upsert(balance._id, () => balance)
+            .then(() => {
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "Balance cancelado.",
+                        esError: false
+                    },
+                    balance: balance
+                })
+            })
+            .catch(() => {
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "No se pudo cancelar el balance actual.",
+                        esError: true
+                    }
+                })
+            })
+    }
+
     render() {
 
         return (
             <IonPage>
-                <IonContent class="Cobro">
+                <IonContent hidden={this.state.balance._id === balancePorDefecto._id} class="Cobro">
                     <IonToast
                         isOpen={this.state.toastParams.mostrar}
-                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false } })}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false } })}
                         message={this.state.toastParams.mensaje}
-                        color="danger"
-                        showCloseButton={true}
+                        color={(this.state.toastParams.esError)? "danger" : "success"}
+                        showCloseButton={this.state.toastParams.esError}
+                        duration={(this.state.toastParams.esError) ? 0 : 1000}
                         closeButtonText="CERRAR"
                     />
                     <form onSubmit={this.registrarPago}>
@@ -108,7 +193,7 @@ class Cobros extends React.Component {
                             <IonInput id="dni" name="dni" placeholder="DNI Jugador/a" inputMode="text" type="text"></IonInput>
                         </IonItem>
                         <IonItem>
-                            <IonInput id="monto" name="monto" placeholder="Monto" inputMode="decimal" step="0.01" type="number" ></IonInput>
+                            <IonInput id="monto" name="monto" placeholder="Monto" inputMode="decimal" step="0.01" type="number" min="0.01" ></IonInput>
                         </IonItem>
                         <IonGrid>
                             <IonRow align-content-center>
@@ -131,9 +216,9 @@ class Cobros extends React.Component {
                         </IonItem>
                         <IonItem>
                             <IonText>
-                                <h4>$1500,0</h4>
+                                <h4>{'$' + this.state.balance.total.toLocaleString('es-AR')}</h4>
                             </IonText>
-                            <IonButton fill="outline" slot="end" size="default" color="success">
+                            <IonButton fill="outline" slot="end" size="default" color="success" onClick={this.cancelarBalance}>
                                 <IonIcon icon={checkmarkCircle} />
                             </IonButton>
                         </IonItem>
@@ -158,7 +243,5 @@ export default Cobros;
 /*
 
  - ver como generar comprobante
- - validacion de datos
- - cargar/cancelar balance
 
  */

@@ -6,8 +6,12 @@ PouchDB.plugin(require('pouchdb-upsert'));
 class BaseDatos {
 
     private static instance: BaseDatos;
+
     private jugadoresDB!: PouchDB.Database<{}>;
     private profesoresDB!: PouchDB.Database<{}>;
+    private pagosDB!: PouchDB.Database<{}>;
+    private balancesDB!: PouchDB.Database<{}>;
+
     private cat1fDB!: PouchDB.Database<{}>; 
     private cat1mDB!: PouchDB.Database<{}>; 
     private cat5DB!: PouchDB.Database<{}>; 
@@ -16,10 +20,8 @@ class BaseDatos {
     private cat11DB!: PouchDB.Database<{}>; 
     private cat13DB!: PouchDB.Database<{}>; 
     private cat15DB!: PouchDB.Database<{}>; 
-    private pagosDB!: PouchDB.Database<{}>;
 
     constructor() {
-
 
         if (!BaseDatos.instance) {
 
@@ -27,6 +29,9 @@ class BaseDatos {
 
             this.jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
             this.profesoresDB = new PouchDB('http://localhost:5984/profesoresdb');
+            this.balancesDB = new PouchDB('http://localhost:5984/balancesdb');
+            this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
+
             this.cat1fDB = new PouchDB('http://localhost:5984/asist1f');
             this.cat1mDB = new PouchDB('http://localhost:5984/asist1m');
             this.cat5DB = new PouchDB('http://localhost:5984/asist5');
@@ -35,8 +40,6 @@ class BaseDatos {
             this.cat11DB = new PouchDB('http://localhost:5984/asist11');
             this.cat13DB = new PouchDB('http://localhost:5984/asist13');
             this.cat15DB = new PouchDB('http://localhost:5984/asist15');
-
-            this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
 
             /* creacion de indice de nombre para jugadoresDB */
 
@@ -58,6 +61,14 @@ class BaseDatos {
 
     getProfesoresDB() {
         return this.profesoresDB;
+    }
+
+    getPagosDB() {
+        return this.pagosDB;
+    }
+
+    getBalancesDB() {
+        return this.balancesDB;
     }
 
     getCat1fDB() {
@@ -83,11 +94,6 @@ class BaseDatos {
     }
     getCat15DB() {
         return this.cat15DB;
-    }
-
-    getPagosDB() {
-
-        return this.pagosDB;
     }
 }
 
