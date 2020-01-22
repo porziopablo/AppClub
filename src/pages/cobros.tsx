@@ -20,13 +20,15 @@ const pagoPorDefecto: iPago = {
     fecha: "",
     dniProfesor: "0",
     monto: 0,
-    dniJugador: "0"
+    dniJugador: "0",
+    nombreProfesor: ""
 }
 
 const balancePorDefecto: iBalance = {
     _id: "0",
     fechaCancelacion: "",
-    total: -1 
+    total: -1,
+    nombreProfesor: ""
 }
 
 interface iState {
@@ -97,14 +99,16 @@ class Cobros extends React.Component {
                     fecha: fechaString,
                     dniProfesor: usuarioActual.dni,
                     monto: monto,
-                    dniJugador: dni
+                    dniJugador: dni,
+                    nombreProfesor: usuarioActual.nombre
                 };
                 await BD.getPagosDB().put(pago);
 
                 const balance: iBalance = {         /* actualizacion del balance */
                     "_id": this.state.balance._id,
                     fechaCancelacion: "",
-                    total: this.state.balance.total + monto
+                    total: this.state.balance.total + monto,
+                    nombreProfesor: this.state.balance.nombreProfesor
                 }
                 await BD.getBalancesDB().upsert(balance._id, () => balance);
 
@@ -201,6 +205,7 @@ class Cobros extends React.Component {
  
         const balance: iBalance = {         
             "_id": this.state.balance._id,
+            nombreProfesor: this.state.balance.nombreProfesor,
             fechaCancelacion: fechaActual.toISOString(),
             total: 0
         }
