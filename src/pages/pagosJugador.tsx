@@ -1,58 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../theme/jugadores.css';
 import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent } from '@ionic/react';
+import { iPago } from '../interfaces';
+import { RouteComponentProps } from 'react-router';
+import BD from '../BD';
 
-interface iProfesor {
-    nombre: string,
-    dni: string,
-    email: string,
-    pass: string,
-}
+interface UserDetailPageProps extends RouteComponentProps<{
+    dni: string;
+}> { }
 
-interface iFecha {
-    day: number,
-    month: number,
-    year: number,
-    id: string
-}
+const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
 
-interface iPago {
-    fecha: iFecha,
-    profesor: iProfesor,
-    monto: number,
-}
+    const [pagos, setPagos] = useState<iPago[]>([]);
+    const dniJugador: string = match.params.dni;
 
-const profesores: iProfesor[] = [
-    { nombre: 'Juancito', dni: '12345678', email: 'abc@gmail.com', pass: '1234' },
-    { nombre: 'Martincito', dni: '91011121', email: 'def@gmail.com', pass: '1234' }
-];
+    useEffect(() => {
+        const docToPago = (doc: any): iPago => doc;
+        
+        let pagosBuscados: iPago[] = [];
 
+        BD.getPagosDB().find({
+            selector: {
+                dniJugador: dniJugador
+            }
+        }).then((resultado) => {
+            pagosBuscados = resultado.docs.map(row => docToPago(row));
+            setPagos(pagosBuscados);
+        })
+            .catch(console.log);
+    }, []);
 
-const fechas: iFecha[] = [
-    { day: 24, month: 7, year: 2020, id: "aa" },
-    { day: 2, month: 3, year: 2020, id: "bb" }
-];
-
-const pagos: iPago[] = [
-    { fecha: fechas[1], profesor: profesores[1], monto: 100 },
-    { fecha: fechas[0], profesor: profesores[0], monto: 200 }
-];
-
-
-const pagosJugador: React.FC = () => {
-
-    const renderPagos = () => {
+     const renderPagos = () => {
         return (
             pagos.map((pago: iPago) => (
-                <IonItem key={pago.fecha.day}>
+                <IonItem key={pago.fecha}>
                     <IonLabel>
-                        {pago.fecha.day}/{pago.fecha.month}/{pago.fecha.year}
+                        {(pago.fecha).split('T')[0]}
                     </IonLabel>
                     <IonLabel>
                         <b>${pago.monto}</b> 
                     </IonLabel>
                     <IonLabel>
-                        cobrado por {pago.profesor.nombre}
+                        cobrado por {pago.nombreProfesor}
                     </IonLabel>
                 </IonItem>
             )));
@@ -74,5 +63,5 @@ const pagosJugador: React.FC = () => {
     );
 };
 
-export default pagosJugador;
+export default PagosJugador;
 /*UTF8*/
