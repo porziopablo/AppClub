@@ -3,11 +3,7 @@ import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, I
 import { RouteComponentProps } from 'react-router';
 import '../theme/usuarios.css';
 import { iProfesor } from '../interfaces';
-
-import PouchDB from 'pouchdb';
-
-const usuariosDB = new PouchDB('http://localhost:5984/usuariosdb');
-const pendientesDB = new PouchDB('http://localhost:5984/usuariospendientesdb');
+import BD from '../BD';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     tipo: string;
@@ -33,7 +29,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
             let pendientesRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
-            pendientesDB.allDocs({ include_docs: true })
+            BD.getPendientesDB().allDocs({ include_docs: true })
                 .then((resultado) => {
                     pendientesRecibidos = resultado.rows.map(row => docToProfesor(row.doc));
                     setUsuarios(pendientesRecibidos);
@@ -44,7 +40,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
             let usuariosRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
-            usuariosDB.allDocs({ include_docs: true })
+            BD.getProfesoresDB().allDocs({ include_docs: true })
                 .then((resultado) => {
                     usuariosRecibidos = resultado.rows.map(row => docToProfesor(row.doc));
                     setUsuarios(usuariosRecibidos);
@@ -61,8 +57,8 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         if (selected) {
             console.log(selected);
             const doc = usuarios.filter(obj => obj.dni === JSON.stringify(selected));
-            usuariosDB.get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
-                usuariosDB.remove(documento);
+            BD.getProfesoresDB().get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
+                BD.getProfesoresDB().remove(documento);
             }).catch(function (err: Error) {
                 console.log(err);
                 //aca habria que ver que pasa si el documento no existe
@@ -75,8 +71,8 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         if (selected) {
             const doc = usuarios.filter(obj => obj.dni === JSON.stringify(selected));
             console.log(doc);
-            pendientesDB.get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
-                pendientesDB.remove(documento);
+            BD.getPendientesDB().get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
+                BD.getPendientesDB().remove(documento);
             }).catch(function (err: Error) {
                 console.log(err);
                 //aca habria que ver que pasa si el documento no existe
@@ -89,14 +85,14 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         if (selected) {
             console.log(selected);
             let aPostear: iProfesor = { '_id': '', nombre: '', dni: '', email: '', pass: '' }
-            pendientesDB.get(JSON.stringify(selected)).then(function (doc: any) {
+            BD.getPendientesDB().get(JSON.stringify(selected)).then(function (doc: any) {
                 aPostear._id = doc._id;
                 aPostear.nombre = doc.nombre;
                 aPostear.dni = doc.dni;
                 aPostear.email = doc.email;
                 aPostear.pass = doc.pass;
-                pendientesDB.remove(doc);
-                return usuariosDB.post(aPostear);
+                BD.getPendientesDB().remove(doc);
+                return BD.getProfesoresDB().post(aPostear);
             }).catch(function (err: Error) {
                 console.log(err);
             });
