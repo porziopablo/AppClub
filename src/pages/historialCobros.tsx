@@ -1,57 +1,37 @@
-﻿import React from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent } from '@ionic/react';
-
-interface iProfesor {
-    nombre: string,
-    dni: string,
-    email: string,
-    pass: string,
-}
-
-interface iFecha {
-    day: number,
-    month: number,
-    year: number,
-    id: string
-}
-
-interface iCobro {
-    fecha: iFecha,
-    profesor: iProfesor,
-    monto: number,
-}
-
-const profesores: iProfesor[] = [
-    { nombre: 'Juancito', dni: '12345678', email: 'abc@gmail.com', pass: '1234' },
-    { nombre: 'Martincito', dni: '91011121', email: 'def@gmail.com', pass: '1234' }
-];
-
-
-const fechas: iFecha[] = [
-    { day: 24, month: 7, year: 2020, id: "aa" },
-    { day: 2, month: 3, year: 2020, id: "bb" }
-];
-
-const cobros: iCobro[] = [
-    { fecha: fechas[0], profesor: profesores[0], monto: 5120 },
-    { fecha: fechas[1], profesor: profesores[1], monto: 8000 }
-];
-
+import BD from '../BD';
+import { iBalance } from '../interfaces';
 
 const Historial: React.FC = () => {
 
-    const renderCobros = () => {
+    const [historiales, setHistoriales] = useState<iBalance[]>([]);
+
+    useEffect(() => {
+
+        const docToBalance = (doc: any): iBalance => doc;
+        let balancesBuscados: iBalance[] = [];
+
+        BD.getHistorialBalancesDB().allDocs({ include_docs: true })
+            .then((resultado) => {
+                balancesBuscados = resultado.rows.map(row => docToBalance(row.doc));
+                setHistoriales(balancesBuscados);
+            })
+            .catch(console.log);
+    }, []);
+
+    const renderBalances = () => {
         return (
-            cobros.map((cobro: iCobro) => (
-                <IonItem key={cobro.fecha.day}>
+            historiales.map((balance: iBalance) => (
+                <IonItem key={balance._id}>
                     <IonLabel>
-                        <h2>{cobro.fecha.day}/{cobro.fecha.month}/{cobro.fecha.year}</h2>
+                        {(balance.fechaCancelacion).split('T')[0]}
                     </IonLabel>
                     <IonLabel>
-                        <h2>{cobro.profesor.nombre}</h2>
+                        <b>${balance.total}</b>
                     </IonLabel>
-                    <IonLabel >
-                        <h2> <b>${cobro.monto}</b> </h2>
+                    <IonLabel>
+                        {balance.nombreProfesor}
                     </IonLabel>
                 </IonItem>
             )));
@@ -66,7 +46,7 @@ const Historial: React.FC = () => {
                     </IonItem>
                 </IonHeader>
                 <IonList>
-                    {renderCobros()}
+                    {renderBalances()}
                 </IonList>
             </IonContent>
         </IonPage>
