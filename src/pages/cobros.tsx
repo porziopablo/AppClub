@@ -8,9 +8,9 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const usuarioActual: iProfesor = { /* solo para probar */
-    _id: "5678",
+    _id: "1234567",
     nombre: "Usuario Actual",
-    dni: "5678",
+    dni: "1234567",
     email: "usuario@dale.com",
     pass: "dale"
 }
@@ -141,6 +141,9 @@ class Cobros extends React.Component {
 
     generarComprobante = () => {
 
+        const fecha = new Date(this.state.pagoActual.fecha);
+        fecha.setHours(fecha.getHours() + 3);
+
         const docDefinition:any = {
             pageSize: 'A6',
             pageOrientation: 'landscape',
@@ -167,7 +170,7 @@ class Cobros extends React.Component {
                 },
                 {
                     text: [
-                        '\nMar Del Plata, Argentina', ' - Fecha: ', { text: this.state.pagoActual.fecha, bold: true },
+                        '\nMar Del Plata, Argentina', ' - Fecha: ', { text: fecha.toLocaleString('es-AR'), bold: true },
                         '\n\nRecibí de ', { text: this.state.nombreJugador, bold: true }, ' - DNI: ',
                         { text: this.state.pagoActual.dniJugador, bold: true },
                         '\nLa suma de $ ', { text: this.state.pagoActual.monto.toLocaleString('es-AR'), bold: true }, ' PESOS. ',
@@ -188,7 +191,7 @@ class Cobros extends React.Component {
             }
         };
         pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`);
-        //this.setState({ ocultarBotonComprobante: true });
+        this.setState({ ocultarBotonComprobante: true });
     }
 
     cancelarBalance = () => {
@@ -228,7 +231,7 @@ class Cobros extends React.Component {
 
         return (
             <IonPage>
-                <IonContent /*hidden={this.state.balance._id === balancePorDefecto._id} class="Cobro"*/>
+                <IonContent hidden={this.state.balance._id === balancePorDefecto._id} class="Cobro">
                     <IonToast
                         isOpen={this.state.toastParams.mostrar}
                         onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false } })}
@@ -256,7 +259,7 @@ class Cobros extends React.Component {
                             </IonRow>
                         </IonGrid>
                     </form>
-                    <IonGrid /*hidden={this.state.ocultarBotonComprobante}*/>
+                    <IonGrid hidden={this.state.ocultarBotonComprobante}>
                         <IonRow align-content-center>
                             <IonCol>
                                 <IonButton fill="outline" onClick={this.generarComprobante}>Generar Comprobante</IonButton>
@@ -295,6 +298,6 @@ export default Cobros;
 
 /*
 
- - ver como generar comprobante
+ - ver como guardar comprobante y abrirlo en android
 
  */

@@ -46,6 +46,7 @@ export interface iPago {
     '_id': string,
     fecha: string, /* ISO-8601 string */
     dniProfesor: string,
+    nombreProfesor: string,
     monto: number,
     dniJugador: string,
 }
@@ -53,6 +54,7 @@ export interface iPago {
 export interface iBalance {
     '_id': string,
     fechaCancelacion: string, /* ISO-8601 string */
+    nombreProfesor: string,
     total: number
 }
 
