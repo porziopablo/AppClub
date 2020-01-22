@@ -12,6 +12,7 @@ class BaseDatos {
     private pagosDB!: PouchDB.Database<{}>;
     private balancesDB!: PouchDB.Database<{}>;
     private historialBalancesDB!: PouchDB.Database<{}>;
+    private pendientesDB!: PouchDB.Database<{}>;
 
     private cat1fDB!: PouchDB.Database<{}>; 
     private cat1mDB!: PouchDB.Database<{}>; 
@@ -33,6 +34,7 @@ class BaseDatos {
             this.balancesDB = new PouchDB('http://localhost:5984/balancesdb');
             this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
             this.historialBalancesDB = new PouchDB('http://localhost:5984/historialbalancesdb');
+            this.pendientesDB = new PouchDB('http://localhost:5984/usuariospendientesdb');
 
             this.cat1fDB = new PouchDB('http://localhost:5984/asist1f');
             this.cat1mDB = new PouchDB('http://localhost:5984/asist1m');
@@ -75,6 +77,10 @@ class BaseDatos {
 
     getHistorialBalancesDB() {
         return this.historialBalancesDB;
+    }
+
+    getPendientesDB() {
+        return this.pendientesDB;
     }
 
     getCat1fDB() {

@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
 import '../theme/registrarJugador.css';
 import { iJugador } from '../interfaces';
-import PouchDB from 'pouchdb';
+import BD from '../BD';
 import { camera } from 'ionicons/icons';
-
-const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
 
 const RegistrarJugador: React.FC = () => {
 
@@ -108,7 +106,7 @@ const RegistrarJugador: React.FC = () => {
             setToastPlanilla(true);
         }
         else {
-            jugadoresDB.post(jugador)
+            BD.getJugadoresDB().post(jugador)
                 .then(res => {
                     setToastExito(true);
                 })
