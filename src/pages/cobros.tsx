@@ -8,9 +8,9 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const usuarioActual: iProfesor = { /* solo para probar */
-    _id: "1234567",
+    _id: "12345678",
     nombre: "Usuario Actual",
-    dni: "1234567",
+    dni: "12345678",
     email: "usuario@dale.com",
     pass: "dale"
 }
@@ -198,38 +198,48 @@ class Cobros extends React.Component {
         this.setState({ ocultarBotonComprobante: true });
     }
 
-    cancelarBalance = () => {
+    cancelarBalance = async () => {
 
         const fechaActual = new Date();
         fechaActual.setHours(fechaActual.getHours() - 3)
- 
-        const balance: iBalance = {         
-            "_id": this.state.balance._id,
+
+        let balance: iBalance = {         
+            "_id": this.state.balance._id + "/" + fechaActual.toISOString().split('T')[0],
             nombreProfesor: this.state.balance.nombreProfesor,
             fechaCancelacion: fechaActual.toISOString(),
-            total: 0
+            total: this.state.balance.total
         }
 
-        BD.getBalancesDB().upsert(balance._id, () => balance)
-            .then(() => {
-                this.setState({
-                    toastParams: {
-                        mostrar: true,
-                        mensaje: "Balance cancelado.",
-                        esError: false
-                    },
-                    balance: balance
-                })
+        try {
+
+            await BD.getHistorialBalancesDB().put(balance);
+
+            balance._id = this.state.balance._id;
+            balance.nombreProfesor = this.state.balance.nombreProfesor;
+            balance.fechaCancelacion = "";
+            balance.total = 0;
+
+            await BD.getBalancesDB().upsert(balance._id, () => balance);
+
+            this.setState({
+                toastParams: {
+                    mostrar: true,
+                    mensaje: "Balance cancelado.",
+                    esError: false
+                },
+                balance: balance
             })
-            .catch(() => {
-                this.setState({
-                    toastParams: {
-                        mostrar: true,
-                        mensaje: "No se pudo cancelar el balance actual.",
-                        esError: true
-                    }
-                })
+
+        }
+        catch (error) {
+            this.setState({
+                toastParams: {
+                    mostrar: true,
+                    mensaje: "No se pudo cancelar el balance actual.",
+                    esError: true
+                }
             })
+        }
     }
 
     render() {
@@ -287,7 +297,7 @@ class Cobros extends React.Component {
                             <IonRow align-content-center>
                                 <IonCol>
                                     <IonButton fill="outline" href="/historial">
-                                        Historial de Cobros
+                                        Historial de Balances
                                     </IonButton>
                                 </IonCol>
                             </IonRow>
