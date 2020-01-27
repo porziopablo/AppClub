@@ -1,10 +1,11 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent } from '@ionic/react';
+import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent, IonToast } from '@ionic/react';
 import BD from '../BD';
 import { iBalance } from '../interfaces';
 
 const Historial: React.FC = () => {
 
+    const [toast, setToast] = useState(false);
     const [historiales, setHistoriales] = useState<iBalance[]>([]);
 
     useEffect(() => {
@@ -17,7 +18,7 @@ const Historial: React.FC = () => {
                 balancesBuscados = resultado.rows.map(row => docToBalance(row.doc));
                 setHistoriales(balancesBuscados);
             })
-            .catch(console.log);
+            .catch(res => { setToast(true) });
     }, []);
 
     const renderBalances = () => {
@@ -39,10 +40,17 @@ const Historial: React.FC = () => {
 
     return (
         <IonPage>
+            <IonToast
+                isOpen={toast}
+                onDidDismiss={() => setToast(false)}
+                color={"danger"}
+                message={"ERROR al buscar los historiales de balances pedidos"}
+                duration={3500}
+            />
             <IonContent>
                 <IonHeader>
                     <IonItem>
-                        <b> Historial de cobros </b>
+                        <b> Historial de balances </b>
                     </IonItem>
                 </IonHeader>
                 <IonList>
