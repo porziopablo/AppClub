@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../theme/jugadores.css';
-import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent, IonToast } from '@ionic/react';
+import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent } from '@ionic/react';
 import { iPago } from '../interfaces';
 import { RouteComponentProps } from 'react-router';
 import BD from '../BD';
@@ -12,7 +12,6 @@ interface UserDetailPageProps extends RouteComponentProps<{
 const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
 
     const [pagos, setPagos] = useState<iPago[]>([]);
-    const [toast, setToast] = useState(false);
     const dniJugador: string = match.params.dni;
 
     useEffect(() => {
@@ -28,7 +27,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
             pagosBuscados = resultado.docs.map(row => docToPago(row));
             setPagos(pagosBuscados);
         })
-            .catch(res => { setToast(true) });
+            .catch(console.log);
     }, [dniJugador]);
 
      const renderPagos = () => {
@@ -50,13 +49,6 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
 
     return (
         <IonPage>
-            <IonToast
-                isOpen={toast}
-                onDidDismiss={() => setToast(false)}
-                color={"danger"}
-                message={"ERROR al buscar los pagos pedidos"}
-                duration={3500}
-            />
             <IonContent>
                 <IonHeader>
                     <IonItem>
