@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { IonHeader, IonContent, IonLabel, IonPage, IonItem, IonCheckbox, IonList, IonButton } from '@ionic/react';
+import { IonHeader, IonContent, IonLabel, IonPage, IonItem, IonCheckbox, IonList, IonButton, IonToast } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import { iJugador, iAsistItem, iAsistencia } from '../interfaces';
 import BD from '../BD';
@@ -18,7 +18,11 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
 
     const [jugadores, setJugadores] = useState<iJugador[]>([]);
     const [presentes, setPresentes] = useState<iAsistItem[]>([]);
+    const [toast, setToast] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+    const [toastColor, setColor] = useState('');
     const cat = match.params.id;
+
     let titulo = "";
 
     switch (cat) {
@@ -60,7 +64,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
             jugadoresBuscados = resultado.docs.map(row => docToJugador(row));
             setJugadores(jugadoresBuscados);
         })
-            .catch(console.log);
+            .catch(res => { setToast(true) });
         
     }, [cat]);
 
@@ -98,12 +102,29 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         aPostear._id = fecha.toISOString().split('T')[0];
         aPostear.presentes = presentes;
         console.log(aPostear._id);
-        categoriaDB.post(aPostear);
+        categoriaDB.post(aPostear)
+            .then(res => {
+                setToastMsg("Presentes cargados con exito");
+                setColor("success");
+                setToast(true);
+            })
+            .catch(res => {
+                setToastMsg("ERROR: presentes no fueron cargados");
+                setColor("danger");
+                setToast(true);
+            })
+   
     }
-
 
     return (
         <IonPage>
+            <IonToast
+                isOpen={toast}
+                onDidDismiss={() => setToast(false)}
+                color={toastColor}
+                message={toastMsg}
+                duration={3500}
+            />
             <IonContent>
                 <IonHeader>
                     <IonItem>

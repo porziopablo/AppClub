@@ -6,7 +6,8 @@
     IonItem,
     IonHeader,
     IonList,
-    IonModal
+    IonModal,
+    IonToast
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -24,6 +25,7 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
     const [showModal, setShowModal] = useState(false);
     const [fechas, setFechas] = useState<iAsistencia[]>([]);
     const [presentes, setPresentes] = useState<iAsistItem[]>([]);
+    const [toast, setToast] = useState(false);
 
     const cat = match.params.id;
     let titulo = "";
@@ -64,7 +66,7 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                 fechasBuscadas = resultado.rows.map(row => docToAsistencia(row.doc));
                 setFechas(fechasBuscadas);
             })
-            .catch(console.log);
+            .catch(res => { setToast(true)});
     }, []);
 
     const renderFechas = () => {
@@ -98,6 +100,13 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
 
     return (
         <IonPage>
+            <IonToast
+                isOpen={toast}
+                onDidDismiss={() => setToast(false)}
+                color={"danger"}
+                message={"ERROR al buscar los historiales de asistencia pedidos"}
+                duration={3500}
+            />
             <IonContent>
                 <IonModal isOpen={showModal}>
                     <IonList>
