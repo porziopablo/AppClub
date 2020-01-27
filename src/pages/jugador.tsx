@@ -1,119 +1,367 @@
-import React, { useState } from 'react';
-import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol } from '@ionic/react';
+import React from 'react';
+import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, IonRow, IonGrid, IonCol, IonInput, IonDatetime, IonSelect, IonSelectOption, IonToast } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
-import '../theme/jugadores.css';
-
-
-/* SOLO PARA VER COMO QUEDA */
-interface iJugador {
-    nombre: string,
-    dni: string,
-    categoria: string,
-    deporte: string,
-    telResponsable: string,
-    fechaNacimiento: Date
-}
+import '../theme/jugador.css';
+import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre } from '../interfaces';
+import BD from '../BD';
 
 interface jugadorProps extends RouteComponentProps<{
     dni: string,
-}> { }
+}> { };
 
-function getJugador(dni: string): any {
-    const jugadores: iJugador[] = [
-        { nombre: 'Ivan Aprea', dni: '12345678', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Mariquena Gros', dni: '91011121', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Martín Casas', dni: '33333333', categoria: '3', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Pablo Porzio', dni: '44444444', categoria: '4', deporte: 'futbol', telResponsable: '2235671119999999', fechaNacimiento: new Date(97, 7, 4) },
-        { nombre: 'Adolfo Spinelli', dni: '5', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Leonel Guccione', dni: '6', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: '"Bigote" Dematteis', dni: '7', categoria: '3', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Felipe Evans', dni: '8', categoria: '4', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Marito Baracus', dni: '9', categoria: '1', deporte: 'futbol', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-        { nombre: 'Benito Mussolinni', dni: '10', categoria: '2', deporte: 'basket', telResponsable: '11', fechaNacimiento: new Date(96, 9, 19) },
-    ];
+interface iState {
 
-
-    return jugadores.find((jugador: iJugador) => jugador.dni === dni);
-}
-
-/*************************/
-
-const BotonEliminarJugador: React.FC = () => {
-
-    const [showAlert, setShowAlert] = useState(false);
-
-    return (
-            <div>
-                <IonButton className = "botonJugador" fill="outline" color = "danger" onClick={() => { setShowAlert(true) }}>
-                    Eliminar
-                    </IonButton>
-                <IonAlert
-                    isOpen={showAlert}
-                    onDidDismiss={() => setShowAlert(false)}
-                    header={'¿Estás seguro que quieres eliminar este jugador?'}
-                    subHeader={'Esta acción no puede deshacerse.'}
-                    buttons={['Cancelar', 'Eliminar']}
-                />
-            </div>
-    );
-}
-
-const Jugador: React.FC<jugadorProps> = ({match}) => {
-    const jugador: iJugador = getJugador(match.params.dni);
-
-    return (
-        <IonPage>
-            <IonContent>
-                <IonItem>
-                    <IonLabel>Nombre</IonLabel>
-                    <h4>{jugador.nombre}</h4>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>DNI</IonLabel>
-                    <h4>{jugador.dni}</h4>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>Fecha de Nacimiento</IonLabel>
-                    <h4>{jugador.fechaNacimiento.toLocaleDateString('es-AR')}</h4>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>Deporte</IonLabel>
-                    <h4>{jugador.deporte.toUpperCase()}</h4>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>Categoría Fútbol</IonLabel>
-                    <h4>{jugador.categoria}</h4>
-                </IonItem>
-                <IonItem>
-                    <IonLabel>Teléfono del Responsable</IonLabel>
-                    <IonButton size = "default" color = "success" fill = "outline"><IonIcon icon={call}/></IonButton>
-                </IonItem>
-                <IonItem>
-                    <h4>{jugador.telResponsable}</h4>
-                </IonItem>
-                <IonGrid>
-                    <IonRow>
-                        <IonCol size = '6'>
-                            <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
-                        </IonCol>
-                        <IonCol size = '6'>
-                            <IonButton className="botonJugador" fill="outline" href={`/pagosJugador/${jugador.dni}`}>Pagos</IonButton>
-                        </IonCol>
-                    </IonRow>
-                    <IonRow>
-                        <IonCol size = '6'> 
-                            <IonButton className="botonJugador" fill="outline">Editar</IonButton>
-                        </IonCol>
-                        <IonCol size = '6'>
-                            <BotonEliminarJugador />
-                        </IonCol>
-                    </IonRow>
-                </IonGrid>
-            </IonContent>
-        </IonPage>
-    );
+    jugador: iJugador,
+    jugadorTemp: iJugador,
+    isReadOnly: boolean,
+    showAlert: boolean,
+    toastParams: {
+        mostrar: boolean,
+        esError: boolean,
+        volverCuandoCancela: boolean,
+        mensaje: string
+    }
 };
 
+const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
+    '_id': '0',
+    nombre: ' ',
+    dni: '0',
+    categoria: 0,
+    deportes: [],
+    telResponsable: '0',
+    fechaNacimiento: '2013-09-19T17:00:00.000',
+    planillaMedica: ' '
+};
+
+class Jugador extends React.Component<jugadorProps> {
+
+    state: iState;
+
+    constructor(props: jugadorProps) {
+
+        super(props);
+        this.state = {
+
+            jugador: jugadorPorDefecto,
+            jugadorTemp: jugadorPorDefecto,
+            isReadOnly: true,
+            showAlert: false,
+            toastParams: {
+                mostrar: false,
+                esError: false,
+                volverCuandoCancela: false,
+                mensaje: ""
+            }
+        }
+    }
+
+    componentDidMount = () => {
+
+        BD.getJugadoresDB().get(this.props.match.params.dni)
+            .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
+            .catch(() => {
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        esError: true,
+                        volverCuandoCancela: true,
+                        mensaje: "No se pudo cargar el perfil del jugador."
+                    }
+                })
+            });
+    }
+
+    renderDeportes = (): string => {
+
+        let respuesta = '';
+        const deportes = this.state.jugador.deportes;
+
+        for (let i = 0; i < (deportes.length - 1); i++)
+            respuesta = respuesta + NOMBRE_DEPORTES[deportes[i]] + ', ';
+
+        respuesta += NOMBRE_DEPORTES[deportes[deportes.length - 1]]; /* ultimo deporte no lleva coma al final */
+
+        return respuesta;
+    }
+
+    renderCategoria = () => {
+
+        let respuesta = null;
+
+        if (this.state.jugador.deportes.includes(DEPORTES.futbol))
+            respuesta = (
+                <IonItem>
+                    <IonLabel>Categoría Fútbol</IonLabel>
+                    <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
+                </IonItem>
+            );
+
+        return respuesta;
+    }
+
+    guardarNuevoNombre = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: event.target.value,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    guardarNuevoTelefono = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: event.target.value,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    guardarFechaNacimiento = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: this.state.jugadorTemp.deportes,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: event.target.value.split('T')[0],
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    guardarDeportes = (event: any) => {
+
+        let jugador: iJugador = {
+            '_id': this.state.jugadorTemp._id,
+            nombre: this.state.jugadorTemp.nombre,
+            dni: this.state.jugadorTemp.dni,
+            categoria: this.state.jugadorTemp.categoria,
+            deportes: event.target.value,
+            telResponsable: this.state.jugadorTemp.telResponsable,
+            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
+            planillaMedica: this.state.jugadorTemp.planillaMedica
+        };
+
+        this.setState({ jugadorTemp: jugador });
+    }
+
+    eliminarJugador = () => {
+
+        BD.getJugadoresDB().get(this.state.jugador.dni)
+            .then((doc) => BD.getJugadoresDB().remove(doc))
+            .then(() => {
+                this.setState({ toastParams: { mostrar: true, mensaje: "Perfil eliminado." } });
+                this.props.history.push('/listado');
+            })
+            .catch(() => { this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "No se pudo eliminar el perfil del jugador." } }) });
+    }
+
+    actualizarJugador = () => {
+
+        const nombre = this.state.jugadorTemp.nombre;
+
+        if (this.state.jugadorTemp.deportes.length < 1)
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } })
+        else if (! regNombre.test(nombre))
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
+        else
+            BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
+                .then(() => {
+                    this.setState({
+                        jugador: this.state.jugadorTemp,
+                        isReadOnly: true,
+                        toastParams: {
+                            mostrar: true,
+                            mensaje: "Perfil actualizado."
+                        }
+                    });
+                })
+                .catch(() => { this.setState({ toastParams: { mostrar: true, esError: false, mensaje: "No se pudo actualizar el perfil del jugador." } }) });
+    }
+
+    renderSelectDeportes = () => {
+
+        const deportes = [
+            { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+            { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
+        ];
+
+        return (
+            deportes.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
+    }
+
+    render() {
+        return (
+            <IonPage>
+                <IonContent className="vistaJugador">
+                    <IonToast
+                        isOpen={this.state.toastParams.mostrar}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false, volverCuandoCancela: false } })}
+                        message={this.state.toastParams.mensaje}
+                        color={(this.state.toastParams.esError) ? "danger" : "success"}
+                        duration={(this.state.toastParams.esError) ? 0 : 1000}
+                        buttons={(this.state.toastParams.esError) ?
+                            [{ text: 'CERRAR', handler: () => { if (this.state.toastParams.volverCuandoCancela) this.props.history.push("/listado") } }]
+                            :
+                            []
+                        }
+                    />
+                    <IonItem>
+                        <IonLabel>Nombre</IonLabel>
+                        <IonInput
+                            type="text" value={(this.state.isReadOnly) ? this.state.jugador.nombre : this.state.jugadorTemp.nombre}
+                            readonly={this.state.isReadOnly}
+                            clearInput={true}
+                            minlength={1}
+                            inputMode="text"
+                            onIonInput={this.guardarNuevoNombre}
+                            id="inputNombre"
+                        />
+                    </IonItem>
+                    <IonItem>
+                        <IonLabel>DNI</IonLabel>
+                        <h4>{this.state.jugador.dni}</h4>
+                    </IonItem>
+                    <IonItem>
+                        <IonLabel>Fecha de Nacimiento</IonLabel>
+                        <IonDatetime
+                            displayFormat="DD/MM/YYYY"
+                            pickerFormat="DD/MMM/YYYY"
+                            monthShortNames={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
+                            max={new Date().toISOString().split('T')[0]}
+                            value={(this.state.isReadOnly) ? this.state.jugador.fechaNacimiento : this.state.jugadorTemp.fechaNacimiento}
+                            readonly={this.state.isReadOnly}
+                            cancelText="Cancelar"
+                            doneText="OK"
+                            onIonChange={this.guardarFechaNacimiento}
+                        />
+                    </IonItem>
+                    {
+                        (this.state.isReadOnly) ?
+                            <IonItem>
+                                <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
+                                <h4>{this.renderDeportes()}</h4>
+                            </IonItem>
+                            :
+                            <IonItem>
+                                <IonLabel>Deportes</IonLabel>
+                                <IonSelect multiple={true} cancelText="Cancelar" onIonChange={this.guardarDeportes}>
+                                    {this.renderSelectDeportes()}
+                                </IonSelect>
+                            </IonItem>
+                    }
+                    {this.renderCategoria()}
+                    <IonItem>
+                        <IonLabel>Teléfono del Responsable</IonLabel>
+                        <IonButton
+                            hidden={!this.state.isReadOnly || (this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0)}
+                            size="default"
+                            color="success"
+                            fill="outline"
+                            href={`tel:${this.state.jugador.telResponsable}`}
+                        >
+                            <IonIcon icon={call} />
+                        </IonButton>
+                    </IonItem>
+                    <IonItem>
+                        <IonInput
+                            type="tel"
+                            value={(this.state.isReadOnly) ? this.state.jugador.telResponsable : this.state.jugadorTemp.telResponsable}
+                            readonly={this.state.isReadOnly}
+                            clearInput={true}
+                            inputMode="tel"
+                            minlength={1}
+                            onIonInput={this.guardarNuevoTelefono}
+                        />
+                    </IonItem>
+                    <IonGrid hidden={this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0}>
+                        <IonRow hidden={!this.state.isReadOnly}>
+                            <IonCol size='6'>
+                                <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
+                            </IonCol>
+                            <IonCol size='6'>
+                                <IonButton
+                                    className="botonJugador"
+                                    fill="outline"
+                                    href={`/pagosJugador/${this.state.jugador.dni}`}
+                                >Pagos</IonButton>
+                            </IonCol>
+                        </IonRow>
+                        <IonRow>
+                            <IonCol size='6'>
+                                {
+                                    (this.state.isReadOnly) ?
+                                        <IonButton
+                                            className="botonJugador"
+                                            fill="outline"
+                                            onClick={() => this.setState({ isReadOnly: false })}
+                                        >Editar</IonButton>
+                                        :
+                                        <IonButton
+                                            className="botonJugador"
+                                            fill="outline"
+                                            onClick={this.actualizarJugador}
+                                        >Guardar</IonButton>
+                                }
+                            </IonCol>
+                            <IonCol hidden={this.state.isReadOnly} size='6'>
+                                <IonButton
+                                    className="botonJugador"
+                                    fill="outline"
+                                    onClick={() => { this.setState({ jugadorTemp: this.state.jugador, isReadOnly: true }) }}
+                                >Cancelar</IonButton>
+                            </IonCol>
+                            <IonCol hidden={!this.state.isReadOnly} size='6'>
+                                <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { this.setState({ showAlert: true }) }}>
+                                    Eliminar
+                                </IonButton>
+                                <IonAlert
+                                    isOpen={this.state.showAlert}
+                                    onDidDismiss={() => { this.setState({ showAlert: false }) }}
+                                    header={'¿Estás seguro que quieres eliminar este jugador?'}
+                                    subHeader={'Esta acción no puede deshacerse.'}
+                                    buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarJugador }]}
+                                />
+                            </IonCol>
+                        </IonRow>
+                    </IonGrid>
+                </IonContent>
+            </IonPage>
+        );
+    }
+}
+
 export default Jugador;
-/*UTF8*/
+
+
+/*
+ - PLANILLA MEDICA
+ - VALIDAR TELEFONO
+
+
+ - VARIOS TELEFONOS?
+ - DNI EDITABLE?
+ - BORRO PAGOS SI ELIMINO A UN JUGADOR?
+ */

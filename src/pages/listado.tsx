@@ -1,57 +1,74 @@
 ﻿import React from 'react';
-import {IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar} from '@ionic/react';
+import { IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent, IonToast, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import '../theme/listado.css';
-import { Link } from 'react-router-dom';
-import { iJugador, DEPORTES, CATEGORIAS } from '../interfaces';
-import PouchDB from 'pouchdb'; 
+import { Link, RouteComponentProps } from 'react-router-dom';
+import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
+import BD from '../BD';
+import { add } from 'ionicons/icons';
 
 interface iOpcion {
     nombre: string,
-    valor:  number,
+    valor: number,
 }
 
-const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
+interface iState {
+    jugadores: iJugador[],
+    jugadoresMostrados: iJugador[],
+    deportesMostrados: number[],
+    categoriaMostrada: number,
+    toastParams: {
+        mostrar: boolean,
+        mensaje: string
+    },
+    actualizaListado: boolean
+}
 
 const deportes: iOpcion[] = [
-    { nombre: 'Basket', valor: DEPORTES.basket },
-    { nombre: 'Fútbol', valor: DEPORTES.futbol },
+    { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+    { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
 ];
 
 const categorias: iOpcion[] = [
-    { nombre: '1° Femenina',  valor: CATEGORIAS.primeraFemenina },
-    { nombre: '1° Masculina', valor: CATEGORIAS.primeraMasculina },
-    { nombre: '5°',           valor: CATEGORIAS.quinta },
-    { nombre: '7° Mixta',     valor: CATEGORIAS.septima },
-    { nombre: '9° Mixta',     valor: CATEGORIAS.novena },
-    { nombre: '11° Mixta',    valor: CATEGORIAS.undecima },
-    { nombre: '13° Mixta',    valor: CATEGORIAS.decimoTercera },
-    { nombre: '15° Mixta',    valor: CATEGORIAS.decimoQuinta },
+    { nombre: 'Sin Filtro', valor: 0 },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
 ]
 
-class Listado extends React.Component {
+class Listado extends React.Component<RouteComponentProps<{}>> {
 
-    state = {
+    state: iState = {
         jugadores: [],
         jugadoresMostrados: [],
         deportesMostrados: [],
         categoriaMostrada: 0,
+        toastParams: {
+            mostrar: false,
+            mensaje: ""
+        },
+        actualizaListado: false
     }
 
-    renderOpciones = (opciones: iOpcion[]) => {
-        return (
-            opciones.map((opcion: iOpcion) => (
-                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
-            )));
-    }
+    renderOpciones = (opciones: iOpcion[]) => (
+
+        opciones.map((opcion: iOpcion) => (
+            <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+        ))
+    );
 
     buscarJugador = (event: CustomEvent) => {
 
-        const query = (event.target as HTMLTextAreaElement).value;
+        const query = (event.target as HTMLTextAreaElement).value.toLowerCase();
         let criterioBusqueda: Function;
         let jugadoresBuscados;
 
         if ((query[0] >= '0') && (query[0] <= '9')) /* busco por DNI */
-            criterioBusqueda = (jugador: iJugador): boolean => jugador.dni.toString().indexOf(query) > -1;
+            criterioBusqueda = (jugador: iJugador): boolean => jugador.dni.indexOf(query) > -1;
         else
             criterioBusqueda = (jugador: iJugador): boolean => jugador.nombre.toLowerCase().indexOf(query) > -1;
 
@@ -60,7 +77,7 @@ class Listado extends React.Component {
                 jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === this.state.categoriaMostrada && criterioBusqueda(jugador));
             else /* se filtro por Deporte */
                 jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados) && criterioBusqueda(jugador));
-        else /* no se aplico ningun filtro */ 
+        else /* no se aplico ningun filtro */
             jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => criterioBusqueda(jugador));
 
         this.setState({ jugadoresMostrados: jugadoresBuscados });
@@ -69,12 +86,18 @@ class Listado extends React.Component {
     filtrarPorCategoria = (event: CustomEvent) => {
 
         const nroCat = parseInt((event.target as HTMLTextAreaElement).value);
-        const jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === nroCat));
+        let jugadoresBuscados = [];
+
+        if (nroCat !== 0) /* filtro por deporte y categoria */
+            jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => (this.criterioDeporte(jugador, this.state.deportesMostrados) && jugador.categoria === nroCat));
+        else /* filtro solo por deporte */
+            jugadoresBuscados = this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, this.state.deportesMostrados));
 
         this.setState({ jugadoresMostrados: jugadoresBuscados, categoriaMostrada: nroCat });
     }
 
     criterioDeporte = (jugador: iJugador, deportesBuscados: number[]) => {
+
         let respuesta = true;
         let i = 0;
 
@@ -100,55 +123,80 @@ class Listado extends React.Component {
             this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
     }
 
+    actualizarJugadores = () => {
+
+        let jugadoresRecibidos: iJugador[] = [];
+        const docToJugador = (doc: any): iJugador => doc;
+
+        BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre'] })
+            .then((resultado) => {
+                jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
+                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
+            })
+            .catch(() => { this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } }) });
+    }
+
     componentDidMount = () => {
 
-        let jugadoresRecibidos: iJugador[] = []; 
-        const docToJugador = (doc: any): iJugador => doc; //ALGUNA FORMA DE EVITAR ESTE 'CASTEO' ?
-
-        jugadoresDB.allDocs({ include_docs: true })
-            .then((resultado) => {
-                jugadoresRecibidos = resultado.rows.map(row => docToJugador(row.doc));
-                this.setState({
-                    jugadores: jugadoresRecibidos,
-                    jugadoresMostrados: jugadoresRecibidos
-                });
-            })
-            .catch(console.log); // ESTO O QUE TIRE CARTELITO O QUE ?
+        this.actualizarJugadores();
     }
 
-    renderJugadores = () => {
+    componentDidUpdate = (prevProps: any) => {
 
-        const getCategoria = (nroCat: number) => ((nroCat !== 0) ? categorias.find(cat => cat.valor === nroCat)!.nombre : '-' );
-
-        return (
-            this.state.jugadoresMostrados.map((jugador: iJugador) => (
-                <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
-                    <IonItem>
-                        <IonLabel>
-                            <h2>{jugador.nombre}</h2>
-                            <h3 className='datos'>{'DNI: ' + jugador.dni + ' | Categoría: ' + getCategoria(jugador.categoria)}</h3>
-                        </IonLabel>
-                    </IonItem>
-                </Link>
-            )));
+        if (prevProps.location.pathname !== this.props.location.pathname)
+            this.actualizarJugadores();
     }
+
+    renderJugadores = () => (
+
+        this.state.jugadoresMostrados.map((jugador: iJugador) => (
+            <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
+                <IonItem>
+                    <IonLabel>
+                        <h2>{jugador.nombre}</h2>
+                        <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
+                    </IonLabel>
+                </IonItem>
+            </Link>
+        ))
+    );
 
     render() {
         return (
             <IonPage>
-                <IonContent>
-                    <IonHeader>
-                        <IonItem>
-                            <IonLabel>Filtros</IonLabel>
-                            <IonSelect cancelText = 'CANCELAR' multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
-                                {this.renderOpciones(deportes)}
-                            </IonSelect>
-                            <IonSelect cancelText='CANCELAR' placeholder='Categoría' disabled={ this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
-                                {this.renderOpciones(categorias)}
-                            </IonSelect>
-                        </IonItem>
-                        <IonSearchbar onIonInput={this.buscarJugador} placeholder="Nombre del Jugador" />
-                    </IonHeader>
+                <IonHeader>
+                    <IonItem id="filtros">
+                        <IonLabel>Filtros</IonLabel>
+                        <IonSelect cancelText="Cancelar" multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
+                            {this.renderOpciones(deportes)}
+                        </IonSelect>
+                        <IonSelect cancelText="Cancelar" placeholder='Categoría' disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
+                            {this.renderOpciones(categorias)}
+                        </IonSelect>
+                    </IonItem>
+                    <IonSearchbar onIonInput={this.buscarJugador} placeholder="Nombre o DNI del Jugador" />
+                </IonHeader>
+                <IonContent id="contenido">
+                    <IonToast
+                        isOpen={this.state.toastParams.mostrar}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false } })}
+                        message={this.state.toastParams.mensaje}
+                        color="danger"
+                        showCloseButton={true}
+                        closeButtonText="CERRAR"
+                    />
+                    <IonRefresher slot="fixed"
+                        onIonRefresh={(event) => {
+                            this.actualizarJugadores();
+                            setTimeout(() => { event.detail.complete() }, 500);
+                        }}>
+                        <IonRefresherContent></IonRefresherContent>
+                    </IonRefresher>
+                    <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                        <IonFabButton size="small" href="/listado/registrarJugador">
+                            <IonIcon icon={add} />
+                        </IonFabButton>
+                    </IonFab>
                     <IonList>
                         {this.renderJugadores()}
                     </IonList>
@@ -159,7 +207,3 @@ class Listado extends React.Component {
 }
 
 export default Listado;
-
-/* AGREGAR
-   - Posibilidad de deshacer filtro elegido, ver ion-chips
- */
