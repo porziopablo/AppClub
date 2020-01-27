@@ -8,12 +8,12 @@ const About: React.FC = () => {
     return (
         <IonPage id="about-page">
             <IonContent>
-                <h2 id='titulo'> Aplicacion administrativa <br /> Club 2 de Mayo </h2>
+                <h2 id='titulo'> Aplicación Administrativa <br /> Club 2 de Mayo </h2>
                 <img id='logoClub' src={logoClub} alt="Logo del club" />
                 <h4 id='version'> Version 1.0 </h4>
-                <div id='about'>
-                    <IonItem> Esta aplicacion ha sido desarrollada por Ivan Aprea, Martin Casas, Mariquena Gros y Pablo Porzio, como Practica Profesional
-                        Supervisada de la carrera Ingenieria Informatica dictada en la Facultad de Ingenieria de la UNMDP. Proyecto a cargo de Natalia Bartels y Felipe Evans.
+                <div>
+                    <IonItem id='about'> Esta aplicación ha sido desarrollada por Ivan Aprea, Martín Casas, Mariquena Gros y Pablo Porzio, como Práctica Profesional
+                        Supervisada de la carrera Ingeniería Informática dictada en la Facultad de Ingeniería de la UNMDP. Proyecto a cargo de Natalia Bartels y Felipe Evans.
                     </IonItem>
                 </div>
             </IonContent>
