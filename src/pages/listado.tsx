@@ -1,9 +1,10 @@
 ﻿import React from 'react';
-import { IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent, IonToast } from '@ionic/react';
+import { IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent, IonToast, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import '../theme/listado.css';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
+import { add } from 'ionicons/icons';
 
 interface iOpcion {
     nombre: string,
@@ -122,23 +123,6 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
             this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
     }
 
-    actualizaLista = (event: CustomEvent) => {
-
-        let jugadoresRecibidos: iJugador[] = [];
-        const docToJugador = (doc: any): iJugador => doc;
-
-        BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre'] })
-            .then((resultado) => {
-                jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
-                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
-                setTimeout(() => { event.detail.complete() }, 500); /* para que dure un poco mas la animacion */
-            })
-            .catch(() => {
-                this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } });
-                setTimeout(() => { event.detail.complete() }, 500);
-            });
-    }
-
     actualizarJugadores = () => {
 
         let jugadoresRecibidos: iJugador[] = [];
@@ -201,9 +185,18 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
                         showCloseButton={true}
                         closeButtonText="CERRAR"
                     />
-                    <IonRefresher slot="fixed" onIonRefresh={this.actualizaLista}>
+                    <IonRefresher slot="fixed"
+                        onIonRefresh={(event) => {
+                            this.actualizarJugadores();
+                            setTimeout(() => { event.detail.complete() }, 500);
+                        }}>
                         <IonRefresherContent></IonRefresherContent>
                     </IonRefresher>
+                    <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                        <IonFabButton size="small" href="/listado/registrarJugador">
+                            <IonIcon icon={add} />
+                        </IonFabButton>
+                    </IonFab>
                     <IonList>
                         {this.renderJugadores()}
                     </IonList>

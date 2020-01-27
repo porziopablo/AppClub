@@ -357,9 +357,6 @@ export default Jugador;
 
 
 /*
- - boton volver atras
-
-
  - PLANILLA MEDICA
  - VALIDAR TELEFONO
 
