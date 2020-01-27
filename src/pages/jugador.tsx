@@ -61,7 +61,16 @@ class Jugador extends React.Component<jugadorProps> {
 
         BD.getJugadoresDB().get(this.props.match.params.dni)
             .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
-            .catch(() => { this.setState({ toastParams: { mostrar: true, esError: true, volverCuandoCancela: true, mensaje: "No se pudo cargar el perfil del jugador." } }) });
+            .catch(() => {
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        esError: true,
+                        volverCuandoCancela: true,
+                        mensaje: "No se pudo cargar el perfil del jugador."
+                    }
+                })
+            });
     }
 
     renderDeportes = (): string => {
@@ -162,7 +171,7 @@ class Jugador extends React.Component<jugadorProps> {
             .then((doc) => BD.getJugadoresDB().remove(doc))
             .then(() => {
                 this.setState({ toastParams: { mostrar: true, mensaje: "Perfil eliminado." } });
-                this.props.history.push('/jugadores')
+                this.props.history.push('/listado');
             })
             .catch(() => { this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "No se pudo eliminar el perfil del jugador." } }) });
     }
@@ -349,9 +358,12 @@ export default Jugador;
 
 /*
  - boton volver atras
- - como hacer que al volver al listado, este se actualice automaticamente
+
+
  - PLANILLA MEDICA
  - VALIDAR TELEFONO
+
+
  - VARIOS TELEFONOS?
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?

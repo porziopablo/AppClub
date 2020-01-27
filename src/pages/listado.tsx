@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { IonPage, IonContent, IonList, IonItem, IonLabel, IonSelect, IonSelectOption, IonHeader, IonSearchbar, IonRefresher, IonRefresherContent, IonToast } from '@ionic/react';
 import '../theme/listado.css';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
 
@@ -18,7 +18,8 @@ interface iState {
     toastParams: {
         mostrar: boolean,
         mensaje: string
-    }
+    },
+    actualizaListado: boolean
 }
 
 const deportes: iOpcion[] = [
@@ -38,7 +39,7 @@ const categorias: iOpcion[] = [
     { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
 ]
 
-class Listado extends React.Component {
+class Listado extends React.Component<RouteComponentProps<{}>> {
 
     state: iState = {
         jugadores: [],
@@ -48,15 +49,16 @@ class Listado extends React.Component {
         toastParams: {
             mostrar: false,
             mensaje: ""
-        }
+        },
+        actualizaListado: false
     }
 
-    renderOpciones = (opciones: iOpcion[]) => {
-        return (
-            opciones.map((opcion: iOpcion) => (
-                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
-            )));
-    }
+    renderOpciones = (opciones: iOpcion[]) => (
+
+        opciones.map((opcion: iOpcion) => (
+            <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+        ))
+    );
 
     buscarJugador = (event: CustomEvent) => {
 
@@ -94,6 +96,7 @@ class Listado extends React.Component {
     }
 
     criterioDeporte = (jugador: iJugador, deportesBuscados: number[]) => {
+
         let respuesta = true;
         let i = 0;
 
@@ -136,7 +139,7 @@ class Listado extends React.Component {
             });
     }
 
-    componentDidMount = () => {
+    actualizarJugadores = () => {
 
         let jugadoresRecibidos: iJugador[] = [];
         const docToJugador = (doc: any): iJugador => doc;
@@ -149,20 +152,30 @@ class Listado extends React.Component {
             .catch(() => { this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } }) });
     }
 
-    renderJugadores = () => {
+    componentDidMount = () => {
 
-        return (
-            this.state.jugadoresMostrados.map((jugador: iJugador) => (
-                <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
-                    <IonItem>
-                        <IonLabel>
-                            <h2>{jugador.nombre}</h2>
-                            <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
-                        </IonLabel>
-                    </IonItem>
-                </Link>
-            )));
+        this.actualizarJugadores();
     }
+
+    componentDidUpdate = (prevProps: any) => {
+
+        if (prevProps.location.pathname !== this.props.location.pathname)
+            this.actualizarJugadores();
+    }
+
+    renderJugadores = () => (
+
+        this.state.jugadoresMostrados.map((jugador: iJugador) => (
+            <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
+                <IonItem>
+                    <IonLabel>
+                        <h2>{jugador.nombre}</h2>
+                        <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
+                    </IonLabel>
+                </IonItem>
+            </Link>
+        ))
+    );
 
     render() {
         return (
