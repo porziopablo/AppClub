@@ -5,7 +5,7 @@ import {
     IonButton,
 } from '@ionic/react';
 import React from 'react';
-import '../theme/aistencia.css';
+import '../theme/asistencia.css';
 
 const Asistencia: React.FC = () => {
     return (
