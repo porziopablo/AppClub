@@ -52,22 +52,17 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         const docToJugador = (doc: any): iJugador => doc;
         let jugadoresBuscados: iJugador[] = [];
 
-        jugadoresDB.createIndex({
-            index: { fields: ['categoria'] }
-        })
-        .then(function () {
-            return jugadoresDB.find({
+        jugadoresDB.find({
                 selector: {
                     categoria: +cat
                 }
-            })
         }).then((resultado) => {
             jugadoresBuscados = resultado.docs.map(row => docToJugador(row));
             setJugadores(jugadoresBuscados);
         })
             .catch(console.log);
         
-    }, []);
+    }, [cat]);
 
     const renderJugadores = () => {
         return (

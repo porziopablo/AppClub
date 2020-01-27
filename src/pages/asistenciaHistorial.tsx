@@ -10,7 +10,7 @@
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { iJugador, iAsistItem, iAsistencia, CATEGORIAS } from '../interfaces';
+import { iAsistItem, iAsistencia } from '../interfaces';
 import BD from '../BD';
 
 interface UserDetailPageProps extends RouteComponentProps<{

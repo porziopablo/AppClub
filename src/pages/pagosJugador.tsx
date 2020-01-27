@@ -28,7 +28,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
             setPagos(pagosBuscados);
         })
             .catch(console.log);
-    }, []);
+    }, [dniJugador]);
 
      const renderPagos = () => {
         return (
@@ -41,7 +41,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
                         <b>${pago.monto}</b> 
                     </IonLabel>
                     <IonLabel>
-                        cobrado por {pago.nombreProfesor}
+                        {pago.nombreProfesor}
                     </IonLabel>
                 </IonItem>
             )));

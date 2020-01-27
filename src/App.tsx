@@ -29,7 +29,7 @@ import LogIn from './pages/logIn';
 import OpcionesAdmin from './pages/opcionesAdmin';
 import Usuarios from './pages/usuarios';
 import About from './pages/about';
-import Historial from './pages/historialCobros';
+import Historial from './pages/historialBalances';
 import AsistenciaCatTomar from './pages/asistenciaCategoriaT';
 import AsistenciaCatVer from './pages/asistenciaCategoriaV';
 import AsistenciaList from './pages/asistenciaListado';
