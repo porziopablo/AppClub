@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup } from '@ionic/react';
+import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup, IonToast } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import '../theme/usuarios.css';
 import { iProfesor } from '../interfaces';
@@ -11,43 +11,57 @@ interface UserDetailPageProps extends RouteComponentProps<{
 
 const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
+    const [nuevos, setNuevos] = useState(false);
     const [usuarios, setUsuarios] = useState<iProfesor[]>([]);
-    const [selected, setSelected] = useState<number>(0);
+    const [selected, setSelected] = useState<string>("");
+    const [toast, setToast] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+    const [toastColor, setToastColor] = useState('danger');
 
     let tipo = match.params.tipo;
-    let nuevos = false;
 
-    const determinarTipo = () => {
-        if (tipo === "nuevos") {
-            nuevos = true;
+    function eliminarDeArray(array: Array<iProfesor>, doc: iProfesor) {
+        const index = array.indexOf(doc);
+        if (index > -1) {
+            array.splice(index, 1);
         }
     }
 
     useEffect(() => {
-        determinarTipo();
+        if (tipo === "nuevos") {
+            setNuevos(true);
+        }
         if (nuevos) {
             let pendientesRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
-            BD.getPendientesDB().allDocs({ include_docs: true })
+            BD.getPendientesDB().find({ selector: { dni: { $gte: null } }, sort: ['dni'] })
                 .then((resultado) => {
-                    pendientesRecibidos = resultado.rows.map(row => docToProfesor(row.doc));
+                    pendientesRecibidos = resultado.docs.map(doc => docToProfesor(doc));
                     setUsuarios(pendientesRecibidos);
                 })
-                .catch(console.log);
+                .catch(res => {
+                    setToastColor("danger");
+                    setToastMsg("ERROR al obtener lista de usuarios pendientes");
+                    setToast(true);
+                });
         }
         else {
             let usuariosRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
-            BD.getProfesoresDB().allDocs({ include_docs: true })
+            BD.getProfesoresDB().find({ selector: { dni: { $gte: null } }, sort: ['dni'] })
                 .then((resultado) => {
-                    usuariosRecibidos = resultado.rows.map(row => docToProfesor(row.doc));
+                    usuariosRecibidos = resultado.docs.map(doc => docToProfesor(doc));
                     setUsuarios(usuariosRecibidos);
                 })
-                .catch(console.log);
+                .catch(res => {
+                    setToastColor("danger");
+                    setToastMsg("ERROR al obtener lista de usuarios");
+                    setToast(true);
+                });
         }
-    });
+    }, [nuevos, tipo, usuarios]);
 
     function handleSeleccion(event: any) {
         setSelected(event.target.value);
@@ -55,48 +69,84 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
     function handleEliminarUsuario (event: any) {
         if (selected) {
-            console.log(selected);
-            const doc = usuarios.filter(obj => obj.dni === JSON.stringify(selected));
-            BD.getProfesoresDB().get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
-                BD.getProfesoresDB().remove(documento);
+            const doc = usuarios.filter(obj => obj.dni === selected);
+            BD.getProfesoresDB().get(doc[0].dni).then(function (documento: any) {
+                BD.getProfesoresDB().remove(documento)
+                    .then(res => {
+                        eliminarDeArray(usuarios, documento);
+                        setToastColor("success");
+                        setToastMsg("Se ha eliminado al usuario con exito");
+                        setToast(true);
+                    }).catch(res => {
+                        setToastColor("danger");
+                        setToastMsg("ERROR al eliminar al usuario");
+                        setToast(true);
+                    });
             }).catch(function (err: Error) {
                 console.log(err);
-                //aca habria que ver que pasa si el documento no existe
+                setToastColor("danger");
+                setToastMsg("ERROR no se encuentra usuario seleccionado");
+                setToast(true);
             });
-            setSelected(0);
+            setSelected("");
         }
     }
 
     function handleRechazarPendiente(event: any) {
         if (selected) {
-            const doc = usuarios.filter(obj => obj.dni === JSON.stringify(selected));
-            console.log(doc);
-            BD.getPendientesDB().get(JSON.stringify(doc[0].dni)).then(function (documento: any) {
-                BD.getPendientesDB().remove(documento);
+            const doc = usuarios.filter(obj => obj.dni === selected);
+            BD.getPendientesDB().get(doc[0].dni).then(function (documento: any) {
+                BD.getPendientesDB().remove(documento)
+                    .then(res => {
+                        eliminarDeArray(usuarios, documento);
+                        setToastColor("success");
+                        setToastMsg("Se ha rechazado al usuario pendiente con exito");
+                        setToast(true);
+                    }).catch(res => {
+                        setToastColor("danger");
+                        setToastMsg("ERROR al rechazar al usuario pendiente");
+                        setToast(true);
+                    });
             }).catch(function (err: Error) {
                 console.log(err);
-                //aca habria que ver que pasa si el documento no existe
+                setToastColor("danger");
+                setToastMsg("ERROR no se encuentra usuario pendiente seleccionado");
+                setToast(true);
             });
-            setSelected(0);
+            setSelected("");
         }
     }
 
     function handleAceptarPendiente(event: any) {
         if (selected) {
-            console.log(selected);
             let aPostear: iProfesor = { '_id': '', nombre: '', dni: '', email: '', pass: '' }
-            BD.getPendientesDB().get(JSON.stringify(selected)).then(function (doc: any) {
+            BD.getPendientesDB().get(selected).then(function (doc: any) {
+                console.log(doc);
                 aPostear._id = doc._id;
                 aPostear.nombre = doc.nombre;
                 aPostear.dni = doc.dni;
                 aPostear.email = doc.email;
                 aPostear.pass = doc.pass;
                 BD.getPendientesDB().remove(doc);
-                return BD.getProfesoresDB().post(aPostear);
+                return BD.getProfesoresDB().put(aPostear)
+                    .then(res => {
+                        eliminarDeArray(usuarios, aPostear);
+                        setToastColor("success");
+                        setToastMsg("Se ha aceptado al usuario pendiente con exito");
+                        setToast(true);
+                    }).catch(res => {
+                        setToastColor("danger");
+                        setToastMsg("ERROR al aceptar al usuario pendiente");
+                        setToast(true);
+                    });
             }).catch(function (err: Error) {
                 console.log(err);
+                console.log(err);
+                setToastColor("danger");
+                setToastMsg("ERROR no se encuentra usuario pendiente seleccionado");
+                setToast(true);
             });
-            setSelected(0);
+            setSelected("");
         } 
     }
 
@@ -132,8 +182,14 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
     return (
         <IonPage>
+            <IonToast
+                isOpen={toast}
+                onDidDismiss={() => setToast(false)}
+                message={toastMsg}
+                color={toastColor}
+                duration={3500}
+            />
             <IonContent>
-                {determinarTipo()}
                 <IonList>
                     <IonRadioGroup>
                         <IonListHeader>
