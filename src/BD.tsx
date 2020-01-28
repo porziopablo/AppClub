@@ -59,6 +59,9 @@ class BaseDatos {
             this.profesoresDB.createIndex({ index: { fields: ['dni'], name: "indiceProfe", ddoc: "indiceProfe" } })
                 .catch(console.log)
 
+            this.pendientesDB.createIndex({ index: { fields: ['dni'], name: "indicePendiente", ddoc: "indicePendiente" } })
+                .catch(console.log)
+
             BaseDatos.instance = this;
         }
 
