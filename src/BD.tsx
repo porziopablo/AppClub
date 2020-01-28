@@ -1,7 +1,10 @@
 import PouchDB from 'pouchdb'; 
 import Find from 'pouchdb-find';
+import Auth from 'pouchdb-authentication';
 PouchDB.plugin(Find);
 PouchDB.plugin(require('pouchdb-upsert'));
+
+PouchDB.plugin(Auth);
 
 class BaseDatos {
 
