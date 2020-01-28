@@ -4,16 +4,20 @@ import '../theme/registrarJugador.css';
 import { iJugador } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 
 const RegistrarJugador: React.FC = () => {
 
     const [jugador, setJugador] = useState<iJugador>({'_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: ''});
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
+    const [toastColor, setToastColor] = useState('danger');
+    const [telefono, setTelefono] = useState('');
+
     //Foto de la planilla medica, con capacitor?
 
     function guardarNombre(event: any) {
-        console.log(event.target.value);
         let jug: iJugador = {
             '_id': jugador._id,
             nombre: event.target.value,
@@ -69,14 +73,14 @@ const RegistrarJugador: React.FC = () => {
         setJugador(jug);
     }
 
-    function guardarTelefono(event: any) {
+    function guardarTelefono(tel: string) {
         let jug: iJugador = {
             '_id': jugador._id,
             nombre: jugador.nombre,
             dni: jugador.dni,
             categoria: jugador.categoria,
             deportes: jugador.deportes,
-            telResponsable: event.target.value,
+            telResponsable: tel,
             fechaNacimiento: jugador.fechaNacimiento,
             planillaMedica: jugador.planillaMedica
         }
@@ -105,12 +109,26 @@ const RegistrarJugador: React.FC = () => {
             setToast(true);
         }
         else {
-            BD.getJugadoresDB().post(jugador)
+            let arr = Array.from(jugador.telResponsable);
+            arr.splice(3, 0, '9');
+            let jug: iJugador = {
+                '_id': jugador._id,
+                nombre: jugador.nombre,
+                dni: jugador.dni,
+                categoria: jugador.categoria,
+                deportes: jugador.deportes,
+                telResponsable: (arr.join('')),
+                fechaNacimiento: jugador.fechaNacimiento,
+                planillaMedica: jugador.planillaMedica
+            }
+            BD.getJugadoresDB().put(jug)
                 .then(res => {
+                    setToastColor("success");
                     setToastMsg("El jugador se ha cargado con exito");
                     setToast(true);
                 })
                 .catch(err => {
+                    setToastColor("danger");
                     setToastMsg("ERROR al cargar al jugador, intentelo mas tarde.");
                     setToast(true);
                     console.log(err);
@@ -125,13 +143,14 @@ const RegistrarJugador: React.FC = () => {
                 isOpen={toast}
                 onDidDismiss={() => setToast(false)}
                 message={toastMsg}
+                color={toastColor}
                 duration={3500}
             />
             <IonContent>
                 <form>
                     <IonText class='warning'>Es obligatorio completar todos los campos.</IonText>
                     <IonItem>
-                        <IonLabel position="floating"><IonText class='label-modal'>Nombres y Apellido</IonText></IonLabel>
+                        <IonLabel position="floating"><IonText class='label-modal'>Nombres y apellido</IonText></IonLabel>
                         <IonInput onIonInput={guardarNombre} type="text" ></IonInput>
                     </IonItem>
                     <IonItem>
@@ -150,8 +169,15 @@ const RegistrarJugador: React.FC = () => {
                         </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonLabel position="floating"><IonText class='label-modal'>Telefono del responsable</IonText></IonLabel>
-                        <IonInput onIonInput={guardarTelefono} required type="number" ></IonInput>
+                        <IonText class='label-modal'>Telefono del responsable:</IonText>
+                    </IonItem>
+                    <IonItem>
+                        <PhoneInput
+                            defaultCountry="AR"
+                            countries={["AR"]}
+                            placeholder="p.ej. 223 5555555"
+                            value={telefono}
+                            onChange={(res) => { setTelefono(res); guardarTelefono(res)}} />
                     </IonItem>
                     <IonItem>
                         <IonIcon slot="start" icon={camera}></IonIcon>
