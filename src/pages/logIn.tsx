@@ -6,9 +6,8 @@ import '../theme/logIn.css';
 import { maxNumDni,regEmail,regDni,regNombre,iProfesor } from '../interfaces';
 
 import db from '../BD';
-import SideMenu from '../components/SideMenu';
 
-const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
+const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ1-9]+([A-Za-zÀ-ÖØ-öø-ÿ1-9]+)*$/;
 
 
 const profesor: iProfesor = {
@@ -18,7 +17,6 @@ const profesor: iProfesor = {
     email: '',
     pass: '',
 }
-
 
 const LogIn: React.FC = () => {
 
@@ -55,35 +53,31 @@ const LogIn: React.FC = () => {
 
 
         if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email)) {
-            
-            db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
-                metadata: {
-                    email: profesor.email,
-                    nombre: profesor.nombre,
-                    dni: profesor.dni,
+            db.getProfesoresDB().find({  
+                selector: { _id: { $eq: profesor.dni } } //Busca un id igual al dni en forma de string, si no falla, entra el then
+            }).then(function (result) {
+                if (result.docs.length === 0) {  //si el resultado del find es un array de long 0 agrega, else informa usuario existente.
+                    profesor._id = profesor.dni;
+                    db.getProfesoresDB().put(
+                        profesor
+                    ).then((respuesta) => {
+                        if (respuesta.ok)
+                            setShowSuccessReg(true);
+                        else
+                            alert('Intente nuevamente');
+                    }).catch( (error) => console.log(error));
+                    
+                    (document.getElementById('registro') as HTMLFormElement).reset();
                 }
-            }
-            ).then((respuesta) => {
-                if (respuesta.ok) {
-                    setShowSuccessReg(true);
-                }
-                else
-                    alert('Intente nuevamente');
-                (document.getElementById('registro') as HTMLFormElement).reset();
-            }
-            ).catch((error: Error) => {
-                if (error.name === 'conflict') {
+                else {
                     setExistingUserReg(true);
                     (document.getElementById('dni') as HTMLInputElement).value = '';
                     (document.getElementById('dniconf') as HTMLInputElement).value = '';
                     (document.getElementById('pass') as HTMLInputElement).value = '';
                     (document.getElementById('passConf') as HTMLInputElement).value = '';
+                    
                 }
-                else {
-                    console.log(error);
-                }
-            })
-                
+            }).catch(function (err) { console.log(err) });
         }
         else {
             
@@ -149,27 +143,27 @@ const LogIn: React.FC = () => {
         const data = new FormData(event.target as HTMLFormElement);
         const usuario = String(data.get('usuario'));
         const pass = String(data.get('pass'));
-
-        db.getProfesoresDB().logIn(usuario, pass)
-            .then((respuesta) => {
-                if (respuesta.ok) {
-                    window.location.href = '/home';
-                }
-                else
-                    alert('Intente nuevamente');
-            })
-            .catch((error:Error) => {
-                if (error.name === 'unauthorized') {
-                    setNoExistingUserLog(true);
-                    (document.getElementById('passlog') as HTMLInputElement).value = '';
-                }
-                else if (error.name === 'forbidden') {
-                    setIncorrectPass(true);
-                    (document.getElementById('passlog') as HTMLInputElement).value = '';
-                }
-                else
-                    console.log(error);
-            })
+        db.getProfesoresDB().find({
+            selector: { _id: { $eq: usuario } }
+        }).then((result) => {
+            if (result.docs.length !== 0) {
+                db.getProfesoresDB().get(usuario).then(function (doc: any) {
+                    if (pass === doc.pass) { //tengo que setear el usuario activo!!!!!!
+                        window.location.href='/home';  //Logueo exitoso!!       si se quiere cancelar la redireccion, comentar esta linea
+                    }
+                    else {
+                        //La contraseña es incorrecta, entra aqui
+                        setIncorrectPass(true);
+                        (document.getElementById('passlog') as HTMLInputElement).value = '';
+                    }
+                }).catch((error) => console.log(error))
+            }
+            else {
+                //El usuario no existe entra aqui
+                setNoExistingUserLog(true);
+                (document.getElementById('passlog') as HTMLInputElement).value = '';
+            }
+        }).catch((error) => { console.log(error) });
     }
 
     return (
