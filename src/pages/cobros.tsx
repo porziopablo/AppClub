@@ -40,7 +40,7 @@ interface iState {
     },
     pagoActual: iPago,
     balance: iBalance, 
-    nombreJugador: string,
+    nombreJugador: string
 }
 
 class Cobros extends React.Component {
@@ -128,16 +128,22 @@ class Cobros extends React.Component {
                 });
             }
             catch (error) {
-                if (error.status === 404)
-                    this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
-                else
-                    this.setState({
-                        toastParams: {
-                            mostrar: true,
-                            mensaje: "Error al intentar registrar el pago.",
-                            esError: true
-                        }
-                    });
+
+                let mensaje = "";
+
+                switch (error.status) {
+                    case 404: mensaje = "DNI no registrado."; break;
+                    case 409: mensaje = "Pago ya registrado el día de hoy"; break;
+                    default:  mensaje = "Error al intentar registrar el pago.";
+                }
+
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: mensaje,
+                        esError: true
+                    }
+                });
             }
         else
             this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
@@ -194,52 +200,67 @@ class Cobros extends React.Component {
                 }
             }
         };
+
         pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`);
         this.setState({ ocultarBotonComprobante: true });
     }
 
     cancelarBalance = async () => {
 
-        const fechaActual = new Date();
-        fechaActual.setHours(fechaActual.getHours() - 3)
+        if (this.state.balance.total > 0) {
 
-        let balance: iBalance = {         
-            "_id": this.state.balance._id + "/" + fechaActual.toISOString().split('T')[0],
-            nombreProfesor: this.state.balance.nombreProfesor,
-            fechaCancelacion: fechaActual.toISOString(),
-            total: this.state.balance.total
+            const fechaActual = new Date();
+            fechaActual.setHours(fechaActual.getHours() - 3)
+
+            let balance: iBalance = {
+                "_id": this.state.balance._id + "/" + fechaActual.toISOString().split('T')[0],
+                nombreProfesor: this.state.balance.nombreProfesor,
+                fechaCancelacion: fechaActual.toISOString(),
+                total: this.state.balance.total
+            }
+
+            try {
+
+                await BD.getHistorialBalancesDB().put(balance);
+
+                balance._id = this.state.balance._id;
+                balance.nombreProfesor = this.state.balance.nombreProfesor;
+                balance.fechaCancelacion = "";
+                balance.total = 0;
+
+                await BD.getBalancesDB().upsert(balance._id, () => balance);
+
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "Balance cancelado.",
+                        esError: false
+                    },
+                    balance: balance
+                })
+
+            }
+            catch (error) {
+
+                let mensaje = (error.status === 409) ? "Balance ya cancelado el día de hoy" : "No se pudo cancelar el balance actual.";
+
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: mensaje,
+                        esError: true
+                    }
+                })
+            }
         }
-
-        try {
-
-            await BD.getHistorialBalancesDB().put(balance);
-
-            balance._id = this.state.balance._id;
-            balance.nombreProfesor = this.state.balance.nombreProfesor;
-            balance.fechaCancelacion = "";
-            balance.total = 0;
-
-            await BD.getBalancesDB().upsert(balance._id, () => balance);
-
+        else
             this.setState({
                 toastParams: {
                     mostrar: true,
-                    mensaje: "Balance cancelado.",
-                    esError: false
-                },
-                balance: balance
-            })
-
-        }
-        catch (error) {
-            this.setState({
-                toastParams: {
-                    mostrar: true,
-                    mensaje: "No se pudo cancelar el balance actual.",
+                    mensaje: "El balance ya es nulo.",
                     esError: true
                 }
             })
-        }
     }
 
     render() {
@@ -313,6 +334,7 @@ export default Cobros;
 
 /*
 
- - ver como guardar comprobante y abrirlo en android
+ - ver como guardar comprobante y abrirlo en android,
+    si no funciona download(), ver cómo generar enlace (dataURL)
 
  */

@@ -4,22 +4,20 @@ import '../theme/registrarJugador.css';
 import { iJugador } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 
 const RegistrarJugador: React.FC = () => {
 
     const [jugador, setJugador] = useState<iJugador>({'_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: ''});
-    const [toastNombre, setToastNombre] = useState(false);
-    const [toastDNI, setToastDNI] = useState(false);
-    const [toastFecha, setToastFecha] = useState(false);
-    const [toastDeportes, setToastDeportes] = useState(false);
-    const [toastPlanilla, setToastPlanilla] = useState(false);
-    const [toastExito, setToastExito] = useState(false);
-    const [toastFracaso, setToastFracaso] = useState(false);
+    const [toast, setToast] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+    const [toastColor, setToastColor] = useState('danger');
+    const [telefono, setTelefono] = useState('');
 
     //Foto de la planilla medica, con capacitor?
 
     function guardarNombre(event: any) {
-        console.log(event.target.value);
         let jug: iJugador = {
             '_id': jugador._id,
             nombre: event.target.value,
@@ -75,14 +73,14 @@ const RegistrarJugador: React.FC = () => {
         setJugador(jug);
     }
 
-    function guardarTelefono(event: any) {
+    function guardarTelefono(tel: string) {
         let jug: iJugador = {
             '_id': jugador._id,
             nombre: jugador.nombre,
             dni: jugador.dni,
             categoria: jugador.categoria,
             deportes: jugador.deportes,
-            telResponsable: event.target.value,
+            telResponsable: tel,
             fechaNacimiento: jugador.fechaNacimiento,
             planillaMedica: jugador.planillaMedica
         }
@@ -91,27 +89,48 @@ const RegistrarJugador: React.FC = () => {
 
     function handleRegistrar(event: any) {
         if (jugador.nombre === "") {
-            setToastNombre(true);
+            setToastMsg("Debe escribir el nombre completo del alumno");
+            setToast(true);
         }
         else if (jugador.dni === "") {
-            setToastDNI(true);
+            setToastMsg("Debe escribir el DNI del alumno");
+            setToast(true);
         }
         else if (jugador.fechaNacimiento === "") {
-            setToastFecha(true);
+            setToastMsg("Debe seleccionar una fecha de nacimiento");
+            setToast(true);
         }
         else if (jugador.deportes.length === 0) {
-            setToastDeportes(true);
+            setToastMsg("Debe seleccionar algun deporte");
+            setToast(true);
         }
         else if (jugador.planillaMedica === "") {
-            setToastPlanilla(true);
+            setToastMsg("Debe tomar o elegir una foto de la planilla medica");
+            setToast(true);
         }
         else {
-            BD.getJugadoresDB().post(jugador)
+            let arr = Array.from(jugador.telResponsable);
+            arr.splice(3, 0, '9');
+            let jug: iJugador = {
+                '_id': jugador._id,
+                nombre: jugador.nombre,
+                dni: jugador.dni,
+                categoria: jugador.categoria,
+                deportes: jugador.deportes,
+                telResponsable: (arr.join('')),
+                fechaNacimiento: jugador.fechaNacimiento,
+                planillaMedica: jugador.planillaMedica
+            }
+            BD.getJugadoresDB().put(jug)
                 .then(res => {
-                    setToastExito(true);
+                    setToastColor("success");
+                    setToastMsg("El jugador se ha cargado con exito");
+                    setToast(true);
                 })
                 .catch(err => {
-                    setToastFracaso(true);
+                    setToastColor("danger");
+                    setToastMsg("ERROR al cargar al jugador, intentelo mas tarde.");
+                    setToast(true);
                     console.log(err);
             });
         }
@@ -121,52 +140,17 @@ const RegistrarJugador: React.FC = () => {
     return (
         <IonPage>
             <IonToast
-                isOpen={toastNombre}
-                onDidDismiss={() => setToastNombre(false)}
-                message="Debe escribir el nombre completo del alumno"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastDNI}
-                onDidDismiss={() => setToastDNI(false)}
-                message="Debe escribir el DNI del alumno"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastFecha}
-                onDidDismiss={() => setToastFecha(false)}
-                message="Debe seleccionar una fecha de nacimiento"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastDeportes}
-                onDidDismiss={() => setToastDeportes(false)}
-                message="Debe seleccionar algun deporte"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastPlanilla}
-                onDidDismiss={() => setToastPlanilla(false)}
-                message="Debe tomar o elegir una foto de la planilla medica"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastExito}
-                onDidDismiss={() => setToastExito(false)}
-                message="El jugador se ha cargado con exito"
-                duration={3500}
-            />
-            <IonToast
-                isOpen={toastFracaso}
-                onDidDismiss={() => setToastFracaso(false)}
-                message="ERROR al cargar al jugador, intentelo mas tarde."
+                isOpen={toast}
+                onDidDismiss={() => setToast(false)}
+                message={toastMsg}
+                color={toastColor}
                 duration={3500}
             />
             <IonContent>
                 <form>
                     <IonText class='warning'>Es obligatorio completar todos los campos.</IonText>
                     <IonItem>
-                        <IonLabel position="floating"><IonText class='label-modal'>Nombres y Apellido</IonText></IonLabel>
+                        <IonLabel position="floating"><IonText class='label-modal'>Nombres y apellido</IonText></IonLabel>
                         <IonInput onIonInput={guardarNombre} type="text" ></IonInput>
                     </IonItem>
                     <IonItem>
@@ -185,8 +169,15 @@ const RegistrarJugador: React.FC = () => {
                         </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonLabel position="floating"><IonText class='label-modal'>Telefono del responsable</IonText></IonLabel>
-                        <IonInput onIonInput={guardarTelefono} required type="number" ></IonInput>
+                        <IonText class='label-modal'>Telefono del responsable:</IonText>
+                    </IonItem>
+                    <IonItem>
+                        <PhoneInput
+                            defaultCountry="AR"
+                            countries={["AR"]}
+                            placeholder="p.ej. 223 5555555"
+                            value={telefono}
+                            onChange={(res) => { setTelefono(res); guardarTelefono(res)}} />
                     </IonItem>
                     <IonItem>
                         <IonIcon slot="start" icon={camera}></IonIcon>
