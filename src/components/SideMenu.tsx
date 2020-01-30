@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonText, IonGrid, IonRow, IonCol, IonButton, IonAlert } from "@ionic/react";
+import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonText, IonGrid, IonRow, IonCol, IonButton, IonAlert, IonToast } from "@ionic/react";
 import { RouteComponentProps, withRouter } from 'react-router';
 import {cog, medical, informationCircle } from 'ionicons/icons';
 import { iProfesor } from '../interfaces';
@@ -14,7 +14,11 @@ interface iPagina {
 interface iState {
     usuarioActual: iProfesor,
     paginas: iPagina[],
-    mostrarAlerta: boolean
+    mostrarAlerta: boolean,
+    toastParams: {
+        mostrar: boolean,
+        mensaje: string,
+    }
 }
 
 const paginas: iPagina[] = [
@@ -36,7 +40,11 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
     state: iState = {
         usuarioActual: usuarioPorDefecto,
         paginas: paginas,
-        mostrarAlerta: false
+        mostrarAlerta: false,
+        toastParams: {
+            mostrar: false,
+            mensaje: ""
+        }
     }
 
     componentDidMount = async () => {
@@ -44,14 +52,17 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
         try {
             const respuesta = await BD.getProfesoresDB().getSession();
             if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
-                const usuarioActual: any = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
+                const usuarioActual = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
                 this.setState({ usuarioActual: usuarioActual })
             }
-            else
-                console.log('no hay usuario');
         }
         catch (error) {
-            console.log(error);
+            this.setState({
+                toastParams: {
+                    mostrar: true,
+                    mensaje: "No se pudo descargar el usuario actual."
+                }
+            })
         }
     }
 
@@ -70,13 +81,19 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
     )
 
     cerrarSesion = async () => {
+
         try {
             await BD.getProfesoresDB().logOut();
             this.setState({ usuarioActual: usuarioPorDefecto });
             this.props.history.push('/logIn');
         }
         catch (error) {
-            console.log(error);
+            this.setState({
+                toastParams: {
+                    mostrar: true,
+                    mensaje: "No se pudo cerrar la sesión."
+                }
+            })
         }
     }
 
@@ -91,6 +108,14 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                     </IonToolbar>
                 </IonHeader>
                 <IonContent class="SideMenu">
+                    <IonToast
+                        isOpen={this.state.toastParams.mostrar}
+                        onDidDismiss={() => this.setState({ toastParams: { mostrar: false } })}
+                        message={this.state.toastParams.mensaje}
+                        color="danger"
+                        showCloseButton={true}
+                        closeButtonText="CERRAR"
+                    />
                     <IonItem>
                         <IonText>
                             <h4>{this.state.usuarioActual.nombre}</h4>
