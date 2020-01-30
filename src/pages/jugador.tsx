@@ -5,6 +5,12 @@ import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
 import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre } from '../interfaces';
 import BD from '../BD';
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
+
+const PREFIJO_MOVIL: string = '+549';
+const TIPO_MOVIL: string = 'movil';
+const TIPO_FIJO: string = 'fijo';
 
 interface jugadorProps extends RouteComponentProps<{
     dni: string,
@@ -16,6 +22,7 @@ interface iState {
     jugadorTemp: iJugador,
     isReadOnly: boolean,
     showAlert: boolean,
+    tipoTelefono: string,
     toastParams: {
         mostrar: boolean,
         esError: boolean,
@@ -48,6 +55,7 @@ class Jugador extends React.Component<jugadorProps> {
             jugadorTemp: jugadorPorDefecto,
             isReadOnly: true,
             showAlert: false,
+            tipoTelefono: TIPO_MOVIL,
             toastParams: {
                 mostrar: false,
                 esError: false,
@@ -60,7 +68,11 @@ class Jugador extends React.Component<jugadorProps> {
     componentDidMount = () => {
 
         BD.getJugadoresDB().get(this.props.match.params.dni)
-            .then((doc) => { this.setState({ jugador: doc, jugadorTemp: doc }) })
+            .then((doc) => {
+                const docToJugador = (doc: any): iJugador => doc;
+                const tipoTelefono = (docToJugador(doc).telResponsable.indexOf(PREFIJO_MOVIL) > -1) ? TIPO_MOVIL : TIPO_FIJO;
+                this.setState({ jugador: doc, jugadorTemp: doc, tipoTelefono: tipoTelefono })
+            })
             .catch(() => {
                 this.setState({
                     toastParams: {
@@ -103,66 +115,45 @@ class Jugador extends React.Component<jugadorProps> {
 
     guardarNuevoNombre = (event: any) => {
 
-        let jugador: iJugador = {
-            '_id': this.state.jugadorTemp._id,
-            nombre: event.target.value,
-            dni: this.state.jugadorTemp.dni,
-            categoria: this.state.jugadorTemp.categoria,
-            deportes: this.state.jugadorTemp.deportes,
-            telResponsable: this.state.jugadorTemp.telResponsable,
-            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
-            planillaMedica: this.state.jugadorTemp.planillaMedica
-        };
-
-        this.setState({ jugadorTemp: jugador });
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                nombre: event.target.value
+            }
+        }));
     }
 
-    guardarNuevoTelefono = (event: any) => {
+    guardarNuevoTelefono = (telefono: string) => {
 
-        let jugador: iJugador = {
-            '_id': this.state.jugadorTemp._id,
-            nombre: this.state.jugadorTemp.nombre,
-            dni: this.state.jugadorTemp.dni,
-            categoria: this.state.jugadorTemp.categoria,
-            deportes: this.state.jugadorTemp.deportes,
-            telResponsable: event.target.value,
-            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
-            planillaMedica: this.state.jugadorTemp.planillaMedica
-        };
-
-        this.setState({ jugadorTemp: jugador });
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                telResponsable: telefono
+            }
+        }));
     }
 
     guardarFechaNacimiento = (event: any) => {
 
-        let jugador: iJugador = {
-            '_id': this.state.jugadorTemp._id,
-            nombre: this.state.jugadorTemp.nombre,
-            dni: this.state.jugadorTemp.dni,
-            categoria: this.state.jugadorTemp.categoria,
-            deportes: this.state.jugadorTemp.deportes,
-            telResponsable: this.state.jugadorTemp.telResponsable,
-            fechaNacimiento: event.target.value.split('T')[0],
-            planillaMedica: this.state.jugadorTemp.planillaMedica
-        };
-
-        this.setState({ jugadorTemp: jugador });
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                fechaNacimiento: event.target.value.split('T')[0]
+            }
+        }));
     }
 
     guardarDeportes = (event: any) => {
 
-        let jugador: iJugador = {
-            '_id': this.state.jugadorTemp._id,
-            nombre: this.state.jugadorTemp.nombre,
-            dni: this.state.jugadorTemp.dni,
-            categoria: this.state.jugadorTemp.categoria,
-            deportes: event.target.value,
-            telResponsable: this.state.jugadorTemp.telResponsable,
-            fechaNacimiento: this.state.jugadorTemp.fechaNacimiento,
-            planillaMedica: this.state.jugadorTemp.planillaMedica
-        };
+        const categoria = event.target.value.includes(DEPORTES.futbol) ? 2 : 0;
 
-        this.setState({ jugadorTemp: jugador });
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                deportes: event.target.value,
+                categoria: categoria
+            }
+        }));
     }
 
     eliminarJugador = () => {
@@ -178,25 +169,34 @@ class Jugador extends React.Component<jugadorProps> {
 
     actualizarJugador = () => {
 
-        const nombre = this.state.jugadorTemp.nombre;
+        const jugador: iJugador = { ...this.state.jugadorTemp };
 
-        if (this.state.jugadorTemp.deportes.length < 1)
+        if (!jugador.telResponsable)
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El teléfono debe tener al menos un carácter." } });
+        else if (jugador.deportes.length < 1)
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } })
-        else if (! regNombre.test(nombre))
+        else if (!regNombre.test(jugador.nombre))
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
-        else
-            BD.getJugadoresDB().upsert(this.state.jugadorTemp._id, () => this.state.jugadorTemp)
-                .then(() => {
-                    this.setState({
-                        jugador: this.state.jugadorTemp,
-                        isReadOnly: true,
-                        toastParams: {
-                            mostrar: true,
-                            mensaje: "Perfil actualizado."
-                        }
-                    });
-                })
-                .catch(() => { this.setState({ toastParams: { mostrar: true, esError: false, mensaje: "No se pudo actualizar el perfil del jugador." } }) });
+        else {  /* Si es movil, debe ir 9 luego de +54 */
+            if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
+                    const telefono = Array.from(jugador.telResponsable);
+                    telefono.splice(3, 0, '9');
+                    jugador.telResponsable = telefono.join('');
+                };
+                BD.getJugadoresDB().upsert(jugador._id, () => jugador)
+                    .then(() => {
+                        this.setState({
+                            jugador: jugador,
+                            jugadorTemp: jugador,
+                            isReadOnly: true,
+                            toastParams: {
+                                mostrar: true,
+                                mensaje: "Perfil actualizado."
+                            }
+                        });
+                    })
+                    .catch(() => { this.setState({ toastParams: { mostrar: true, esError: false, mensaje: "No se pudo actualizar el perfil del jugador." } }) });
+             }   
     }
 
     renderSelectDeportes = () => {
@@ -215,7 +215,7 @@ class Jugador extends React.Component<jugadorProps> {
     render() {
         return (
             <IonPage>
-                <IonContent className="vistaJugador">
+                <IonContent hidden={this.state.jugador.dni === jugadorPorDefecto.dni} className="vistaJugador">
                     <IonToast
                         isOpen={this.state.toastParams.mostrar}
                         onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false, volverCuandoCancela: false } })}
@@ -276,7 +276,7 @@ class Jugador extends React.Component<jugadorProps> {
                     <IonItem>
                         <IonLabel>Teléfono del Responsable</IonLabel>
                         <IonButton
-                            hidden={!this.state.isReadOnly || (this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0)}
+                            hidden={!this.state.isReadOnly}
                             size="default"
                             color="success"
                             fill="outline"
@@ -284,17 +284,31 @@ class Jugador extends React.Component<jugadorProps> {
                         >
                             <IonIcon icon={call} />
                         </IonButton>
+                        <IonSelect
+                            hidden={this.state.isReadOnly}
+                            interface='popover'
+                            cancelText="Cancelar"
+                            placeholder='Tipo'
+                            value={this.state.tipoTelefono}
+                            onIonChange={(event: any) => { this.setState({tipoTelefono: event.target.value }) }}
+                        >
+                            <IonSelectOption value={TIPO_FIJO} key={TIPO_FIJO} >Fijo</IonSelectOption>
+                            <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>Móvil</IonSelectOption>
+                        </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonInput
-                            type="tel"
-                            value={(this.state.isReadOnly) ? this.state.jugador.telResponsable : this.state.jugadorTemp.telResponsable}
-                            readonly={this.state.isReadOnly}
-                            clearInput={true}
-                            inputMode="tel"
-                            minlength={1}
-                            onIonInput={this.guardarNuevoTelefono}
-                        />
+                        {
+                            (this.state.isReadOnly) ?
+                                <h4>{this.state.jugador.telResponsable}</h4>
+                            :
+                                <PhoneInput
+                                    defaultCountry="AR"
+                                    countries={["AR"]}
+                                    placeholder="ej. 223 5555555"
+                                    value={this.state.jugadorTemp.telResponsable}
+                                    onChange={this.guardarNuevoTelefono}
+                                />
+                        }
                     </IonItem>
                     <IonGrid hidden={this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0}>
                         <IonRow hidden={!this.state.isReadOnly}>
@@ -330,7 +344,13 @@ class Jugador extends React.Component<jugadorProps> {
                                 <IonButton
                                     className="botonJugador"
                                     fill="outline"
-                                    onClick={() => { this.setState({ jugadorTemp: this.state.jugador, isReadOnly: true }) }}
+                                    onClick={() => {
+                                        this.setState({
+                                            jugadorTemp: this.state.jugador,
+                                            tipoTelefono: (this.state.jugador.telResponsable.indexOf(PREFIJO_MOVIL) > -1)? TIPO_MOVIL: TIPO_FIJO,
+                                            isReadOnly: true
+                                        })
+                                    }}
                                 >Cancelar</IonButton>
                             </IonCol>
                             <IonCol hidden={!this.state.isReadOnly} size='6'>
@@ -358,7 +378,6 @@ export default Jugador;
 
 /*
  - PLANILLA MEDICA
- - VALIDAR TELEFONO
 
 
  - VARIOS TELEFONOS?

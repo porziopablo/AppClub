@@ -7,12 +7,13 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-const usuarioActual: iProfesor = { /* solo para probar */
-    _id: "12345678",
-    nombre: "Usuario Actual",
-    dni: "12345678",
-    email: "usuario@dale.com",
-    pass: "dale"
+/* valores por defecto para inicializar vista */
+const usuarioPorDefecto: iProfesor = {
+    _id: "0",
+    nombre: " ",
+    dni: "0",
+    email: " ",
+    pass: " "
 }
 
 const pagoPorDefecto: iPago = {
@@ -39,8 +40,9 @@ interface iState {
         esError: boolean,
     },
     pagoActual: iPago,
-    balance: iBalance, 
-    nombreJugador: string
+    balance: iBalance,
+    nombreJugador: string,
+    usuarioActual: iProfesor,
 }
 
 class Cobros extends React.Component {
@@ -59,23 +61,38 @@ class Cobros extends React.Component {
             },
             pagoActual: pagoPorDefecto,
             balance: balancePorDefecto,
-            nombreJugador: ""
+            nombreJugador: "",
+            usuarioActual: usuarioPorDefecto
         };
     }
 
-    componentDidMount = () => {
+    componentDidMount = async () => {
 
-        BD.getBalancesDB().get(usuarioActual.dni)
-            .then((doc) => { this.setState({ balance: doc }) })
-            .catch(() => {
+        try {
+            const respuesta = await BD.getProfesoresDB().getSession();
+            if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
+                const usuarioActual: any = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
+                const balanceActual = await BD.getBalancesDB().get(usuarioActual.dni);
+                this.setState({ balance: balanceActual, usuarioActual: usuarioActual })
+            }
+            else
                 this.setState({
                     toastParams: {
                         mostrar: true,
-                        mensaje: "No se pudo cargar el balance actual.",
+                        mensaje: "No se pudo descargar el usuario actual.",
                         esError: true
                     }
                 })
+        }
+        catch (error) {
+            this.setState({
+                toastParams: {
+                    mostrar: true,
+                    mensaje: "No se pudo descargar el usuario o balance actual.",
+                    esError: true
+                }
             })
+        }
     }
 
     registrarPago = async (event: FormEvent) => {
@@ -90,17 +107,17 @@ class Cobros extends React.Component {
             try {
                 const jugador: iJugador = await BD.getJugadoresDB().get(dni); /* busca dni en DB */
 
-                const fechaActual = new Date(); 
+                const fechaActual = new Date();
                 fechaActual.setHours(fechaActual.getHours() - 3)
                 const fechaString = fechaActual.toISOString();
 
                 const pago: iPago = {
-                    _id: dni + "/" + fechaString.split('T')[0] + "/" + usuarioActual.dni,
+                    _id: dni + "/" + fechaString.split('T')[0] + "/" + this.state.usuarioActual.dni,
                     fecha: fechaString,
-                    dniProfesor: usuarioActual.dni,
+                    dniProfesor: this.state.usuarioActual.dni,
                     monto: monto,
                     dniJugador: dni,
-                    nombreProfesor: usuarioActual.nombre
+                    nombreProfesor: this.state.usuarioActual.nombre
                 };
                 await BD.getPagosDB().put(pago);
 
@@ -134,7 +151,7 @@ class Cobros extends React.Component {
                 switch (error.status) {
                     case 404: mensaje = "DNI no registrado."; break;
                     case 409: mensaje = "Pago ya registrado el día de hoy"; break;
-                    default:  mensaje = "Error al intentar registrar el pago.";
+                    default: mensaje = "Error al intentar registrar el pago.";
                 }
 
                 this.setState({
@@ -154,11 +171,11 @@ class Cobros extends React.Component {
         const fecha = new Date(this.state.pagoActual.fecha);
         fecha.setHours(fecha.getHours() + 3);
 
-        const docDefinition:any = {
+        const docDefinition: any = {
             pageSize: 'A6',
             pageOrientation: 'landscape',
             info: {
-                title: `comprobante_${this.state.pagoActual._id.replace('/','_')}`,
+                title: `comprobante_${this.state.pagoActual._id.replace('/', '_')}`,
                 author: 'Club Social y Deportivo 2 de Mayo',
             },
             content: [
@@ -185,7 +202,8 @@ class Cobros extends React.Component {
                         { text: this.state.pagoActual.dniJugador, bold: true },
                         '\nLa suma de $ ', { text: this.state.pagoActual.monto.toLocaleString('es-AR'), bold: true }, ' PESOS. ',
                         '\nEn concepto de ', { text: 'CUOTA DEL CLUB.', bold: true },
-                        '\nRecibido por ', { text: usuarioActual.nombre, bold: true }, ' - DNI: ', { text: usuarioActual.dni, bold: true },
+                        '\nRecibido por ', { text: this.state.usuarioActual.nombre, bold: true },
+                        ' - DNI: ', { text: this.state.usuarioActual.dni, bold: true },
                     ],
                     style: 'parrafo'
                 }
@@ -272,7 +290,7 @@ class Cobros extends React.Component {
                         isOpen={this.state.toastParams.mostrar}
                         onDidDismiss={() => this.setState({ toastParams: { mostrar: false, esError: false } })}
                         message={this.state.toastParams.mensaje}
-                        color={(this.state.toastParams.esError)? "danger" : "success"}
+                        color={(this.state.toastParams.esError) ? "danger" : "success"}
                         showCloseButton={this.state.toastParams.esError}
                         duration={(this.state.toastParams.esError) ? 0 : 1000}
                         closeButtonText="CERRAR"
