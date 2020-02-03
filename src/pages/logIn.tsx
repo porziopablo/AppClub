@@ -1,9 +1,9 @@
 ﻿import React, { useState, FormEvent } from 'react';
-import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert } from '@ionic/react';
+import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert, IonToast } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
 
-import { maxNumDni, regEmail, regDni, regNombre, iProfesor } from '../interfaces';
+import { maxNumDni, regEmail, regDni, regNombre, iProfesor, iBalance } from '../interfaces';
 
 import db from '../BD';
 
@@ -18,9 +18,26 @@ const profesor: iProfesor = {
     pass: '',
 }
 
+interface iState {
+    toastParams: {
+        mostrar: boolean,
+        mensaje: string,
+    }
+}
+
+const balance: iBalance ={
+    '_id':'',
+    fechaCancelacion: '',
+    nombreProfesor: '',
+    total: 0,
+
+}
+
 
 const LogIn: React.FC = () => {
 
+
+    const [msjError, setMsjError] = useState('');
     const [showPass, setShowPass] = useState(false);
     const [showModalReg, setShowModalReg] = useState(false);
     const [existingUserReg, setExistingUserReg] = useState(false);
@@ -33,11 +50,13 @@ const LogIn: React.FC = () => {
     const [invalidDni, setInvalidDni] = useState(false);
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidPass, setInvalidPass] = useState(false);
+    const [mostrarError, setMostrarError] = useState(false);
 
 
     function handleSubmit(event: FormEvent) {
         event.preventDefault();
         const data = new FormData(event.target as HTMLFormElement);
+        setMostrarError(false);
         setDifferentPass(false);
         setDifferentDni(false);
         setExistingUserReg(false);
@@ -48,7 +67,7 @@ const LogIn: React.FC = () => {
 
         profesor.dni = String(data.get('dni'));
         profesor.pass = String(data.get('pass'));
-        profesor.nombre = String(data.get('nombre')) + String(data.get('apellido'));
+        profesor.nombre = String(data.get('nombre')) + String(' '+data.get('apellido'));
         profesor.email = String(data.get('email'));
 
 
@@ -65,6 +84,9 @@ const LogIn: React.FC = () => {
             ).then((respuesta) => {
                 if (respuesta.ok) {
                     setShowSuccessReg(true);
+                    balance.nombreProfesor = profesor.nombre;
+                    balance._id = profesor.dni;
+                    db.getBalancesDB().post(balance);
                 }
                 else
                     alert('Intente nuevamente');
@@ -79,7 +101,8 @@ const LogIn: React.FC = () => {
                     (document.getElementById('passConf') as HTMLInputElement).value = '';
                 }
                 else {
-                    console.log(error);
+                    setMsjError('Error al registrarse, intente nuevamente.')
+                    setMostrarError(true);
                 }
             })
 
@@ -166,8 +189,11 @@ const LogIn: React.FC = () => {
                     setIncorrectPass(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
                 }
-                else
-                    console.log(error);
+                else {
+                    setMsjError('Error al iniciar sesion, intente nuevamente.');
+                    setMostrarError(true);
+                }
+                    
             })
     }
 
@@ -177,6 +203,14 @@ const LogIn: React.FC = () => {
                 <h1>
                     <img id='logoClub' src={logoClub} alt="Logo del club" />
                 </h1>
+                <IonToast
+                    isOpen={mostrarError}
+                    onDidDismiss={() => setMostrarError(false)}
+                    message={msjError}
+                    color="danger"
+                    showCloseButton={true}
+                    closeButtonText="CERRAR"
+                />
                 <form id='login' onSubmit={logIn}>
                     <IonItem id='div1'>
                         <IonLabel position="floating">

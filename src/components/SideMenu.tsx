@@ -57,6 +57,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
             }
         }
         catch (error) {
+            console.log(error);
             this.setState({
                 toastParams: {
                     mostrar: true,
@@ -85,7 +86,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
         try {
             await BD.getProfesoresDB().logOut();
             this.setState({ usuarioActual: usuarioPorDefecto });
-            this.props.history.push('/logIn');
+            window.location.href = '/logIn';
         }
         catch (error) {
             this.setState({
@@ -142,8 +143,9 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                     </IonGrid>
                 </IonContent>
             </IonMenu>
-       )
+            )
     }
+    
 }
 
 export default withRouter(
