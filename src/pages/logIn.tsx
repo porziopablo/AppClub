@@ -51,6 +51,8 @@ const LogIn: React.FC = () => {
     const [invalidEmail, setInvalidEmail] = useState(false);
     const [invalidPass, setInvalidPass] = useState(false);
     const [mostrarError, setMostrarError] = useState(false);
+    const [differentEmail, setDifferentEmail] = useState(false);
+
 
 
     function handleSubmit(event: FormEvent) {
@@ -64,6 +66,7 @@ const LogIn: React.FC = () => {
         setInvalidEmail(false);
         setInvalidPass(false);
         setIvalidName(false);
+        setDifferentEmail(false);
 
         profesor.dni = String(data.get('dni'));
         profesor.pass = String(data.get('pass'));
@@ -72,7 +75,7 @@ const LogIn: React.FC = () => {
 
 
 
-        if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email)) {
+        if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email) && (profesor.email === data.get('emailconf'))) {
 
             db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
                 metadata: {
@@ -120,7 +123,7 @@ const LogIn: React.FC = () => {
             }
             else {
                 if (!regDni.test(profesor.dni)) {
-                    //dni ivalido
+                    //dni invalido
                     (document.getElementById('dni') as HTMLInputElement).value = '';
                     (document.getElementById('dniconf') as HTMLInputElement).value = '';
                     (document.getElementById('pass') as HTMLInputElement).value = '';
@@ -129,7 +132,7 @@ const LogIn: React.FC = () => {
                 }
                 else {
                     if (profesor.dni !== data.get('dniconf')) {
-                        // dni y dni conf iguales
+                        // dni y dni conf diferentes
                         setDifferentDni(true);
                         (document.getElementById('dniconf') as HTMLInputElement).value = '';
                         (document.getElementById('pass') as HTMLInputElement).value = '';
@@ -144,7 +147,7 @@ const LogIn: React.FC = () => {
                         }
                         else {
                             if (profesor.pass !== data.get('passconf')) {
-                                //pass y pass conf iguales
+                                //pass y pass conf diferentes
                                 (document.getElementById('pass') as HTMLInputElement).value = '';
                                 (document.getElementById('passConf') as HTMLInputElement).value = '';
                                 setDifferentPass(true);
@@ -155,6 +158,13 @@ const LogIn: React.FC = () => {
                                     (document.getElementById('pass') as HTMLInputElement).value = '';
                                     (document.getElementById('passConf') as HTMLInputElement).value = '';
                                     setInvalidEmail(true);
+                                }
+                                else {
+                                    //email y emailconf diferentes
+                                    (document.getElementById('pass') as HTMLInputElement).value = '';
+                                    (document.getElementById('passConf') as HTMLInputElement).value = '';
+                                    (document.getElementById('emailconf') as HTMLInputElement).value = '';
+                                    setDifferentEmail(true);
                                 }
                             }
                         }
@@ -281,6 +291,13 @@ const LogIn: React.FC = () => {
                                 <IonText class={(invalidEmail) ? 'regError' : 'esconder'}>El correo electronico no es valido.</IonText>
                             </IonLabel>
                             <IonInput name='email' required type="email" ></IonInput>
+                        </IonItem>
+                        <IonItem>
+                            <IonLabel position="floating">
+                                <IonText class={(differentEmail) ? 'label-modal-warning' : 'label-modal'}>Confirmar correo electronico</IonText>
+                                <IonText class={(differentEmail) ? 'regError' : 'esconder'}>El correo electronico no coincide.</IonText>
+                            </IonLabel>
+                            <IonInput id='emailconf' name='emailconf' required type="email" ></IonInput>
                         </IonItem>
                         <IonAlert
                             isOpen={showSuccessReg}
