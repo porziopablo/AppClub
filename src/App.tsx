@@ -36,6 +36,7 @@ import AsistenciaList from './pages/asistenciaListado';
 import AsistenciaHist from './pages/asistenciaHistorial';
 import PagosJugador from './pages/pagosJugador';
 import RegistrarJugador from './pages/registrarJugador';
+import PlanillaMedica from './pages/planillaMedica';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -78,6 +79,7 @@ const App: React.FC = () => (
                         <Route path="/emergencia" component={Emergencia} exact={true} />
                         <Route path="/listado" component={Listado} exact={true} />
                         <Route path="/listado/jugador/:dni" component={Jugador} />
+                        <Route path="/planillaMedica/:dni" component={PlanillaMedica} />
                         <Route path="/configuracion" component={Configuracion} exact={true} />
                         <Route path="/logIn" component={LogIn} exact={true} />
                         <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />

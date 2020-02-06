@@ -12,9 +12,7 @@ const PREFIJO_MOVIL: string = '+549';
 const TIPO_MOVIL: string = 'movil';
 const TIPO_FIJO: string = 'fijo';
 
-interface jugadorProps extends RouteComponentProps<{
-    dni: string,
-}> { };
+type tipoProps = RouteComponentProps<{ dni: string }>;
 
 interface iState {
 
@@ -42,11 +40,11 @@ const jugadorPorDefecto: iJugador = {              /* valores por defecto para i
     planillaMedica: ' '
 };
 
-class Jugador extends React.Component<jugadorProps> {
+class Jugador extends React.Component<tipoProps> {
 
     state: iState;
 
-    constructor(props: jugadorProps) {
+    constructor(props: tipoProps) {
 
         super(props);
         this.state = {
@@ -313,7 +311,7 @@ class Jugador extends React.Component<jugadorProps> {
                     <IonGrid hidden={this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0}>
                         <IonRow hidden={!this.state.isReadOnly}>
                             <IonCol size='6'>
-                                <IonButton className="botonJugador" fill="outline">Planilla Médica</IonButton>
+                                <IonButton href={`/planillaMedica/${this.state.jugador.dni}`} className="botonJugador" fill="outline">Planilla Médica</IonButton>
                             </IonCol>
                             <IonCol size='6'>
                                 <IonButton
