@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { IonPage, IonContent, IonButton, IonText } from '@ionic/react';
 import '../theme/jugadores.css';
+import BD from '../BD';
 
 const OpcionesAdmin: React.FC = () => {
     return (

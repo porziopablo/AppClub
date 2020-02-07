@@ -76,7 +76,6 @@ const LogIn: React.FC = () => {
 
 
         if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email) && (profesor.email === data.get('emailconf'))) {
-
             db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
                 metadata: {
                     email: profesor.email,
@@ -181,7 +180,7 @@ const LogIn: React.FC = () => {
         const data = new FormData(event.target as HTMLFormElement);
         const usuario = String(data.get('usuario'));
         const pass = String(data.get('pass'));
-
+        
         db.getProfesoresDB().logIn(usuario, pass)
             .then((respuesta) => {
                 if (respuesta.ok) {

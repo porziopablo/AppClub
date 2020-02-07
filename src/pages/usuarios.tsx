@@ -50,7 +50,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
             let usuariosRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
-            BD.getProfesoresDB().find({ selector: { dni: { $gte: null } }, sort: ['dni'] })
+            BD.getUsersDB().find({ selector: { name: { $gte: null } }, sort: ['name'] })
                 .then((resultado) => {
                     usuariosRecibidos = resultado.docs.map(doc => docToProfesor(doc));
                     setUsuarios(usuariosRecibidos);
@@ -70,24 +70,17 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
     function handleEliminarUsuario (event: any) {
         if (selected) {
             const doc = usuarios.filter(obj => obj.dni === selected);
-            BD.getProfesoresDB().get(doc[0].dni).then(function (documento: any) {
-                BD.getProfesoresDB().remove(documento)
-                    .then(res => {
-                        eliminarDeArray(usuarios, documento);
-                        setToastColor("success");
-                        setToastMsg("Se ha eliminado al usuario con exito");
-                        setToast(true);
-                    }).catch(res => {
-                        setToastColor("danger");
-                        setToastMsg("ERROR al eliminar al usuario");
-                        setToast(true);
-                    });
-            }).catch(function (err: Error) {
-                console.log(err);
-                setToastColor("danger");
-                setToastMsg("ERROR no se encuentra usuario seleccionado");
-                setToast(true);
-            });
+            BD.getProfesoresDB().deleteUser(doc[0].dni)
+                .then(res => {
+                    eliminarDeArray(usuarios, doc[0]);
+                    setToastColor("success");
+                    setToastMsg("Se ha eliminado al usuario con exito");
+                    setToast(true);
+                }).catch(err => {
+                    setToastColor("danger");
+                    setToastMsg("ERROR al eliminar al usuario");
+                    setToast(true);
+                });
             setSelected("");
         }
     }
@@ -128,17 +121,22 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 aPostear.email = doc.email;
                 aPostear.pass = doc.pass;
                 BD.getPendientesDB().remove(doc);
-                return BD.getProfesoresDB().put(aPostear)
-                    .then(res => {
-                        eliminarDeArray(usuarios, aPostear);
-                        setToastColor("success");
-                        setToastMsg("Se ha aceptado al usuario pendiente con exito");
-                        setToast(true);
-                    }).catch(res => {
-                        setToastColor("danger");
-                        setToastMsg("ERROR al aceptar al usuario pendiente");
-                        setToast(true);
-                    });
+                BD.getProfesoresDB().signUp(aPostear.dni, aPostear.pass, {
+                    metadata: {
+                        email: aPostear.email,
+                        nombre: aPostear.nombre,
+                        dni: aPostear.dni,
+                    }
+                }).then(res => {
+                    eliminarDeArray(usuarios, aPostear);
+                    setToastColor("success");
+                    setToastMsg("Se ha aceptado al usuario pendiente con exito");
+                    setToast(true);
+                }).catch(res => {
+                    setToastColor("danger");
+                    setToastMsg("ERROR al aceptar al usuario pendiente");
+                    setToast(true);
+                });
             }).catch(function (err: Error) {
                 console.log(err);
                 console.log(err);
