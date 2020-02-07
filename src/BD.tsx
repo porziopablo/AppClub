@@ -4,6 +4,7 @@ import Auth from 'pouchdb-authentication'
 PouchDB.plugin(Find);
 PouchDB.plugin(Auth);
 PouchDB.plugin(require('pouchdb-upsert'));
+PouchDB.plugin(require('pouchdb-authentication'));
 
 class BaseDatos {
 
@@ -11,6 +12,7 @@ class BaseDatos {
 
     private jugadoresDB!: PouchDB.Database<{}>;
     private profesoresDB!: PouchDB.Database<{}>;
+    private usersDB!: PouchDB.Database<{}>;
     private pagosDB!: PouchDB.Database<{}>;
     private balancesDB!: PouchDB.Database<{}>;
     private historialBalancesDB!: PouchDB.Database<{}>;
@@ -33,6 +35,8 @@ class BaseDatos {
 
             this.jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
             this.profesoresDB = new PouchDB('http://localhost:5984/profesoresdb');
+            this.usersDB = new PouchDB('http://localhost:5984/_users');
+            
             this.balancesDB = new PouchDB('http://localhost:5984/balancesdb');
             this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
             this.historialBalancesDB = new PouchDB('http://localhost:5984/historialbalancesdb');
@@ -53,6 +57,9 @@ class BaseDatos {
                 .catch(console.log)
 
             this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
+                .catch(console.log)
+
+            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
                 .catch(console.log)
 
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
@@ -78,6 +85,10 @@ class BaseDatos {
 
     getProfesoresDB() {
         return this.profesoresDB;
+    }
+
+    getUsersDB() {
+        return this.usersDB;
     }
 
     getPagosDB() {
