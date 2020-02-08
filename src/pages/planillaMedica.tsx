@@ -280,6 +280,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
 
             this.setState({
                 imagenesParaMostrar: imagenes,
+                ocultarFAB: (imagenes.length !== 0),
                 toastParams: {
                     mostrar: true,
                     mensaje: "Imagen eliminada.",
@@ -315,6 +316,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
                     <IonSlides
                         onIonSlideTap={() => this.setState({ ocultarFAB: !this.state.ocultarFAB })}
                         ref={this.swiperRef}
+                        scrollbar
                     />
                     <IonFab hidden={this.state.ocultarFAB} vertical="bottom" horizontal="end" slot="fixed">
                         <IonFabButton
@@ -327,7 +329,12 @@ class PlanillaMedica extends React.Component<tipoProps> {
                         <IonFabButton size="small" onClick={() => { this.setState({ mostrarPopover: true }) }}>
                             <IonIcon icon={add} />
                         </IonFabButton>
-                        <IonFabButton color="danger" size="small" onClick={() => this.setState({mostrarAlerta: true})}>
+                        <IonFabButton
+                            color="danger"
+                            size="small"
+                            onClick={() => this.setState({ mostrarAlerta: true })}
+                            hidden={this.state.imagenesParaMostrar.length === 0}
+                        >
                             <IonIcon icon={trash} />
                         </IonFabButton>
                     </IonFab>
@@ -355,8 +362,6 @@ export default PlanillaMedica;
 
 /*
  - subir b/n fotos?
- - orden imagenes editable?
- - desactivar botones si no cargan las fotos?
 
  - Esta mal esto: URL = (window.URL || window.webkitURL), y let url en cada vuelta del for?
  */
