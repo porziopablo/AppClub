@@ -19,7 +19,7 @@ interface iState {
     jugador: iJugador,
     jugadorTemp: iJugador,
     isReadOnly: boolean,
-    showAlert: boolean,
+    mostrarAlerta: boolean,
     tipoTelefono: string,
     toastParams: {
         mostrar: boolean,
@@ -52,7 +52,7 @@ class Jugador extends React.Component<tipoProps> {
             jugador: jugadorPorDefecto,
             jugadorTemp: jugadorPorDefecto,
             isReadOnly: true,
-            showAlert: false,
+            mostrarAlerta: false,
             tipoTelefono: TIPO_MOVIL,
             toastParams: {
                 mostrar: false,
@@ -311,13 +311,13 @@ class Jugador extends React.Component<tipoProps> {
                     <IonGrid hidden={this.state.jugador._id.localeCompare(jugadorPorDefecto._id) === 0}>
                         <IonRow hidden={!this.state.isReadOnly}>
                             <IonCol size='6'>
-                                <IonButton href={`/planillaMedica/${this.state.jugador.dni}`} className="botonJugador" fill="outline">Planilla Médica</IonButton>
+                                <IonButton routerLink={`/listado/jugador/${this.props.match.params.dni}/planillaMedica`} className="botonJugador" fill="outline">Planilla Médica</IonButton>
                             </IonCol>
                             <IonCol size='6'>
                                 <IonButton
                                     className="botonJugador"
                                     fill="outline"
-                                    href={`/pagosJugador/${this.state.jugador.dni}`}
+                                    routerLink={`/listado/jugador/${this.props.match.params.dni}/pagosJugador`}
                                 >Pagos</IonButton>
                             </IonCol>
                         </IonRow>
@@ -352,14 +352,14 @@ class Jugador extends React.Component<tipoProps> {
                                 >Cancelar</IonButton>
                             </IonCol>
                             <IonCol hidden={!this.state.isReadOnly} size='6'>
-                                <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { this.setState({ showAlert: true }) }}>
+                                <IonButton className="botonJugador" fill="outline" color="danger" onClick={() => { this.setState({ mostrarAlerta: true }) }}>
                                     Eliminar
                                 </IonButton>
                                 <IonAlert
-                                    isOpen={this.state.showAlert}
-                                    onDidDismiss={() => { this.setState({ showAlert: false }) }}
-                                    header={'¿Estás seguro que quieres eliminar este jugador?'}
-                                    subHeader={'Esta acción no puede deshacerse.'}
+                                    isOpen={this.state.mostrarAlerta}
+                                    onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
+                                    header='¿Realmente quieres eliminar este jugador?'
+                                    subHeader='Esta acción no puede deshacerse.'
                                     buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarJugador }]}
                                 />
                             </IonCol>
@@ -375,9 +375,6 @@ export default Jugador;
 
 
 /*
- - PLANILLA MEDICA
-
-
  - VARIOS TELEFONOS?
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?

@@ -335,7 +335,7 @@ class Cobros extends React.Component {
                         <IonGrid>
                             <IonRow align-content-center>
                                 <IonCol>
-                                    <IonButton fill="outline" href="/historial">
+                                    <IonButton fill="outline" routerLink="/cobros/historial">
                                         Historial de Balances
                                     </IonButton>
                                 </IonCol>
