@@ -6,8 +6,12 @@
     IonItem,
     IonHeader,
     IonList,
-    IonModal,
-    IonToast
+    IonModal,
+    IonToast,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonIcon
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -109,9 +113,23 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
             />
             <IonContent>
                 <IonModal isOpen={showModal}>
-                    <IonList>
-                        {renderJugadores()}
-                    </IonList>
+                    <IonHeader>
+                        <IonToolbar>
+                            <IonTitle>
+                                Presentes en el dia seleccionado
+                            </IonTitle>
+                            <IonButtons slot="start">
+                                <IonButton onClick={() => setShowModal(false)}>
+                                        <IonIcon name="arrow-back"></IonIcon>
+                                </IonButton>
+                            </IonButtons>
+                        </IonToolbar>
+                    </IonHeader>
+                    <IonContent>
+                        <IonList>
+                            {renderJugadores()}
+                        </IonList>
+                    </IonContent>
                 </IonModal>
                 <IonHeader>
                     <IonItem>
