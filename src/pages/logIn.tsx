@@ -7,6 +7,8 @@ import { maxNumDni, regEmail, regDni, regNombre, iProfesor, iBalance } from '../
 
 import db from '../BD';
 
+const bcrypt = require('bcrypt-nodejs');
+
 const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
 
 
@@ -190,6 +192,7 @@ const LogIn: React.FC = () => {
                     alert('Intente nuevamente');
             })
             .catch((error: Error) => {
+                console.log(error);
                 if (error.name === 'unauthorized') {
                     setNoExistingUserLog(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
@@ -224,13 +227,13 @@ const LogIn: React.FC = () => {
                     <IonItem id='div1'>
                         <IonLabel position="floating">
                             <IonText class={(noExistingUserLog) ? 'label-login-warning' : 'label-login'}>DNI</IonText>
-                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Inegrese un dni valido</IonText>
+                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Usuario o contraseña invalido.</IonText>
                         </IonLabel>
                         <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" ></IonInput>
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating">
-                            <IonText class={(incorrectPass) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
+                            <IonText class={(incorrectPass || noExistingUserLog) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
                             <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Inegrese correctamente la contraseña</IonText>
                         </IonLabel>
                         <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'}></IonInput>
