@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonPopover } from '@ionic/react';
 import '../theme/registrarJugador.css';
 import { iJugador } from '../interfaces';
 import BD from '../BD';
@@ -7,15 +7,26 @@ import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 
+interface imagen {
+    url: string,
+    nombre: string
+}
+
+//SE TIENE QUE BLOQUEAR SI O SI LA SUBIDA DE IMAGENES ANTES DE TENER EL DNI
+//VER STRING PLANILLAMEDICA INNECESARIA
+//Boton para atras o redireccionar
+//Dejar mas lindo boton planilla
+
 const RegistrarJugador: React.FC = () => {
 
-    const [jugador, setJugador] = useState<iJugador>({'_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: ''});
+    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: '' });
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setToastColor] = useState('danger');
     const [telefono, setTelefono] = useState('');
-
-    //Foto de la planilla medica, con capacitor?
+    const [mostrarPopover, setMostrarPopover] = useState(false);
+    const [imagenesParaSubir, setImagenesParaSubir] = useState<FileList | File[]>([]);
+    const [imagenesParaMostrar, setImagenesParaMostrar] = useState<imagen[]>([]);
 
     function guardarNombre(event: any) {
         let jug: iJugador = {
@@ -87,6 +98,124 @@ const RegistrarJugador: React.FC = () => {
         setJugador(jug);
     }
 
+    async function guardarPlanilla() {
+        const imagenesPMostrar = imagenesParaMostrar.slice();
+        const URL = (window.URL || window.webkitURL);
+
+        try {
+            const doc = await BD.getJugadoresDB().get(jugador.dni);
+
+            if (!doc._attachments) /* si no tiene ninguna foto, hay que crear _attachments */
+                doc._attachments = {};
+
+            for (let i = 0; i < imagenesParaSubir.length; i++) {
+
+                let nombre = new Date().toISOString().replace(/:/gi, '-') + '_' + imagenesParaSubir[i].name; /* evita nombre repetido */
+                let url = URL.createObjectURL(imagenesParaSubir[i]);
+
+                doc._attachments[nombre] = {
+                    content_type: imagenesParaSubir[i].type,
+                    data: imagenesParaSubir[i]
+                };
+
+                imagenesParaMostrar.push({
+                    url: url,
+                    nombre: nombre
+                });
+            }
+
+            await BD.getJugadoresDB().upsert(doc._id, () => doc);
+            (document.getElementById('formImagenes') as HTMLFormElement).reset();
+            setImagenesParaMostrar(imagenesPMostrar);
+            setMostrarPopover(false);
+            setToastColor("success");
+            setToastMsg("Imágenes subidas con éxito.");
+            setToast(true);
+        }
+        catch (error) {
+            setToastColor("danger");
+            setToastMsg("Error al subir las imagenes");
+            setToast(true);
+        }
+    }
+
+    function todosFormatosCorrectos(){
+
+        let i = 0;
+
+        while ((i < imagenesParaSubir.length) && (imagenesParaSubir[i].type.lastIndexOf('image/') > -1))
+            i++;
+
+        return (i === imagenesParaSubir.length);
+    }
+
+    function renderVistaPrevia(){
+
+        let respuesta = [];
+        const URL = (window.URL || window.webkitURL);
+
+        if (!imagenesParaSubir.length)
+            respuesta.push(<IonItem color="light" key='no_img'>No hay imágenes seleccionadas para subir.</IonItem>);
+        else
+            for (let i = 0; i < imagenesParaSubir.length; i++) {
+                if (imagenesParaSubir[i].type.lastIndexOf('image/') > -1) {
+                    let url = URL.createObjectURL(imagenesParaSubir[i]); /* let aca, sino no cambia en cada iteracion */
+                    respuesta.push(
+                        <IonItem color="light" key={i}>
+                            {imagenesParaSubir[i].name}
+                            <img
+                                onLoad={() => { URL.revokeObjectURL(url) }}
+                                src={url}
+                                alt={imagenesParaSubir[i].name}
+                                className="imgVistaPrevia"
+                                slot="end"
+                            />
+                        </IonItem>
+                    );
+                }
+                else
+                    respuesta.push(
+                        <IonItem className="itemInvalido" color="danger" key={i}>
+                            {`${imagenesParaSubir[i].name} tiene un formato no aceptado.`}
+                        </IonItem>
+                    );
+            }
+
+        return respuesta;
+    }
+
+    function renderFormImagenes(){
+        return (
+            <form id="formImagenes">
+                <IonItem color="light">
+                    <div>
+                        <IonButton fill="outline"
+                            onClick={() => { document.getElementById('inputImagenes')!.click() }}
+                        >
+                            ELEGIR IMÁGENES
+                    </IonButton>
+                        <input
+                            type="file"
+                            multiple
+                            hidden
+                            required
+                            accept="image/*"
+                            id="inputImagenes"
+                            onChange={() => {
+                                setImagenesParaSubir((document.getElementById('inputImagenes') as HTMLInputElement).files!);
+                            }}
+                        />
+                    </div>
+                </IonItem>
+                {renderVistaPrevia()}
+                <IonItem color="light" hidden={(imagenesParaSubir.length === 0) || !todosFormatosCorrectos()}>
+                    <IonButton onClick={() => { setMostrarPopover(false) }} fill="outline">
+                        Listo
+                    </IonButton>
+                </IonItem>
+            </form>);
+    }
+
     function handleRegistrar(event: any) {
         if (jugador.nombre === "") {
             setToastMsg("Debe escribir el nombre completo del alumno");
@@ -102,10 +231,6 @@ const RegistrarJugador: React.FC = () => {
         }
         else if (jugador.deportes.length === 0) {
             setToastMsg("Debe seleccionar algun deporte");
-            setToast(true);
-        }
-        else if (jugador.planillaMedica === "") {
-            setToastMsg("Debe tomar o elegir una foto de la planilla medica");
             setToast(true);
         }
         else {
@@ -126,13 +251,14 @@ const RegistrarJugador: React.FC = () => {
                     setToastColor("success");
                     setToastMsg("El jugador se ha cargado con exito");
                     setToast(true);
+                    guardarPlanilla();
                 })
                 .catch(err => {
                     setToastColor("danger");
                     setToastMsg("ERROR al cargar al jugador, intentelo mas tarde.");
                     setToast(true);
                     console.log(err);
-            });
+                });
         }
     }
 
@@ -180,9 +306,17 @@ const RegistrarJugador: React.FC = () => {
                             onChange={(res) => { setTelefono(res); guardarTelefono(res)}} />
                     </IonItem>
                     <IonItem>
-                        <IonIcon slot="start" icon={camera}></IonIcon>
-                        <IonText class='label-modal'> Planilla medica </IonText>
+                        <IonButton style={{ textDecoration: 'none' }} fill="outline" onClick={() => { setMostrarPopover(true) }}>
+                            <IonIcon slot="start" icon={camera}></IonIcon>
+                            <IonText class='label-modal'> Planilla medica </IonText>
+                        </IonButton>
                     </IonItem>
+                    <IonPopover
+                        isOpen={mostrarPopover}
+                        onDidDismiss={() => { setMostrarPopover(false) }}
+                    >
+                        {renderFormImagenes()}
+                    </IonPopover>
                     <div>
                         <IonButton onClick={handleRegistrar} id='botModal'>Registrar jugador</IonButton>
                     </div>
