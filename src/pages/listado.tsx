@@ -143,7 +143,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
 
     componentDidUpdate = (prevProps: any) => {
 
-        if (prevProps.location.pathname !== this.props.location.pathname)
+        if ((prevProps.location.pathname !== this.props.location.pathname) && (this.props.location.pathname.localeCompare('/listado') === 0))
             this.actualizarJugadores();
     }
 
