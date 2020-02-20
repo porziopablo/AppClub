@@ -61,3 +61,15 @@
 .esconder {
     display: none;
 }
+
+#listAsist {
+    --padding-top: -75px;
+}
+
+#regModal {
+    --padding-top: -75px;
+}
+
+#contLog {
+    --padding-top: -75px;
+}

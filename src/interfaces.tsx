@@ -1,5 +1,5 @@
 ﻿export const regNombre = /^[A-Za-zÀ-ÖØ-öø-ÿ]+( [A-Za-zÀ-ÖØ-öø-ÿ']+)*$/;
-export const regDni = /^[MF1-9]?([1-9]+)*$/
+export const regDni = /^[MF1-9]?([0-9]+)*$/
 /* eslint-disable no-control-regex */
 // control chars estan para revisar que este bien el email, 
 // los comentarios con eslint estan para que no tire warning por usarlos

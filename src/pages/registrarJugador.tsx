@@ -7,15 +7,16 @@ import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 
+const PREFIJO_MOVIL: string = '+549';
+const TIPO_MOVIL: string = 'movil';
+const TIPO_FIJO: string = 'fijo';
+
 interface imagen {
     url: string,
     nombre: string
 }
 
-//SE TIENE QUE BLOQUEAR SI O SI LA SUBIDA DE IMAGENES ANTES DE TENER EL DNI
-//VER STRING PLANILLAMEDICA INNECESARIA
-//Boton para atras o redireccionar
-//Dejar mas lindo boton planilla
+//SE TIENE QUE BLOQUEAR SI O SI LA SUBIDA DE IMAGENES ANTES DE TENER EL DNI para no hacer dos putttt
 
 const RegistrarJugador: React.FC = () => {
 
@@ -27,6 +28,7 @@ const RegistrarJugador: React.FC = () => {
     const [mostrarPopover, setMostrarPopover] = useState(false);
     const [imagenesParaSubir, setImagenesParaSubir] = useState<FileList | File[]>([]);
     const [imagenesParaMostrar, setImagenesParaMostrar] = useState<imagen[]>([]);
+    const [tipoTelefono, setTipoTelefono] = useState("");
 
     function guardarNombre(event: any) {
         let jug: iJugador = {
@@ -129,7 +131,7 @@ const RegistrarJugador: React.FC = () => {
             setImagenesParaMostrar(imagenesPMostrar);
             setMostrarPopover(false);
             setToastColor("success");
-            setToastMsg("Im·genes subidas con Èxito.");
+            setToastMsg("Im√°genes subidas con √©xito.");
             setToast(true);
         }
         catch (error) {
@@ -155,7 +157,7 @@ const RegistrarJugador: React.FC = () => {
         const URL = (window.URL || window.webkitURL);
 
         if (!imagenesParaSubir.length)
-            respuesta.push(<IonItem color="light" key='no_img'>No hay im·genes seleccionadas para subir.</IonItem>);
+            respuesta.push(<IonItem color="light" key='no_img'>No hay im√°genes seleccionadas para subir.</IonItem>);
         else
             for (let i = 0; i < imagenesParaSubir.length; i++) {
                 if (imagenesParaSubir[i].type.lastIndexOf('image/') > -1) {
@@ -192,7 +194,7 @@ const RegistrarJugador: React.FC = () => {
                         <IonButton fill="outline"
                             onClick={() => { document.getElementById('inputImagenes')!.click() }}
                         >
-                            ELEGIR IM¡GENES
+                            ELEGIR IM√ÅGENES
                     </IonButton>
                         <input
                             type="file"
@@ -234,15 +236,17 @@ const RegistrarJugador: React.FC = () => {
             setToast(true);
         }
         else {
-            let arr = Array.from(jugador.telResponsable);
-            arr.splice(3, 0, '9');
+            const tel = Array.from(jugador.telResponsable);
+            if ((tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
+                tel.splice(3, 0, '9');
+            }
             let jug: iJugador = {
                 '_id': jugador._id,
                 nombre: jugador.nombre,
                 dni: jugador.dni,
                 categoria: jugador.categoria,
                 deportes: jugador.deportes,
-                telResponsable: (arr.join('')),
+                telResponsable: tel.join(''),
                 fechaNacimiento: jugador.fechaNacimiento,
                 planillaMedica: jugador.planillaMedica
             }
@@ -295,7 +299,17 @@ const RegistrarJugador: React.FC = () => {
                         </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonText class='label-modal'>Telefono del responsable:</IonText>
+                        <IonLabel>Tel√©fono del Responsable</IonLabel>
+                        <IonSelect
+                            interface='popover'
+                            cancelText="Cancelar"
+                            placeholder='Tipo'
+                            value={tipoTelefono}
+                            onIonChange={(event: any) => { setTipoTelefono(event.target.value) }}
+                    >
+                            <IonSelectOption value={TIPO_FIJO} key={TIPO_FIJO} >Fijo</IonSelectOption>
+                            <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>M√≥vil</IonSelectOption>
+                        </IonSelect>
                     </IonItem>
                     <IonItem>
                         <PhoneInput

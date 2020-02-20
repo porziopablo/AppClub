@@ -57,7 +57,6 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
             }
         }
         catch (error) {
-            console.log(error);
             this.setState({
                 toastParams: {
                     mostrar: true,

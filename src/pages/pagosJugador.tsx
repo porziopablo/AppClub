@@ -14,7 +14,6 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
 
     const [pagos, setPagos] = useState<iPago[]>([]);
     const [toast, setToast] = useState(false);
-    const [ocultarFAB, setOcultarFAB] = useState(false);
     const dniJugador: string = match.params.dni;
 
     useEffect(() => {
@@ -60,7 +59,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
                 duration={3500}
             />
             <IonContent>
-                <IonFab hidden={ocultarFAB} vertical="bottom" horizontal="end" slot="fixed">
+                <IonFab vertical="bottom" horizontal="end" slot="fixed">
                     <IonFabButton
                         size="small"
                         routerLink={`/listado/jugador/${match.params.dni}`}

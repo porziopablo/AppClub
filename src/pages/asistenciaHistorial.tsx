@@ -17,6 +17,7 @@ import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { iAsistItem, iAsistencia } from '../interfaces';
 import BD from '../BD';
+import '../theme/logIn.css';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     id: string;
@@ -120,12 +121,12 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                             </IonTitle>
                             <IonButtons slot="start">
                                 <IonButton onClick={() => setShowModal(false)}>
-                                        <IonIcon name="arrow-back"></IonIcon>
+                                    <IonIcon name="arrow-back"></IonIcon>
                                 </IonButton>
                             </IonButtons>
                         </IonToolbar>
                     </IonHeader>
-                    <IonContent>
+                    <IonContent id="listAsist">
                         <IonList>
                             {renderJugadores()}
                         </IonList>
