@@ -3,7 +3,7 @@ import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, I
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
-import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre } from '../interfaces';
+import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre, CATEGORIAS } from '../interfaces';
 import BD from '../BD';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
@@ -98,17 +98,52 @@ class Jugador extends React.Component<tipoProps> {
 
     renderCategoria = () => {
 
+        const categorias = [
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
+        ]
+
         let respuesta = null;
 
-        if (this.state.jugador.deportes.includes(DEPORTES.futbol))
-            respuesta = (
-                <IonItem>
-                    <IonLabel>Categoría Fútbol</IonLabel>
-                    <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
-                </IonItem>
-            );
+        if (this.state.isReadOnly) {
+            if (this.state.jugador.deportes.includes(DEPORTES.futbol))
+                respuesta = (
+                    <IonItem>
+                        <IonLabel>Categoría Fútbol</IonLabel>
+                        <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
+                    </IonItem>
+                );
+        }
+        else
+            if (this.state.jugadorTemp.deportes.includes(DEPORTES.futbol))
+                respuesta = (
+                    <IonItem>
+                        <IonLabel>Categoría Fútbol</IonLabel>
+                        <IonSelect cancelText="Cancelar" onIonChange={this.guardarCategoria}>
+                            {categorias.map((opcion) => (
+                                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+                            ))}
+                        </IonSelect>
+                    </IonItem>
+                );
 
         return respuesta;
+    }
+
+    guardarCategoria = (event: any) => {
+
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                categoria: event.target.value
+            }
+        }));
     }
 
     guardarNuevoNombre = (event: any) => {
@@ -133,23 +168,31 @@ class Jugador extends React.Component<tipoProps> {
 
     guardarFechaNacimiento = (event: any) => {
 
+        let toastParams: any = {mostrar: false}
+
+        if ((!this.state.isReadOnly) && this.state.jugadorTemp.deportes.includes(DEPORTES.futbol))
+            toastParams = {
+                mostrar: true,
+                esError: true,
+                mensaje: "Al haber modificado la fecha de nacimiento, considerá si es necesario reasignarle su categoría."
+            }
+
         this.setState((prevState: iState) => ({
             jugadorTemp: {
                 ...prevState.jugadorTemp,
                 fechaNacimiento: event.target.value.split('T')[0]
-            }
+            },
+            toastParams: toastParams
         }));
     }
 
     guardarDeportes = (event: any) => {
 
-        const categoria = event.target.value.includes(DEPORTES.futbol) ? 2 : 0;
-
         this.setState((prevState: iState) => ({
             jugadorTemp: {
                 ...prevState.jugadorTemp,
                 deportes: event.target.value,
-                categoria: categoria
+                categoria: event.target.value.includes(DEPORTES.futbol) ? this.state.jugador.categoria : 0
             }
         }));
     }
@@ -172,9 +215,11 @@ class Jugador extends React.Component<tipoProps> {
         if (!jugador.telResponsable)
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El teléfono debe tener al menos un carácter." } });
         else if (jugador.deportes.length < 1)
-            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } })
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } });
         else if (!regNombre.test(jugador.nombre))
-            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } });
+        else if (jugador.deportes.includes(DEPORTES.futbol) && (jugador.categoria === 0))
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Si el jugador practica Fútbol, debe asignársele una categoría." } });
         else {  /* Si es movil, debe ir 9 luego de +54 */
             if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
                     const telefono = Array.from(jugador.telResponsable);
@@ -378,4 +423,5 @@ export default Jugador;
  - VARIOS TELEFONOS?
  - DNI EDITABLE?
  - BORRO PAGOS SI ELIMINO A UN JUGADOR?
+
  */
