@@ -36,8 +36,7 @@ const jugadorPorDefecto: iJugador = {              /* valores por defecto para i
     categoria: 0,
     deportes: [],
     telResponsable: '0',
-    fechaNacimiento: '2013-09-19T17:00:00.000',
-    planillaMedica: ' '
+    fechaNacimiento: '2013-09-19T17:00:00.000'
 };
 
 class Jugador extends React.Component<tipoProps> {
@@ -417,11 +416,3 @@ class Jugador extends React.Component<tipoProps> {
 }
 
 export default Jugador;
-
-
-/*
- - VARIOS TELEFONOS?
- - DNI EDITABLE?
- - BORRO PAGOS SI ELIMINO A UN JUGADOR?
-
- */

@@ -20,7 +20,7 @@ interface imagen {
 
 const RegistrarJugador: React.FC = () => {
 
-    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: '' });
+    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '' });
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setToastColor] = useState('danger');
@@ -39,7 +39,6 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
         }
         setJugador(jug);
     }
@@ -53,7 +52,6 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
         }
         setJugador(jug);
     }
@@ -67,7 +65,6 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: event.target.value.split('T')[0],
-            planillaMedica: jugador.planillaMedica
         }
         setJugador(jug);
     }
@@ -81,7 +78,6 @@ const RegistrarJugador: React.FC = () => {
             deportes: event.target.value,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
         }
         setJugador(jug);
     }
@@ -95,7 +91,6 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: tel,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
         }
         setJugador(jug);
     }
@@ -248,7 +243,6 @@ const RegistrarJugador: React.FC = () => {
                 deportes: jugador.deportes,
                 telResponsable: tel.join(''),
                 fechaNacimiento: jugador.fechaNacimiento,
-                planillaMedica: jugador.planillaMedica
             }
             BD.getJugadoresDB().put(jug)
                 .then(res => {

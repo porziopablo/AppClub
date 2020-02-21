@@ -150,7 +150,3 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
 export default withRouter(
     SideMenu
 );
-
-/*
- *  ARREGLAR: cuando estas en una pestaña, hija de algun elemento de esos, que no se deseleccione 
- */

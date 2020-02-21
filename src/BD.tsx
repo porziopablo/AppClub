@@ -51,7 +51,7 @@ class BaseDatos {
             this.cat13DB = new PouchDB('http://localhost:5984/asist13');
             this.cat15DB = new PouchDB('http://localhost:5984/asist15');
 
-            /* creacion de indice de nombre para jugadoresDB */
+            /* creacion de indices */
 
             this.jugadoresDB.createIndex({ index: { fields: ['nombre'], name: "indiceNombre", ddoc: "indiceNombre" } })
                 .catch(console.log)

@@ -1,17 +1,8 @@
-﻿/*#inputImagenes {
-    opacity: 0;
-}*/
-
-/*form ion-label {
-    margin-top: 10px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 2px ridge #3880ff;
-    height: auto;
-    width: 172px;
-}*/
-
-.imgVistaPrevia {
+﻿.imgVistaPrevia {
     height: 64px;
     order: 1;
+}
+
+#vistaPrevia {
+    --padding-top: -75px;
 }
