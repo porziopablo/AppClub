@@ -378,7 +378,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
                     <IonAlert
                         isOpen={this.state.mostrarAlerta}
                         onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                        header='¿Realmente quieres eliminar esta imagen?'
+                        header='¿Realmente querés eliminar esta imagen?'
                         subHeader='Esta acción no puede deshacerse.'
                         buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarFoto }]}
                     />

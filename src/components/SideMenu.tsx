@@ -134,7 +134,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                                 <IonAlert
                                     isOpen={this.state.mostrarAlerta}
                                     onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                                    header={'¿Estás seguro que quieres cerrar sesión?'}
+                                    header={'¿Realmente querés cerrar sesión?'}
                                     buttons={['Cancelar', { text: 'Cerrar Sesión', handler: this.cerrarSesion }]}
                                 />
                             </IonCol>

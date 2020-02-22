@@ -118,9 +118,9 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
         const deportesBuscados: number[] = event.target.value;
 
         if (deportesBuscados.length !== 0)
-            this.setState({ jugadoresMostrados: this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, deportesBuscados)), deportesMostrados: deportesBuscados });
+            this.setState({ jugadoresMostrados: this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, deportesBuscados)), deportesMostrados: deportesBuscados, categoriaMostrada: 0 });
         else
-            this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
+            this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [], categoriaMostrada: 0 });
     }
 
     actualizarJugadores = () => {
@@ -170,7 +170,13 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
                         <IonSelect cancelText="Cancelar" multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
                             {this.renderOpciones(deportes)}
                         </IonSelect>
-                        <IonSelect cancelText="Cancelar" placeholder='Categoría' disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
+                        <IonSelect
+                            value={this.state.categoriaMostrada}
+                            cancelText="Cancelar"
+                            placeholder='Categoría'
+                            disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol}
+                            onIonChange={this.filtrarPorCategoria}
+                        >
                             {this.renderOpciones(categorias)}
                         </IonSelect>
                     </IonItem>

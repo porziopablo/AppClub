@@ -402,7 +402,7 @@ class Jugador extends React.Component<tipoProps> {
                                 <IonAlert
                                     isOpen={this.state.mostrarAlerta}
                                     onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                                    header='¿Realmente quieres eliminar este jugador?'
+                                    header='¿Realmente querés eliminar este jugador?'
                                     subHeader='Esta acción no puede deshacerse.'
                                     buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarJugador }]}
                                 />
