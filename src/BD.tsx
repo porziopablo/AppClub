@@ -59,8 +59,8 @@ class BaseDatos {
             this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
                 .catch(console.log)
 
-            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-                .catch(console.log)
+            //this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
+            //    .catch(console.log)
 
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
                 .catch(console.log)

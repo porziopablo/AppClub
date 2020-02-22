@@ -1,5 +1,5 @@
 ﻿import React, { useState, FormEvent, useEffect } from 'react';
-import { IonHeader, IonPage, IonContent, IonList, IonItem, IonModal, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonLabel, IonInput, IonText, IonToast, IonCheckbox } from '@ionic/react';
+import { IonHeader, IonPage, IonContent, IonList, IonItem, IonModal, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonLabel, IonInput, IonText, IonToast } from '@ionic/react';
 import { create } from 'ionicons/icons';
 import { regEmail } from '../interfaces';
 import '../theme/configuracion.css';
@@ -57,7 +57,7 @@ const Configuracion: React.FC = () => {
             }).then(res => {
                 setShowModalEmail(false);
                 setToastColor("success");
-                setToastMsg("El email se ha cambiado con exito");
+                setToastMsg("El email se ha cambiado con éxito");
                 setToast(true);
             }).catch(err => {
                 setToastColor("danger");
@@ -86,7 +86,7 @@ const Configuracion: React.FC = () => {
                 .then(res => {
                 setShowModalPass(false);
                 setToastColor("success");
-                setToastMsg("La contraseña se ha cambiado con exito");
+                setToastMsg("La contraseña se ha cambiado con éxito");
                 setToast(true);
             }).catch(err => {
                 setToastColor("danger");
@@ -94,13 +94,6 @@ const Configuracion: React.FC = () => {
                 setToast(true);
             });
         }
-    }
-
-    function setearAdmin() {
-        db.getProfesoresDB().deleteUser(metadata.name);
-        //db.getProfesoresDB().signUpAdmin(metadata.name, );
-        //db.getProfesoresDB().logIn(metadata.name, pass);
-        //Redirect a Configuracion
     }
 
     return (
@@ -145,10 +138,6 @@ const Configuracion: React.FC = () => {
                             <IonIcon icon={create} />
                         </IonButton>
                     </IonItem>
-                    <IonItem>
-                        <IonLabel >Administrador?</IonLabel>
-                        <IonCheckbox disabled={metadata.roles.lenght!==0? false:true} checked={(metadata.roles[0] === 'admin')} onClick={() => setearAdmin()}></IonCheckbox>
-                    </IonItem>
                 </IonList>
             </IonContent>
             <IonModal isOpen={showModalEmail}>
@@ -168,15 +157,15 @@ const Configuracion: React.FC = () => {
                     <form onSubmit={handleSubmitEmail}>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(invalidEmail) ? 'label-login-warning' : 'label-modal'}>Nuevo correo electronico</IonText>
-                                <IonText class={(invalidEmail) ? 'regError' : 'esconder'}>El correo electronico no es valido.</IonText>
+                                <IonText class={(invalidEmail) ? 'label-login-warning' : 'label-modal'}>Nuevo correo electrónico</IonText>
+                                <IonText class={(invalidEmail) ? 'regError' : 'esconder'}>El correo electrónico no es válido.</IonText>
                             </IonLabel>
                             <IonInput name='email' required type="email" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(differentEmail) ? 'label-login-warning' : 'label-modal'}>Confirmar nuevo correo electronico</IonText>
-                                <IonText class={(differentEmail) ? 'regError' : 'esconder'}>El correo electronico no coincide.</IonText>
+                                <IonText class={(differentEmail) ? 'label-login-warning' : 'label-modal'}>Confirmar nuevo correo electrónico</IonText>
+                                <IonText class={(differentEmail) ? 'regError' : 'esconder'}>El correo electrónico no coincide.</IonText>
                             </IonLabel>
                             <IonInput id='emailconf' name='emailconf' required type="email" ></IonInput>
                         </IonItem>
@@ -202,7 +191,7 @@ const Configuracion: React.FC = () => {
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentPass || invalidPass) ? 'label-modal-warning' : 'label-modal'}>Nueva contraseña</IonText>
-                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres invalidos.</IonText>
+                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres inválidos.</IonText>
                             </IonLabel>
                             <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>

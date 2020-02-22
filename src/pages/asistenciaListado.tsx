@@ -92,7 +92,6 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
             clon = clon.filter(function (jug) { return jug.dni !== buscado[0].dni })
         }
         setPresentes(clon);
-        console.log(presentes);
     }
 
     function subirPresentes(event: any) {
@@ -101,10 +100,9 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         fecha.setHours(fecha.getHours() - 3);
         aPostear._id = fecha.toISOString().split('T')[0];
         aPostear.presentes = presentes;
-        console.log(aPostear._id);
         categoriaDB.post(aPostear)
             .then(res => {
-                setToastMsg("Presentes cargados con exito");
+                setToastMsg("Presentes cargados con éxito");
                 setColor("success");
                 setToast(true);
             })
@@ -129,7 +127,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 <IonHeader>
                     <IonItem>
                         {titulo}
-                        <IonButton slot="end" size="small" onClick={subirPresentes}>Confirmar asistencia</IonButton>
+                        <IonButton disabled={presentes.length === 0} slot="end" size="small" onClick={subirPresentes}>Confirmar asistencia</IonButton>
                     </IonItem>
                 </IonHeader>
                 <IonList>
