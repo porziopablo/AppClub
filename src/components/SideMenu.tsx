@@ -51,18 +51,20 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
 
         try {
             const respuesta = await BD.getProfesoresDB().getSession();
-            if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
+            if (respuesta.userCtx.name) {
                 const usuarioActual = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
-                this.setState({ usuarioActual: usuarioActual })
+                this.setState({ usuarioActual: usuarioActual });
             }
         }
         catch (error) {
-            this.setState({
-                toastParams: {
-                    mostrar: true,
-                    mensaje: "No se pudo descargar el usuario actual."
-                }
-            })
+
+            if ((this.props.location.pathname.toLowerCase().localeCompare('/login') !== 0) && (error.status === 404))
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "No se pudo descargar el usuario actual."
+                    }
+                });
         }
     }
 
