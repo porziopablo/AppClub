@@ -9,8 +9,8 @@ const OpcionesAdmin: React.FC = () => {
                 <div id='textoJugadores'>
                     <IonText>Opciones de administrador</IonText>
                 </div>
-                <IonButton className="botonJugadores" fill="outline" href="/usuarios/nuevos">Solicitudes de <br /> nuevos usuarios</IonButton>
-                <IonButton className="botonJugadores" fill="outline" href="/usuarios/existentes">Lista de <br /> usuarios existentes</IonButton>
+                <IonButton className="botonJugadores" fill="outline" routerLink="/usuarios/nuevos">Solicitudes de <br /> nuevos usuarios</IonButton>
+                <IonButton className="botonJugadores" fill="outline" routerLink="/usuarios/existentes">Lista de <br /> usuarios existentes</IonButton>
             </IonContent>
         </IonPage>
     );

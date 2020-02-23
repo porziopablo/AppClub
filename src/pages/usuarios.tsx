@@ -74,7 +74,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 .then(res => {
                     eliminarDeArray(usuarios, doc[0]);
                     setToastColor("success");
-                    setToastMsg("Se ha eliminado al usuario con exito");
+                    setToastMsg("Se ha eliminado al usuario con éxito");
                     setToast(true);
                 }).catch(err => {
                     setToastColor("danger");
@@ -93,7 +93,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                     .then(res => {
                         eliminarDeArray(usuarios, documento);
                         setToastColor("success");
-                        setToastMsg("Se ha rechazado al usuario pendiente con exito");
+                        setToastMsg("Se ha rechazado al usuario pendiente con éxito");
                         setToast(true);
                     }).catch(res => {
                         setToastColor("danger");
@@ -130,7 +130,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 }).then(res => {
                     eliminarDeArray(usuarios, aPostear);
                     setToastColor("success");
-                    setToastMsg("Se ha aceptado al usuario pendiente con exito");
+                    setToastMsg("Se ha aceptado al usuario pendiente con éxito");
                     setToast(true);
                 }).catch(res => {
                     setToastColor("danger");

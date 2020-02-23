@@ -117,7 +117,7 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                     <IonHeader>
                         <IonToolbar>
                             <IonTitle>
-                                Presentes en el dia seleccionado
+                                Presentes 
                             </IonTitle>
                             <IonButtons slot="start">
                                 <IonButton onClick={() => setShowModal(false)}>
