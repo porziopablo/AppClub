@@ -199,7 +199,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
                         <IonRefresherContent></IonRefresherContent>
                     </IonRefresher>
                     <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                        <IonFabButton size="small" href="/listado/registrarJugador">
+                        <IonFabButton size="small" routerLink="/listado/registrarJugador">
                             <IonIcon icon={add} />
                         </IonFabButton>
                     </IonFab>
