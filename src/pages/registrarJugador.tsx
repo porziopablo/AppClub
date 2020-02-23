@@ -6,7 +6,7 @@ import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { MAX_IMG } from '../interfaces';
+import { MAX_IMG, CATEGORIAS, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
 
 const PREFIJO_MOVIL: string = '+549';
 const TIPO_MOVIL: string = 'movil';
@@ -103,6 +103,19 @@ const RegistrarJugador: React.FC = () => {
         return doc;
     }
 
+    function guardarCategoria(event: any) {
+        let jug: iJugador = {
+            '_id': jugador._id,
+            nombre: jugador.nombre,
+            dni: jugador.dni,
+            categoria: event.target.value,
+            deportes: jugador.deportes,
+            telResponsable: jugador.telResponsable,
+            fechaNacimiento: jugador.fechaNacimiento,
+        }
+        setJugador(jug);
+    }
+
     function todosFormatosCorrectos() {
         let i = 0;
         while ((i < imagenesParaSubir.length) && (imagenesParaSubir[i].type.lastIndexOf('image/') > -1))
@@ -115,7 +128,7 @@ const RegistrarJugador: React.FC = () => {
         const URL = (window.URL || window.webkitURL);
 
         if (imagenesParaSubir.length > MAX_IMG)
-            respuesta.push(<IonItem color="danger" key='no_img'>{`El máximo de imágenes por jugador es ${MAX_IMG}. Eliminá algunas antes de subir otras, o elegí menos imágenes.`}</IonItem>);
+            respuesta.push(<IonItem color="danger" key='no_img'>{`El máximo de imágenes por jugador es ${MAX_IMG}. Elegí menos imágenes.`}</IonItem>);
         else if (!imagenesParaSubir.length)
             respuesta.push(<IonItem color="light" key='no_img'>No hay imágenes seleccionadas para subir.</IonItem>);
         else
@@ -189,6 +202,47 @@ const RegistrarJugador: React.FC = () => {
             </IonModal>);
     }
 
+    function renderCategoria() {
+        const categorias = [
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
+        ]
+
+        let respuesta = null;
+        if (jugador.deportes.includes(DEPORTES.futbol))
+            respuesta = (
+                <IonItem>
+                    <IonLabel><IonText class='label-modal'>Categoría Fútbol</IonText></IonLabel>
+                    <IonSelect cancelText="Cancelar" onIonChange={guardarCategoria}>
+                        {categorias.map((opcion) => (
+                            <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+                        ))}
+                    </IonSelect>
+                </IonItem>
+            );
+
+        return respuesta;
+    }
+
+    function renderSelectDeportes() {
+
+        const deportes = [
+            { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+            { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
+        ];
+
+        return (
+            deportes.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
+    }
+
     function handleRegistrar(event: any) {
         if (jugador.nombre === "") {
             setToastMsg("Debe escribir el nombre completo del alumno");
@@ -204,6 +258,10 @@ const RegistrarJugador: React.FC = () => {
         }
         else if (jugador.deportes.length === 0) {
             setToastMsg("Debe seleccionar algún deporte");
+            setToast(true);
+        }
+        else if (jugador.deportes.includes(DEPORTES.futbol) && (jugador.categoria === undefined)) {
+            setToastMsg("Debe ingresar una categoria");
             setToast(true);
         }
         else if (jugador.telResponsable === "") {
@@ -226,19 +284,17 @@ const RegistrarJugador: React.FC = () => {
                 fechaNacimiento: jugador.fechaNacimiento,
             }
             doc = guardarPlanilla(jug);
-            console.log(doc);
             BD.getJugadoresDB().put(doc)
                 .then(res => {
                     setToastColor("success");
-                    setToastMsg("El jugador se ha cargado con éxito");
+                    setToastMsg("El jugador se ha cargado con éxito.");
                     setToast(true);
                     
                 })
                 .catch(err => {
                     setToastColor("danger");
-                    setToastMsg("ERROR al cargar al jugador, inténtelo más tarde.");
+                    setToastMsg("ERROR al cargar al jugador.");
                     setToast(true);
-                    console.log(err);
                 });
         }
     }
@@ -279,14 +335,14 @@ const RegistrarJugador: React.FC = () => {
                         </IonDatetime>
                     </IonItem>
                     <IonItem>
-                        <IonLabel><IonText class='label-modal'>Deportes que realiza</IonText></IonLabel>
-                        <IonSelect onIonChange={guardarDeportes} multiple={true} cancelText="Cancelar" okText="Aceptar">
-                            <IonSelectOption value="2">Fútbol</IonSelectOption>
-                            <IonSelectOption value="1">Basket</IonSelectOption>
+                        <IonLabel><IonText class='label-modal'>Deportes</IonText></IonLabel>
+                        <IonSelect multiple={true} cancelText="Cancelar" onIonChange={guardarDeportes}>
+                            {renderSelectDeportes()}
                         </IonSelect>
                     </IonItem>
+                    {renderCategoria()}
                     <IonItem>
-                        <IonLabel>Teléfono del responsable</IonLabel>
+                        <IonLabel><IonText class='label-modal'>Teléfono del responsable</IonText></IonLabel>
                         <IonSelect
                             interface='popover'
                             cancelText="Cancelar"
@@ -314,7 +370,7 @@ const RegistrarJugador: React.FC = () => {
                     </IonItem>
                     {renderModalImagenes()}
                     <div>
-                        <IonButton onClick={handleRegistrar} id='botModal'>Registrar jugador</IonButton>
+                        <IonButton onClick={handleRegistrar} id='botModal' fill="outline" >Registrar jugador</IonButton>
                     </div>
                 </form>
             </IonContent>
