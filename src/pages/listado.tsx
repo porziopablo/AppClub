@@ -4,7 +4,7 @@ import '../theme/listado.css';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
-import { add } from 'ionicons/icons';
+import { add, document } from 'ionicons/icons';
 
 interface iOpcion {
     nombre: string,
@@ -153,7 +153,12 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
             <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
                 <IonItem>
                     <IonLabel>
-                        <h2>{jugador.nombre}</h2>
+                        {
+                            (!jugador._attachments) ?
+                                    <h2>{`${jugador.nombre} `}<IonIcon color="danger" icon={document} /></h2>            
+                                :
+                                    <h2>{jugador.nombre}</h2>
+                        }
                         <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
                     </IonLabel>
                 </IonItem>

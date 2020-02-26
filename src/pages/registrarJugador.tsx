@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
 import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonModal, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonHeader } from '@ionic/react';
 import '../theme/registrarJugador.css';
-import { iJugador } from '../interfaces';
+import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
 import { MAX_IMG, CATEGORIAS, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
 
-const PREFIJO_MOVIL: string = '+549';
-const TIPO_MOVIL: string = 'movil';
-const TIPO_FIJO: string = 'fijo';
-
 const RegistrarJugador: React.FC = () => {
 
-    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '' });
+    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', _attachments: {}, genero: 0 });
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setToastColor] = useState('danger');
@@ -32,6 +28,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -45,6 +43,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -58,6 +58,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: event.target.value.split('T')[0],
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -71,6 +73,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: event.target.value,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -84,6 +88,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: tel,
             fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -112,6 +118,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -282,6 +290,8 @@ const RegistrarJugador: React.FC = () => {
                 deportes: jugador.deportes,
                 telResponsable: tel.join(''),
                 fechaNacimiento: jugador.fechaNacimiento,
+                _attachments: jugador._attachments,
+                genero: jugador.genero
             }
             doc = guardarPlanilla(jug);
             BD.getJugadoresDB().put(doc)
@@ -379,4 +389,3 @@ const RegistrarJugador: React.FC = () => {
 };
 
 export default RegistrarJugador;
-/*UTF8*/

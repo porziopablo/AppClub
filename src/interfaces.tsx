@@ -11,7 +11,12 @@ export const regEmail = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^
 /* CONSTANTES */
 
 export const maxNumDni = 8;
+
 export const MAX_IMG = 5;
+
+export const PREFIJO_MOVIL: string = '+549';
+export const TIPO_MOVIL: string = 'movil';
+export const TIPO_FIJO: string = 'fijo';
 
 /* ENUMS */
 
@@ -24,14 +29,23 @@ export enum CATEGORIAS {
     undecima,
     decimoTercera,
     decimoQuinta
-}
+};
 
 export enum DEPORTES {
     basket = 1,
     futbol
-}
+};
 
-export const NOMBRE_DEPORTES: string[] = ['', 'Basket', 'Fútbol']; /* [0] === '' para que el resto coincida con ENUMS */
+export enum GENEROS {
+    femenino = 1,
+    masculino = 2
+};
+
+/* [0] === '' para que el resto coincida con ENUMS */
+
+export const NOMBRE_GENEROS: string[] = ['', 'Femenino', 'Masculino'];
+
+export const NOMBRE_DEPORTES: string[] = ['', 'Basket', 'Fútbol'];
 
 export const NOMBRE_CAT_FUTBOL: string[] = ['', '1° Femenina', '1° Masculina', '5° Masculina', '7° Masculina', '9° Mixta', '11° Mixta', '13° Mixta', '15° Mixta'];
 
@@ -49,10 +63,12 @@ export interface iJugador {
     '_id': string,
     nombre: string,
     dni: string, /* ID */
-    categoria: number,
+    categoria: number,      // <-- BORRAR
     deportes: number[],
     telResponsable: string,
     fechaNacimiento: string, /* ISO-8601 string */
+    '_attachments': PouchDB.Core.Attachments,
+    genero: number
 }
 
 export interface iPago {
