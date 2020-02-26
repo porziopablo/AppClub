@@ -357,8 +357,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
                     <IonFab hidden={this.state.ocultarFAB} vertical="bottom" horizontal="end" slot="fixed">
                         <IonFabButton
                             size="small"
-                            routerLink={`/listado/jugador/${this.props.match.params.dni}`}
-                            routerDirection="back"
+                            onClick={() => { this.props.history.push(`/listado/jugador/${this.props.match.params.dni}`) }}
                         >
                             <IonIcon icon={arrowBack} />
                         </IonFabButton>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../theme/jugadores.css';
 import { IonHeader, IonItem, IonList, IonLabel, IonPage, IonContent, IonToast, IonIcon, IonFab, IonFabButton } from '@ionic/react';
 import { iPago } from '../interfaces';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { arrowBack } from 'ionicons/icons';
 import BD from '../BD';
 
@@ -15,6 +15,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
     const [pagos, setPagos] = useState<iPago[]>([]);
     const [toast, setToast] = useState(false);
     const dniJugador: string = match.params.dni;
+    let history = useHistory();
 
     useEffect(() => {
         const docToPago = (doc: any): iPago => doc;
@@ -62,8 +63,7 @@ const PagosJugador: React.FC<UserDetailPageProps> = ({ match }) => {
                 <IonFab vertical="bottom" horizontal="end" slot="fixed">
                     <IonFabButton
                         size="small"
-                        routerLink={`/listado/jugador/${match.params.dni}`}
-                        routerDirection="back"
+                        onClick={() => { history.push(`/listado/jugador/${match.params.dni}`)}}
                     >
                         <IonIcon icon={arrowBack} />
                     </IonFabButton>

@@ -1,10 +1,11 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { IonHeader, IonContent, IonLabel, IonPage, IonItem, IonCheckbox, IonList, IonButton, IonToast } from '@ionic/react';
-import { RouteComponentProps } from 'react-router';
+import { IonHeader, IonContent, IonLabel, IonPage, IonItem, IonCheckbox, IonList, IonButton, IonToast, IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { iJugador, iAsistItem, iAsistencia } from '../interfaces';
 import BD from '../BD';
 import PouchDB from 'pouchdb';
 import Find from 'pouchdb-find'
+import { arrowBack } from 'ionicons/icons';
 PouchDB.plugin(Find)
 
 const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
@@ -22,6 +23,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setColor] = useState('');
     const cat = match.params.id;
+    let history = useHistory();
 
     let titulo = "";
 
@@ -124,6 +126,14 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 duration={3500}
             />
             <IonContent>
+                <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                    <IonFabButton
+                        size="small"
+                        onClick={() => { history.push(`/asistenciaCatTomar`) }}
+                >
+                        <IonIcon icon={arrowBack} />
+                    </IonFabButton>
+                </IonFab>
                 <IonHeader>
                     <IonItem>
                         {titulo}

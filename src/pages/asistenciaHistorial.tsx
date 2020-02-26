@@ -11,13 +11,16 @@
     IonToolbar,
     IonTitle,
     IonButtons,
-    IonIcon
+    IonIcon,
+    IonFab,
+    IonFabButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { iAsistItem, iAsistencia } from '../interfaces';
 import BD from '../BD';
 import '../theme/logIn.css';
+import { arrowBack } from 'ionicons/icons';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     id: string;
@@ -31,6 +34,7 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
     const [fechas, setFechas] = useState<iAsistencia[]>([]);
     const [presentes, setPresentes] = useState<iAsistItem[]>([]);
     const [toast, setToast] = useState(false);
+    let history = useHistory();
 
     const cat = match.params.id;
     let titulo = "";
@@ -113,6 +117,14 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                 duration={3500}
             />
             <IonContent>
+                <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                    <IonFabButton
+                        size="small"
+                        onClick={() => { history.push(`/asistenciaCatVer`) }}
+                    >
+                        <IonIcon icon={arrowBack} />
+                    </IonFabButton>
+                </IonFab>
                 <IonModal isOpen={showModal}>
                     <IonHeader>
                         <IonToolbar>
