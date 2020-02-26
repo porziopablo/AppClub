@@ -115,13 +115,21 @@ class Jugador extends React.Component<tipoProps> {
 
         let respuesta = null;
 
-        if (this.state.jugador.deportes.includes(DEPORTES.futbol))
+        if (this.state.isReadOnly && this.state.jugador.deportes.includes(DEPORTES.futbol))
             respuesta = (
                 <IonItem>
                     <IonLabel>Categoría Fútbol</IonLabel>
                     <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
                 </IonItem>
             );
+        else
+            if (!this.state.isReadOnly && this.state.jugadorTemp.deportes.includes(DEPORTES.futbol))
+                respuesta = (
+                    <IonItem>
+                        <IonLabel>Categoría Fútbol</IonLabel>
+                        <h4>{NOMBRE_CAT_FUTBOL[this.state.jugadorTemp.categoria]}</h4>
+                    </IonItem>
+                );
 
         return respuesta;
     }
