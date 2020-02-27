@@ -59,8 +59,15 @@ class BaseDatos {
             this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
                 .catch(console.log)
 
-            //this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-            //    .catch(console.log)
+            this.getUsersDB().getSession()
+                .then(res => {
+                    if (res.userCtx.roles!.indexOf("superteacher") > 0) {
+                        this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
+                           .catch(console.log)
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
 
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
                 .catch(console.log)

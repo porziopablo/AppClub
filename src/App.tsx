@@ -80,7 +80,7 @@ const App: React.FC = () => (
                         <Route path="/listado" component={Listado} exact={true} />
                         <Route path="/listado/jugador/:dni" component={Jugador} />
                         <Route path="/listado/jugador/:dni/planillaMedica" component={PlanillaMedica} />
-                        <Route path="/configuracion" component={Configuracion} exact={true} />
+                        <Route path="/configuracion/:dniUser" component={Configuracion} />
                         <Route path="/logIn" component={LogIn} exact={true} />
                         <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />
                         <Route path="/usuarios" component={Usuarios} exact={true} />

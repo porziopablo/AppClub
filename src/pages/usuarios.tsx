@@ -1,9 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup, IonToast } from '@ionic/react';
+import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup, IonToast, IonRefresher, IonRefresherContent } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import '../theme/usuarios.css';
 import { iProfesor } from '../interfaces';
 import BD from '../BD';
+import { Link } from 'react-router-dom';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     tipo: string;
@@ -11,27 +12,23 @@ interface UserDetailPageProps extends RouteComponentProps<{
 
 const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
+    let tipo = match.params.tipo;
+
     const [nuevos, setNuevos] = useState(false);
+    useEffect(() => {
+        console.log("1")
+        if (tipo === "nuevos") {
+            setNuevos(true);
+        }
+    }, [tipo, match]);
     const [usuarios, setUsuarios] = useState<iProfesor[]>([]);
     const [selected, setSelected] = useState<string>("");
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setToastColor] = useState('danger');
 
-    let tipo = match.params.tipo;
-
-    function eliminarDeArray(array: Array<iProfesor>, doc: iProfesor) {
-        const index = array.indexOf(doc);
-        if (index > -1) {
-            array.splice(index, 1);
-        }
-    }
-
-    useEffect(() => {
+    function actualizarUsuarios() {
         if (tipo === "nuevos") {
-            setNuevos(true);
-        }
-        if (nuevos) {
             let pendientesRecibidos: iProfesor[] = [];
             const docToProfesor = (doc: any): iProfesor => doc;
 
@@ -61,28 +58,14 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                     setToast(true);
                 });
         }
-    }, [nuevos, tipo, usuarios]);
+    }
+
+    useEffect(() => {
+        actualizarUsuarios();// eslint-disable-next-line
+    }, []);
 
     function handleSeleccion(event: any) {
         setSelected(event.target.value);
-    }
-
-    function handleEliminarUsuario (event: any) {
-        if (selected) {
-            const doc = usuarios.filter(obj => obj.dni === selected);
-            BD.getProfesoresDB().deleteUser(doc[0].dni)
-                .then(res => {
-                    eliminarDeArray(usuarios, doc[0]);
-                    setToastColor("success");
-                    setToastMsg("Se ha eliminado al usuario con éxito");
-                    setToast(true);
-                }).catch(err => {
-                    setToastColor("danger");
-                    setToastMsg("ERROR al eliminar al usuario");
-                    setToast(true);
-                });
-            setSelected("");
-        }
     }
 
     function handleRechazarPendiente(event: any) {
@@ -91,10 +74,10 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
             BD.getPendientesDB().get(doc[0].dni).then(function (documento: any) {
                 BD.getPendientesDB().remove(documento)
                     .then(res => {
-                        eliminarDeArray(usuarios, documento);
                         setToastColor("success");
                         setToastMsg("Se ha rechazado al usuario pendiente con éxito");
                         setToast(true);
+                        actualizarUsuarios();
                     }).catch(res => {
                         setToastColor("danger");
                         setToastMsg("ERROR al rechazar al usuario pendiente");
@@ -114,7 +97,6 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         if (selected) {
             let aPostear: iProfesor = { '_id': '', nombre: '', dni: '', email: '', pass: '' }
             BD.getPendientesDB().get(selected).then(function (doc: any) {
-                console.log(doc);
                 aPostear._id = doc._id;
                 aPostear.nombre = doc.nombre;
                 aPostear.dni = doc.dni;
@@ -128,17 +110,16 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                         dni: aPostear.dni,
                     }
                 }).then(res => {
-                    eliminarDeArray(usuarios, aPostear);
                     setToastColor("success");
                     setToastMsg("Se ha aceptado al usuario pendiente con éxito");
                     setToast(true);
+                    actualizarUsuarios();
                 }).catch(res => {
                     setToastColor("danger");
                     setToastMsg("ERROR al aceptar al usuario pendiente");
                     setToast(true);
                 });
             }).catch(function (err: Error) {
-                console.log(err);
                 console.log(err);
                 setToastColor("danger");
                 setToastMsg("ERROR no se encuentra usuario pendiente seleccionado");
@@ -157,24 +138,30 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 </IonLabel>
             );
         }
-        else {
-            return (
-                <IonLabel class="botonCont">
-                    <IonButton onClick={handleEliminarUsuario} color="primary" fill="outline" size="small" slot="end">Eliminar usuario</IonButton>
-                </IonLabel>
-            );
-        }
     }
 
-    const renderUsuarios = () => {
+    const renderUsuariosPendientes = () => {
         return (
             usuarios.map((usuario: iProfesor) => (
                 <IonItem key={usuario.dni}>
                     <IonLabel>
                         <h2>{usuario.nombre}</h2>
                     </IonLabel>
-                    <IonRadio slot="end" value={usuario.dni} onIonSelect={handleSeleccion} />
+                        <IonRadio value={usuario.dni} onIonSelect={handleSeleccion} />
                 </IonItem>
+            )));
+    }
+
+    const renderUsuarios = () => {
+        return (
+            usuarios.map((usuario: iProfesor) => (
+                <Link to={`/configuracion/${usuario.dni}`} style={{ textDecoration: 'none' }} key={usuario.dni}>
+                    <IonItem key={usuario.dni}>
+                        <IonLabel>
+                            <h2>{usuario.nombre}</h2>
+                        </IonLabel>
+                    </IonItem>
+                </Link>
             )));
     }
 
@@ -188,12 +175,19 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 duration={3500}
             />
             <IonContent>
+                <IonRefresher slot="fixed"
+                    onIonRefresh={(event) => {
+                        actualizarUsuarios();
+                        setTimeout(() => { event.detail.complete() }, 500);
+                    }}>
+                    <IonRefresherContent></IonRefresherContent>
+                </IonRefresher>
                 <IonList>
                     <IonRadioGroup>
                         <IonListHeader>
                             <IonLabel>Lista de usuarios {nuevos ? "nuevos" : "existentes"}</IonLabel>
                         </IonListHeader>
-                        {renderUsuarios()}
+                        {nuevos ? renderUsuariosPendientes() : renderUsuarios() }
                     </IonRadioGroup>
                 </IonList>
                 <div>

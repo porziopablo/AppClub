@@ -6,7 +6,7 @@ import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-import { MAX_IMG, CATEGORIAS, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES } from '../interfaces';
+import { MAX_IMG, DEPORTES, NOMBRE_DEPORTES, NOMBRE_GENEROS, GENEROS } from '../interfaces';
 
 const RegistrarJugador: React.FC = () => {
 
@@ -109,17 +109,32 @@ const RegistrarJugador: React.FC = () => {
         return doc;
     }
 
-    function guardarCategoria(event: any) {
+    //function guardarCategoria(event: any) {
+    //    let jug: iJugador = {
+    //        '_id': jugador._id,
+    //        nombre: jugador.nombre,
+    //        dni: jugador.dni,
+    //        categoria: event.target.value,
+    //        deportes: jugador.deportes,
+    //        telResponsable: jugador.telResponsable,
+    //        fechaNacimiento: jugador.fechaNacimiento,
+    //        _attachments: jugador._attachments,
+    //        genero: jugador.genero
+    //    }
+    //    setJugador(jug);
+    //}
+
+    function guardarGenero(event: any){
         let jug: iJugador = {
             '_id': jugador._id,
             nombre: jugador.nombre,
             dni: jugador.dni,
-            categoria: event.target.value,
+            categoria: jugador.categoria,
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
             _attachments: jugador._attachments,
-            genero: jugador.genero
+            genero: event.target.value
         }
         setJugador(jug);
     }
@@ -210,36 +225,35 @@ const RegistrarJugador: React.FC = () => {
             </IonModal>);
     }
 
-    function renderCategoria() {
-        const categorias = [
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
-            { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
-        ]
+    //function renderCategoria() {
+    //    const categorias = [
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
+    //    ]
 
-        let respuesta = null;
-        if (jugador.deportes.includes(DEPORTES.futbol))
-            respuesta = (
-                <IonItem>
-                    <IonLabel><IonText class='label-modal'>Categoría Fútbol</IonText></IonLabel>
-                    <IonSelect cancelText="Cancelar" onIonChange={guardarCategoria}>
-                        {categorias.map((opcion) => (
-                            <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
-                        ))}
-                    </IonSelect>
-                </IonItem>
-            );
+    //    let respuesta = null;
+    //    if (jugador.deportes.includes(DEPORTES.futbol))
+    //        respuesta = (
+    //            <IonItem>
+    //                <IonLabel><IonText class='label-modal'>Categoría Fútbol</IonText></IonLabel>
+    //                <IonSelect cancelText="Cancelar" onIonChange={guardarCategoria}>
+    //                    {categorias.map((opcion) => (
+    //                        <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+    //                    ))}
+    //                </IonSelect>
+    //            </IonItem>
+    //        );
 
-        return respuesta;
-    }
+    //    return respuesta;
+    //}
 
     function renderSelectDeportes() {
-
         const deportes = [
             { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
             { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
@@ -250,6 +264,21 @@ const RegistrarJugador: React.FC = () => {
                 <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
             )));
     }
+
+    function renderSelectGeneros() {
+        const generos = [
+            { nombre: NOMBRE_GENEROS[GENEROS.femenino], valor: GENEROS.femenino },
+            { nombre: NOMBRE_GENEROS[GENEROS.masculino], valor: GENEROS.masculino },
+        ];
+
+        return (
+            generos.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
+    }
+
+
+
 
     function handleRegistrar(event: any) {
         if (jugador.nombre === "") {
@@ -264,18 +293,22 @@ const RegistrarJugador: React.FC = () => {
             setToastMsg("Debe seleccionar una fecha de nacimiento");
             setToast(true);
         }
-        else if (jugador.deportes.length === 0) {
-            setToastMsg("Debe seleccionar algún deporte");
-            setToast(true);
-        }
-        else if (jugador.deportes.includes(DEPORTES.futbol) && (jugador.categoria === undefined)) {
-            setToastMsg("Debe ingresar una categoria");
+        else if (jugador.genero === 0) {
+            setToastMsg("Debe seleccionar algún género");
             setToast(true);
         }
         else if (jugador.telResponsable === "") {
             setToastMsg("Debe ingresar un telefono");
             setToast(true);
         }
+        else if (jugador.deportes.length === 0) {
+            setToastMsg("Debe seleccionar algún deporte");
+            setToast(true);
+        }
+        //else if (jugador.deportes.includes(DEPORTES.futbol) && (jugador.categoria === undefined)) {
+        //    setToastMsg("Debe ingresar una categoria");
+        //    setToast(true);
+        //}
         else {
             const tel = Array.from(jugador.telResponsable);
             let doc: any;
@@ -345,16 +378,19 @@ const RegistrarJugador: React.FC = () => {
                         </IonDatetime>
                     </IonItem>
                     <IonItem>
-                        <IonLabel><IonText class='label-modal'>Deportes</IonText></IonLabel>
-                        <IonSelect multiple={true} cancelText="Cancelar" onIonChange={guardarDeportes}>
-                            {renderSelectDeportes()}
+                        <IonLabel><IonText class='label-modal'>Género</IonText></IonLabel>
+                        <IonSelect
+                            interface="popover"
+                            cancelText="Cancelar"
+                            onIonChange={guardarGenero}
+                        >
+                            {renderSelectGeneros()}
                         </IonSelect>
                     </IonItem>
-                    {renderCategoria()}
                     <IonItem>
                         <IonLabel><IonText class='label-modal'>Teléfono del responsable</IonText></IonLabel>
                         <IonSelect
-                            interface='popover'
+                            interface="popover"
                             cancelText="Cancelar"
                             placeholder='Tipo'
                             value={tipoTelefono}
@@ -364,6 +400,17 @@ const RegistrarJugador: React.FC = () => {
                             <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>Móvil</IonSelectOption>
                         </IonSelect>
                     </IonItem>
+                    <IonItem>
+                        <IonLabel><IonText class='label-modal'>Deportes</IonText></IonLabel>
+                        <IonSelect
+                            multiple={true}
+                            cancelText="Cancelar"
+                            onIonChange={guardarDeportes}
+                        >
+                            {renderSelectDeportes()}
+                        </IonSelect>
+                    </IonItem>
+                    {/*renderCategoria()*/}
                     <IonItem>
                         <PhoneInput
                             defaultCountry="AR"
