@@ -127,7 +127,7 @@ class Jugador extends React.Component<tipoProps> {
                 respuesta = (
                     <IonItem>
                         <IonLabel>Categoría Fútbol</IonLabel>
-                        <h4>{NOMBRE_CAT_FUTBOL[this.state.jugadorTemp.categoria]}</h4>
+                        <h4>{NOMBRE_CAT_FUTBOL[BD.calcularCategoria(this.state.jugadorTemp)]}</h4>
                     </IonItem>
                 );
 
@@ -207,11 +207,12 @@ class Jugador extends React.Component<tipoProps> {
         else if (!regNombre.test(jugador.nombre))
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } });
         else {  /* Si es movil, debe ir 9 luego de +54 */
-            if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
-                    const telefono = Array.from(jugador.telResponsable);
-                    telefono.splice(3, 0, '9');
-                    jugador.telResponsable = telefono.join('');
+                if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
+                        const telefono = Array.from(jugador.telResponsable);
+                        telefono.splice(3, 0, '9');
+                        jugador.telResponsable = telefono.join('');
                 };
+                jugador.categoria = BD.calcularCategoria(jugador);
                 BD.getJugadoresDB().upsert(jugador._id, () => jugador)
                     .then(() => {
                         this.setState({
@@ -420,7 +421,5 @@ export default Jugador;
 /*
  
  ver como se modifica la categoria al cambiar el nacimiento y el genero
- 
- esconder categoria si jugadorTemp no hace futbol
 
  */

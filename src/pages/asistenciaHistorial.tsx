@@ -17,7 +17,7 @@
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useHistory } from 'react-router';
-import { iAsistItem, iAsistencia } from '../interfaces';
+import { iAsistItem, iAsistencia, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
 import '../theme/logIn.css';
 import { arrowBack } from 'ionicons/icons';
@@ -41,28 +41,28 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
 
     switch (cat) {
         case "1": categoriaDB = BD.getCat1fDB()
-            titulo = "1° División femenina"                  
+            titulo = NOMBRE_CAT_FUTBOL[1]                 
             break;
         case "2": categoriaDB = BD.getCat1mDB();
-            titulo = "1° División masculina"
+            titulo = NOMBRE_CAT_FUTBOL[2]
             break;
         case "3": categoriaDB = BD.getCat5DB();
-            titulo = "5° División"
+            titulo = NOMBRE_CAT_FUTBOL[3]
             break;
         case "4": categoriaDB = BD.getCat7DB();
-            titulo = "7° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[4]
             break;
         case "5": categoriaDB = BD.getCat9DB();
-            titulo = "9° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[5]
             break;
         case "6": categoriaDB = BD.getCat11DB();
-            titulo = "11° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[6]
             break;
         case "7": categoriaDB = BD.getCat13DB();
-            titulo = "13° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[7]
             break;
         case "8": categoriaDB = BD.getCat15DB();
-            titulo = "15° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[8]
             break;
     }
 
@@ -157,4 +157,3 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
     );
 }
 export default AsistenciaHist;
-/*UTF8*/

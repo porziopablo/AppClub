@@ -1,6 +1,7 @@
 import PouchDB from 'pouchdb'; 
 import Find from 'pouchdb-find';
 import Auth from 'pouchdb-authentication'
+import { iJugador, DEPORTES, GENEROS, CATEGORIAS } from './interfaces';
 PouchDB.plugin(Find);
 PouchDB.plugin(Auth);
 PouchDB.plugin(require('pouchdb-upsert'));
@@ -137,6 +138,35 @@ class BaseDatos {
     }
     getCat15DB() {
         return this.cat15DB;
+    }
+
+    calcularCategoria(jugador: iJugador) {
+
+        let categoria = 0;
+
+        if (jugador.deportes.includes(DEPORTES.futbol)) {
+
+            const edad = new Date().getFullYear() - new Date(jugador.fechaNacimiento).getUTCFullYear();
+
+            if (jugador.genero === GENEROS.femenino && edad >= 15)
+                categoria = CATEGORIAS.primeraFemenina;
+            else if (jugador.genero === GENEROS.masculino && edad >= 18)
+                categoria = CATEGORIAS.primeraMasculina;
+            else if (jugador.genero === GENEROS.masculino && edad === 17)
+                categoria = CATEGORIAS.quinta;
+            else if (jugador.genero === GENEROS.masculino && (edad === 15 || edad === 16))
+                categoria = CATEGORIAS.septima;
+            else if (edad === 13 || edad === 14)
+                categoria = CATEGORIAS.novena;
+            else if (edad === 11 || edad === 12)
+                categoria = CATEGORIAS.undecima;
+            else if (edad === 9 || edad === 10)
+                categoria = CATEGORIAS.decimoTercera;
+            else
+                categoria = CATEGORIAS.decimoQuinta;
+        }
+
+        return categoria;
     }
 }
 

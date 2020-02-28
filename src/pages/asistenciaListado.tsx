@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { IonHeader, IonContent, IonLabel, IonPage, IonItem, IonCheckbox, IonList, IonButton, IonToast, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import { RouteComponentProps, useHistory } from 'react-router';
-import { iJugador, iAsistItem, iAsistencia } from '../interfaces';
+import { iJugador, iAsistItem, iAsistencia, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
 import PouchDB from 'pouchdb';
 import Find from 'pouchdb-find'
@@ -22,6 +22,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setColor] = useState('');
+    const [isDisabled, setDisabled] = useState(true);
     const cat = match.params.id;
     let history = useHistory();
 
@@ -29,28 +30,28 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
 
     switch (cat) {
         case "1": categoriaDB = BD.getCat1fDB()
-            titulo = "1° División femenina"
+            titulo = NOMBRE_CAT_FUTBOL[1]
             break;
         case "2": categoriaDB = BD.getCat1mDB();
-            titulo = "1° División masculina"
+            titulo = NOMBRE_CAT_FUTBOL[2]
             break;
         case "3": categoriaDB = BD.getCat5DB();
-            titulo = "5° División"
+            titulo = NOMBRE_CAT_FUTBOL[3]
             break;
         case "4": categoriaDB = BD.getCat7DB();
-            titulo = "7° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[4]
             break;
         case "5": categoriaDB = BD.getCat9DB();
-            titulo = "9° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[5]
             break;
         case "6": categoriaDB = BD.getCat11DB();
-            titulo = "11° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[6]
             break;
         case "7": categoriaDB = BD.getCat13DB();
-            titulo = "13° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[7]
             break;
         case "8": categoriaDB = BD.getCat15DB();
-            titulo = "15° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[8]
             break;
     }
 
@@ -65,6 +66,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         }).then((resultado) => {
             jugadoresBuscados = resultado.docs.map(row => docToJugador(row));
             setJugadores(jugadoresBuscados);
+            setDisabled(true);
         })
             .catch(res => { setToast(true) });
         
@@ -77,7 +79,12 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                     <IonLabel>
                         <h2>{jugador.nombre}</h2>    
                     </IonLabel>
-                    <IonCheckbox value={jugador.dni} onClick={handleCheck} slot="end"></IonCheckbox>
+                    <IonCheckbox
+                        value = {jugador.dni}
+                        onClick = {handleCheck}
+                        slot = "end"
+                    >
+                    </IonCheckbox>
                 </IonItem>
             ))
         );
@@ -94,6 +101,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
             clon = clon.filter(function (jug) { return jug.dni !== buscado[0].dni })
         }
         setPresentes(clon);
+        setDisabled(clon.length === 0);
     }
 
     function subirPresentes(event: any) {
@@ -137,7 +145,7 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 <IonHeader>
                     <IonItem>
                         {titulo}
-                        <IonButton disabled={presentes.length === 0} slot="end" size="small" onClick={subirPresentes}>Confirmar asistencia</IonButton>
+                        <IonButton disabled={isDisabled} slot="end" size="small" onClick={subirPresentes}>Confirmar asistencia</IonButton>
                     </IonItem>
                 </IonHeader>
                 <IonList>
@@ -149,4 +157,3 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
 
 };
 export default AsistenciaList;
-/*UTF8*/

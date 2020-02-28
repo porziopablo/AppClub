@@ -16,8 +16,8 @@ const AsistenciaCatVer: React.FC = () => {
                 </IonGrid>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaHist/3">5° División</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaHist/4">7° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaHist/3">5° División <br /> masculina</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaHist/4">7° División <br /> masculina</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
                 <IonGrid>
@@ -38,4 +38,3 @@ const AsistenciaCatVer: React.FC = () => {
 };
 
 export default AsistenciaCatVer;
-/*UTF8*/

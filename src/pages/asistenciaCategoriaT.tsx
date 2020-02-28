@@ -16,8 +16,8 @@ const AsistenciaCatTomar: React.FC = () => {
                 </IonGrid>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/3">5° División</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/4">7° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/3">5° División <br /> masculina</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/4">7° División <br /> masculina</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
                 <IonGrid>
@@ -38,4 +38,3 @@ const AsistenciaCatTomar: React.FC = () => {
 };
 
 export default AsistenciaCatTomar;
-/*UTF8*/

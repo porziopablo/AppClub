@@ -131,7 +131,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
         BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre'] })
             .then((resultado) => {
                 jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
-                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
+                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos, categoriaMostrada:0 });
             })
             .catch(() => { this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } }) });
     }

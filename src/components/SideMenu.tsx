@@ -154,7 +154,6 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                     <IonItem>
                         <IonText>
                             <h4>{this.state.usuarioActual.nombre}</h4>
-                            {this.state.usuarioActual.email}
                         </IonText>
                     </IonItem>
                     <IonList>
