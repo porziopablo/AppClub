@@ -2,7 +2,7 @@ import React from 'react';
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonText, IonGrid, IonRow, IonCol, IonButton, IonAlert, IonToast } from "@ionic/react";
 import { RouteComponentProps, withRouter } from 'react-router';
 import { cog, medical, informationCircle, colorWand } from 'ionicons/icons';
-import { iProfesor } from '../interfaces';
+import { iProfesor, ADMIN_NAME } from '../interfaces';
 import BD from '../BD';
 
 interface iPagina {
@@ -157,7 +157,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                         </IonText>
                     </IonItem>
                     <IonList>
-                        {(this.state.roles.indexOf("superteacher") !== -1) ? this.renderMenuAdminItems() : this.renderMenuItems()}
+                        {(this.state.roles.indexOf(ADMIN_NAME) !== -1) ? this.renderMenuAdminItems() : this.renderMenuItems()}
                     </IonList>
                     <IonGrid>
                         <IonRow align-content-center>
