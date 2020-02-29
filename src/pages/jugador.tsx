@@ -3,14 +3,10 @@ import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, I
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
-import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre } from '../interfaces';
+import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_GENEROS, GENEROS } from '../interfaces';
 import BD from '../BD';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-
-const PREFIJO_MOVIL: string = '+549';
-const TIPO_MOVIL: string = 'movil';
-const TIPO_FIJO: string = 'fijo';
 
 type tipoProps = RouteComponentProps<{ dni: string }>;
 
@@ -29,6 +25,21 @@ interface iState {
     }
 };
 
+interface iOpcion {
+    nombre: string,
+    valor: number,
+}
+
+const deportes: iOpcion[] = [
+    { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+    { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
+];
+
+const generos: iOpcion[] = [
+    { nombre: NOMBRE_GENEROS[GENEROS.femenino], valor: GENEROS.femenino },
+    { nombre: NOMBRE_GENEROS[GENEROS.masculino], valor: GENEROS.masculino },
+];
+
 const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
     '_id': '0',
     nombre: ' ',
@@ -37,7 +48,8 @@ const jugadorPorDefecto: iJugador = {              /* valores por defecto para i
     deportes: [],
     telResponsable: '0',
     fechaNacimiento: '2013-09-19T17:00:00.000',
-    planillaMedica: ' '
+    _attachments: {},
+    genero: 0
 };
 
 class Jugador extends React.Component<tipoProps> {
@@ -68,8 +80,11 @@ class Jugador extends React.Component<tipoProps> {
         BD.getJugadoresDB().get(this.props.match.params.dni)
             .then((doc) => {
                 const docToJugador = (doc: any): iJugador => doc;
-                const tipoTelefono = (docToJugador(doc).telResponsable.indexOf(PREFIJO_MOVIL) > -1) ? TIPO_MOVIL : TIPO_FIJO;
-                this.setState({ jugador: doc, jugadorTemp: doc, tipoTelefono: tipoTelefono })
+                this.setState({
+                    jugador: doc,
+                    jugadorTemp: doc,
+                    tipoTelefono: (docToJugador(doc).telResponsable.indexOf(PREFIJO_MOVIL) > -1) ? TIPO_MOVIL : TIPO_FIJO
+                })
             })
             .catch(() => {
                 this.setState({
@@ -100,13 +115,21 @@ class Jugador extends React.Component<tipoProps> {
 
         let respuesta = null;
 
-        if (this.state.jugador.deportes.includes(DEPORTES.futbol))
+        if (this.state.isReadOnly && this.state.jugador.deportes.includes(DEPORTES.futbol))
             respuesta = (
                 <IonItem>
                     <IonLabel>Categoría Fútbol</IonLabel>
                     <h4>{NOMBRE_CAT_FUTBOL[this.state.jugador.categoria]}</h4>
                 </IonItem>
             );
+        else
+            if (!this.state.isReadOnly && this.state.jugadorTemp.deportes.includes(DEPORTES.futbol))
+                respuesta = (
+                    <IonItem>
+                        <IonLabel>Categoría Fútbol</IonLabel>
+                        <h4>{NOMBRE_CAT_FUTBOL[BD.calcularCategoria(this.state.jugadorTemp)]}</h4>
+                    </IonItem>
+                );
 
         return respuesta;
     }
@@ -143,13 +166,21 @@ class Jugador extends React.Component<tipoProps> {
 
     guardarDeportes = (event: any) => {
 
-        const categoria = event.target.value.includes(DEPORTES.futbol) ? 2 : 0;
-
         this.setState((prevState: iState) => ({
             jugadorTemp: {
                 ...prevState.jugadorTemp,
                 deportes: event.target.value,
-                categoria: categoria
+                categoria: event.target.value.includes(DEPORTES.futbol) ? this.state.jugador.categoria : 0
+            }
+        }));
+    }
+
+    guardarGenero = (event: any) => {
+
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                genero: event.target.value
             }
         }));
     }
@@ -172,15 +203,16 @@ class Jugador extends React.Component<tipoProps> {
         if (!jugador.telResponsable)
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El teléfono debe tener al menos un carácter." } });
         else if (jugador.deportes.length < 1)
-            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } })
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } });
         else if (!regNombre.test(jugador.nombre))
-            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } })
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } });
         else {  /* Si es movil, debe ir 9 luego de +54 */
-            if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
-                    const telefono = Array.from(jugador.telResponsable);
-                    telefono.splice(3, 0, '9');
-                    jugador.telResponsable = telefono.join('');
+                if ((this.state.tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
+                        const telefono = Array.from(jugador.telResponsable);
+                        telefono.splice(3, 0, '9');
+                        jugador.telResponsable = telefono.join('');
                 };
+                jugador.categoria = BD.calcularCategoria(jugador);
                 BD.getJugadoresDB().upsert(jugador._id, () => jugador)
                     .then(() => {
                         this.setState({
@@ -197,18 +229,12 @@ class Jugador extends React.Component<tipoProps> {
              }   
     }
 
-    renderSelectDeportes = () => {
+    renderOpciones = (opciones: iOpcion[]) => (
 
-        const deportes = [
-            { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
-            { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
-        ];
-
-        return (
-            deportes.map((opcion) => (
-                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
-            )));
-    }
+        opciones.map((opcion) => (
+            <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+        ))
+    )
 
     render() {
         return (
@@ -258,6 +284,25 @@ class Jugador extends React.Component<tipoProps> {
                     </IonItem>
                     {
                         (this.state.isReadOnly) ?
+                                <IonItem>
+                                    <IonLabel>Género</IonLabel>
+                                    <h4>{NOMBRE_GENEROS[this.state.jugador.genero]}</h4>
+                                </IonItem>
+                            :
+                                <IonItem>
+                                    <IonLabel>Género</IonLabel>
+                                    <IonSelect
+                                        interface='popover'
+                                        cancelText="Cancelar"
+                                        value={this.state.jugadorTemp.genero}
+                                        onIonChange={this.guardarGenero}
+                                    >
+                                    {this.renderOpciones(generos)}
+                                    </IonSelect>
+                                </IonItem>
+                    }
+                    {
+                        (this.state.isReadOnly) ?
                             <IonItem>
                                 <IonLabel>{(this.state.jugador.deportes.length === 1) ? 'Deporte' : 'Deportes'}</IonLabel>
                                 <h4>{this.renderDeportes()}</h4>
@@ -266,7 +311,7 @@ class Jugador extends React.Component<tipoProps> {
                             <IonItem>
                                 <IonLabel>Deportes</IonLabel>
                                 <IonSelect multiple={true} cancelText="Cancelar" onIonChange={this.guardarDeportes}>
-                                    {this.renderSelectDeportes()}
+                                    {this.renderOpciones(deportes)}
                                 </IonSelect>
                             </IonItem>
                     }
@@ -358,7 +403,7 @@ class Jugador extends React.Component<tipoProps> {
                                 <IonAlert
                                     isOpen={this.state.mostrarAlerta}
                                     onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                                    header='¿Realmente quieres eliminar este jugador?'
+                                    header='¿Realmente querés eliminar este jugador?'
                                     subHeader='Esta acción no puede deshacerse.'
                                     buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarJugador }]}
                                 />
@@ -373,9 +418,8 @@ class Jugador extends React.Component<tipoProps> {
 
 export default Jugador;
 
-
 /*
- - VARIOS TELEFONOS?
- - DNI EDITABLE?
- - BORRO PAGOS SI ELIMINO A UN JUGADOR?
+ 
+ ver como se modifica la categoria al cambiar el nacimiento y el genero
+
  */

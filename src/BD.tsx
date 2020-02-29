@@ -1,10 +1,16 @@
 import PouchDB from 'pouchdb'; 
 import Find from 'pouchdb-find';
 import Auth from 'pouchdb-authentication'
+import { iJugador, DEPORTES, GENEROS, CATEGORIAS } from './interfaces';
 PouchDB.plugin(Find);
 PouchDB.plugin(Auth);
 PouchDB.plugin(require('pouchdb-upsert'));
 PouchDB.plugin(require('pouchdb-authentication'));
+
+//  LEEME:
+//Para que la aplicacion funcione correctamente, el documento _design/_auth de la base de datos _users debe estar
+//como se indica en el archivo auth.txt de este proyecto. Esto es una configuracion adicional que se le ha hecho
+//a la configuracion por defecto del plugin pouchdb-authentication.
 
 class BaseDatos {
 
@@ -51,7 +57,7 @@ class BaseDatos {
             this.cat13DB = new PouchDB('http://localhost:5984/asist13');
             this.cat15DB = new PouchDB('http://localhost:5984/asist15');
 
-            /* creacion de indice de nombre para jugadoresDB */
+            /* creacion de indices */
 
             this.jugadoresDB.createIndex({ index: { fields: ['nombre'], name: "indiceNombre", ddoc: "indiceNombre" } })
                 .catch(console.log)
@@ -59,8 +65,15 @@ class BaseDatos {
             this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
                 .catch(console.log)
 
-            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-                .catch(console.log)
+            this.getUsersDB().getSession()
+                .then(res => {
+                    if (res.userCtx.roles!.indexOf("superteacher") > 0) {
+                        this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
+                           .catch(console.log)
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
 
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
                 .catch(console.log)
@@ -130,6 +143,35 @@ class BaseDatos {
     }
     getCat15DB() {
         return this.cat15DB;
+    }
+
+    calcularCategoria(jugador: iJugador) {
+
+        let categoria = 0;
+
+        if (jugador.deportes.includes(DEPORTES.futbol)) {
+
+            const edad = new Date().getFullYear() - new Date(jugador.fechaNacimiento).getUTCFullYear();
+
+            if (jugador.genero === GENEROS.femenino && edad >= 15)
+                categoria = CATEGORIAS.primeraFemenina;
+            else if (jugador.genero === GENEROS.masculino && edad >= 18)
+                categoria = CATEGORIAS.primeraMasculina;
+            else if (jugador.genero === GENEROS.masculino && edad === 17)
+                categoria = CATEGORIAS.quinta;
+            else if (jugador.genero === GENEROS.masculino && (edad === 15 || edad === 16))
+                categoria = CATEGORIAS.septima;
+            else if (edad === 13 || edad === 14)
+                categoria = CATEGORIAS.novena;
+            else if (edad === 11 || edad === 12)
+                categoria = CATEGORIAS.undecima;
+            else if (edad === 9 || edad === 10)
+                categoria = CATEGORIAS.decimoTercera;
+            else
+                categoria = CATEGORIAS.decimoQuinta;
+        }
+
+        return categoria;
     }
 }
 

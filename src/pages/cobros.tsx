@@ -103,7 +103,11 @@ class Cobros extends React.Component {
         const dni = String(data.get("dni"));
         const monto = parseFloat(String(data.get("monto")));
 
-        if (dni.length !== 0)
+        if (dni.length === 0)
+            this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
+        else if (!monto)
+            this.setState({ toastParams: { mostrar: true, mensaje: "Ingresá un monto mayor a cero.", esError: true } });
+        else
             try {
                 const jugador: iJugador = await BD.getJugadoresDB().get(dni); /* busca dni en DB */
 
@@ -162,8 +166,6 @@ class Cobros extends React.Component {
                     }
                 });
             }
-        else
-            this.setState({ toastParams: { mostrar: true, mensaje: "DNI no registrado.", esError: true } });
     }
 
     generarComprobante = () => {
@@ -349,10 +351,3 @@ class Cobros extends React.Component {
 };
 
 export default Cobros;
-
-/*
-
- - ver como guardar comprobante y abrirlo en android,
-    si no funciona download(), ver cómo generar enlace (dataURL)
-
- */

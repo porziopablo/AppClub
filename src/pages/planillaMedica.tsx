@@ -1,9 +1,10 @@
 import React from 'react';
-import { IonPage, IonContent, IonSlides, IonFab, IonFabButton, IonIcon, IonButton, IonPopover, IonItem, IonToast, IonAlert } from '@ionic/react';
+import { IonPage, IonContent, IonSlides, IonFab, IonFabButton, IonIcon, IonButton, IonItem, IonToast, IonAlert, IonModal, IonHeader } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import BD from '../BD';
 import { add, trash, arrowBack } from 'ionicons/icons';
 import '../theme/planillaMedica.css';
+import { MAX_IMG } from '../interfaces';
 
 /*
                                                             LEEME 
@@ -163,6 +164,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
             (document.getElementById('formImagenes') as HTMLFormElement).reset();
             this.setState({
                 imagenesParaMostrar: imagenesParaMostrar,
+                imagenesParaSubir: [],
                 mostrarPopover: false,
                 toastParams: {
                     mostrar: true,
@@ -188,34 +190,49 @@ class PlanillaMedica extends React.Component<tipoProps> {
         let respuesta = [];
         const URL = (window.URL || window.webkitURL);
 
-        if (!this.state.imagenesParaSubir.length)
-            respuesta.push(<IonItem color="light" key='no_img'>No hay imágenes seleccionadas para subir.</IonItem>);
-        else
-            for (let i = 0; i < this.state.imagenesParaSubir.length; i++) {
-                if (this.state.imagenesParaSubir[i].type.lastIndexOf('image/') > -1) {
-                    let url = URL.createObjectURL(this.state.imagenesParaSubir[i]); /* let aca, sino no cambia en cada iteracion */
-                    respuesta.push(
-                        <IonItem color="light" key={i}>
-                            {this.state.imagenesParaSubir[i].name}
-                            <img
-                                onLoad={() => { URL.revokeObjectURL(url) }}
-                                src={url}
-                                alt={this.state.imagenesParaSubir[i].name}
-                                className="imgVistaPrevia"
-                                slot="end"
-                            />
-                        </IonItem>
-                    );
-                }
-                else
-                    respuesta.push(
-                        <IonItem className="itemInvalido" color="danger" key={i}>
-                            {`${this.state.imagenesParaSubir[i].name} tiene un formato no aceptado.`}
-                        </IonItem>
-                    );
-            }
+        if (this.state.imagenesParaMostrar.length === MAX_IMG)
+            respuesta.push(<IonItem color="light" key='no_img'>{`El máximo de imágenes por jugador es ${MAX_IMG}. Eliminá algunas antes de subir otras.`}</IonItem>);
+        else if (this.state.imagenesParaSubir.length + this.state.imagenesParaMostrar.length > MAX_IMG)
+                respuesta.push(<IonItem color="danger" key='no_img'>{`El máximo de imágenes por jugador es ${MAX_IMG}. Eliminá algunas antes de subir otras, o elegí menos imágenes.`}</IonItem>);
+             else if (!this.state.imagenesParaSubir.length)
+                     respuesta.push(<IonItem color="light" key='no_img'>No hay imágenes seleccionadas para subir.</IonItem>);
+                  else
+                    for (let i = 0; i < this.state.imagenesParaSubir.length; i++) {
+                        if (this.state.imagenesParaSubir[i].type.lastIndexOf('image/') > -1) {
+                            let url = URL.createObjectURL(this.state.imagenesParaSubir[i]); /* let aca, sino no cambia en cada iteracion */
+                            respuesta.push(
+                                <IonItem color="light" key={i}>
+                                    {this.state.imagenesParaSubir[i].name}
+                                    <img
+                                        onLoad={() => { URL.revokeObjectURL(url) }}
+                                        src={url}
+                                        alt={this.state.imagenesParaSubir[i].name}
+                                        className="imgVistaPrevia"
+                                        slot="end"
+                                    />
+                                </IonItem>
+                            );
+                        }
+                        else
+                            respuesta.push(
+                                <IonItem className="itemInvalido" color="danger" key={i}>
+                                    {`${this.state.imagenesParaSubir[i].name} tiene un formato no aceptado.`}
+                                </IonItem>
+                            );
+                    }
 
         return respuesta;
+    }
+
+    esconderBotonSubmit = () => {
+
+        let i = 0;
+
+        while ((i < this.state.imagenesParaSubir.length) && (this.state.imagenesParaSubir[i].type.lastIndexOf('image/') > -1))
+            i++;
+
+        return ((this.state.imagenesParaSubir.length === 0) || (i !== this.state.imagenesParaSubir.length)
+            || (this.state.imagenesParaSubir.length + this.state.imagenesParaMostrar.length > MAX_IMG))
     }
 
     todosFormatosCorrectos = () => {
@@ -228,16 +245,25 @@ class PlanillaMedica extends React.Component<tipoProps> {
         return (i === this.state.imagenesParaSubir.length);
     }
 
-    renderFormImagenes = () => (
+    renderModalImagenes = () => (
 
-        <form onSubmit={this.subirImagenes} id="formImagenes">
-            <IonItem color="light">
-                <div>
+        <IonModal
+            isOpen={this.state.mostrarPopover}
+        >
+            <IonHeader>
+                <IonItem color="light">
                     <IonButton fill="outline"
                         onClick={() => { document.getElementById('inputImagenes')!.click() }}
                     >
                         ELEGIR IMÁGENES
-                    </IonButton>
+                            </IonButton>
+                    <IonButton
+                        slot="end"
+                        onClick={() => { this.setState({ mostrarPopover: false, imagenesParaSubir: [] }) }}
+                        fill="outline"
+                    >
+                        CERRAR
+                            </IonButton>
                     <input
                         type="file"
                         multiple
@@ -251,13 +277,23 @@ class PlanillaMedica extends React.Component<tipoProps> {
                             })
                         }}
                     />
-                </div>
-            </IonItem>
-            {this.renderVistaPrevia()}
-            <IonItem color="light" hidden={(this.state.imagenesParaSubir.length === 0) || !this.todosFormatosCorrectos()}>
-                <IonButton type="submit" fill="outline">Subir</IonButton>
-            </IonItem>
-        </form>
+                </IonItem>
+            </IonHeader>
+            <IonContent id="vistaPrevia" color="light">
+                <form onSubmit={this.subirImagenes} id="formImagenes">
+                    {this.renderVistaPrevia()}
+                    <IonItem color="light" hidden={this.esconderBotonSubmit()}>
+                        <IonButton
+                            type="submit"
+                            fill="outline"
+                            color="success"
+                        >
+                            Subir
+                        </IonButton>
+                    </IonItem>
+                </form>
+            </IonContent>
+        </IonModal>
     )
 
     eliminarFoto = async () => {
@@ -321,8 +357,7 @@ class PlanillaMedica extends React.Component<tipoProps> {
                     <IonFab hidden={this.state.ocultarFAB} vertical="bottom" horizontal="end" slot="fixed">
                         <IonFabButton
                             size="small"
-                            routerLink={`/listado/jugador/${this.props.match.params.dni}`}
-                            routerDirection="back"
+                            onClick={() => { this.props.history.push(`/listado/jugador/${this.props.match.params.dni}`) }}
                         >
                             <IonIcon icon={arrowBack} />
                         </IonFabButton>
@@ -338,16 +373,11 @@ class PlanillaMedica extends React.Component<tipoProps> {
                             <IonIcon icon={trash} />
                         </IonFabButton>
                     </IonFab>
-                    <IonPopover
-                        isOpen={this.state.mostrarPopover}
-                        onDidDismiss={() => { this.setState({ mostrarPopover: false }) }}
-                    >
-                        {this.renderFormImagenes()}
-                    </IonPopover>
+                    {this.renderModalImagenes()}
                     <IonAlert
                         isOpen={this.state.mostrarAlerta}
                         onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                        header='¿Realmente quieres eliminar esta imagen?'
+                        header='¿Realmente querés eliminar esta imagen?'
                         subHeader='Esta acción no puede deshacerse.'
                         buttons={[{ text: 'Cancelar' }, { text: 'Eliminar', handler: this.eliminarFoto }]}
                     />
@@ -358,10 +388,3 @@ class PlanillaMedica extends React.Component<tipoProps> {
 }
 
 export default PlanillaMedica;
-
-
-/*
- - subir b/n fotos?
-
- - Esta mal esto: URL = (window.URL || window.webkitURL), y let url en cada vuelta del for?
- */

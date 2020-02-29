@@ -78,6 +78,7 @@ const LogIn: React.FC = () => {
 
 
         if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email) && (profesor.email === data.get('emailconf'))) {
+
             db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
                 metadata: {
                     email: profesor.email,
@@ -211,7 +212,7 @@ const LogIn: React.FC = () => {
 
     return (
         <IonPage>
-            <IonContent>
+            <IonContent id="contLog">
                 <h1>
                     <img id='logoClub' src={logoClub} alt="Logo del club" />
                 </h1>
@@ -245,6 +246,7 @@ const LogIn: React.FC = () => {
                     <IonButton type='submit' class='botLog' >Iniciar Sesion</IonButton>
                 </form>
                 <IonModal isOpen={showModalReg}>
+                    <IonContent id="regModal">
                     <form id='registro' onSubmit={handleSubmit}>
                         <IonText class='warning'>Es obligatorio completar todos los campos.</IonText>
                         <IonItem>
@@ -317,7 +319,8 @@ const LogIn: React.FC = () => {
                             }
                             } class='botLog'>Cancelar</IonButton>
                         </div>
-                    </form>
+                        </form>
+                    </IonContent>
                 </IonModal>
                 <IonButton class='botLog' onClick={() => setShowModalReg(true)}>Registrarse</IonButton>
             </IonContent>

@@ -14,8 +14,8 @@ const Asistencia: React.FC = () => {
                 <div id='textoJugadores'>
                     <IonText>Asistencia</IonText>
                 </div>
-                <IonButton className="botonJugadores" fill="outline" href="/asistenciaCatTomar">Tomar asistencia</IonButton>
-                <IonButton className="botonJugadores" fill="outline" href="/asistenciaCatVer">Historial de <br /> asistencia</IonButton>
+                <IonButton className="botonJugadores" fill="outline" routerLink="/asistenciaCatTomar">Tomar asistencia</IonButton>
+                <IonButton className="botonJugadores" fill="outline" routerLink="/asistenciaCatVer">Historial de <br /> asistencia</IonButton>
             </IonContent>
         </IonPage>
     );

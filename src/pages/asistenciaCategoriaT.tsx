@@ -10,26 +10,26 @@ const AsistenciaCatTomar: React.FC = () => {
             <IonContent>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/1">1° División <br /> femenina</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/2">1° División <br /> masculina</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/1">1° División <br /> femenina</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/2">1° División <br /> masculina</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/3">5° División</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/4">7° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/3">5° División <br /> masculina</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/4">7° División <br /> masculina</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/5">9° División <br /> mixta</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/6">11° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/5">9° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/6">11° División <br /> mixta</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
                 <IonGrid>
                     <IonRow>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/7">13° División <br /> mixta</IonButton></IonCol>
-                        <IonCol><IonButton id='boton' size="default" fill="outline" href="/asistenciaList/8">15° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/7">13° División <br /> mixta</IonButton></IonCol>
+                        <IonCol><IonButton id='boton' size="default" fill="outline" routerLink="/asistenciaList/8">15° División <br /> mixta</IonButton></IonCol>
                     </IonRow>
                 </IonGrid>
             </IonContent>
@@ -38,4 +38,3 @@ const AsistenciaCatTomar: React.FC = () => {
 };
 
 export default AsistenciaCatTomar;
-/*UTF8*/

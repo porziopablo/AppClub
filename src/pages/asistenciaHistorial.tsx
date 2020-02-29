@@ -11,12 +11,16 @@
     IonToolbar,
     IonTitle,
     IonButtons,
-    IonIcon
+    IonIcon,
+    IonFab,
+    IonFabButton
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
-import { iAsistItem, iAsistencia } from '../interfaces';
+import { RouteComponentProps, useHistory } from 'react-router';
+import { iAsistItem, iAsistencia, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
+import '../theme/logIn.css';
+import { arrowBack } from 'ionicons/icons';
 
 interface UserDetailPageProps extends RouteComponentProps<{
     id: string;
@@ -30,34 +34,35 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
     const [fechas, setFechas] = useState<iAsistencia[]>([]);
     const [presentes, setPresentes] = useState<iAsistItem[]>([]);
     const [toast, setToast] = useState(false);
+    let history = useHistory();
 
     const cat = match.params.id;
     let titulo = "";
 
     switch (cat) {
         case "1": categoriaDB = BD.getCat1fDB()
-            titulo = "1° División femenina"                  
+            titulo = NOMBRE_CAT_FUTBOL[1]                 
             break;
         case "2": categoriaDB = BD.getCat1mDB();
-            titulo = "1° División masculina"
+            titulo = NOMBRE_CAT_FUTBOL[2]
             break;
         case "3": categoriaDB = BD.getCat5DB();
-            titulo = "5° División"
+            titulo = NOMBRE_CAT_FUTBOL[3]
             break;
         case "4": categoriaDB = BD.getCat7DB();
-            titulo = "7° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[4]
             break;
         case "5": categoriaDB = BD.getCat9DB();
-            titulo = "9° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[5]
             break;
         case "6": categoriaDB = BD.getCat11DB();
-            titulo = "11° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[6]
             break;
         case "7": categoriaDB = BD.getCat13DB();
-            titulo = "13° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[7]
             break;
         case "8": categoriaDB = BD.getCat15DB();
-            titulo = "15° División mixta"
+            titulo = NOMBRE_CAT_FUTBOL[8]
             break;
     }
 
@@ -112,20 +117,28 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                 duration={3500}
             />
             <IonContent>
+                <IonFab vertical="bottom" horizontal="end" slot="fixed">
+                    <IonFabButton
+                        size="small"
+                        onClick={() => { history.push(`/asistenciaCatVer`) }}
+                    >
+                        <IonIcon icon={arrowBack} />
+                    </IonFabButton>
+                </IonFab>
                 <IonModal isOpen={showModal}>
                     <IonHeader>
                         <IonToolbar>
                             <IonTitle>
-                                Presentes en el dia seleccionado
+                                Presentes 
                             </IonTitle>
                             <IonButtons slot="start">
                                 <IonButton onClick={() => setShowModal(false)}>
-                                        <IonIcon name="arrow-back"></IonIcon>
+                                    <IonIcon name="arrow-back"></IonIcon>
                                 </IonButton>
                             </IonButtons>
                         </IonToolbar>
                     </IonHeader>
-                    <IonContent>
+                    <IonContent id="listAsist">
                         <IonList>
                             {renderJugadores()}
                         </IonList>
@@ -144,4 +157,3 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
     );
 }
 export default AsistenciaHist;
-/*UTF8*/

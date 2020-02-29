@@ -4,7 +4,7 @@ import '../theme/listado.css';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { iJugador, DEPORTES, CATEGORIAS, NOMBRE_DEPORTES, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
-import { add } from 'ionicons/icons';
+import { add, document } from 'ionicons/icons';
 
 interface iOpcion {
     nombre: string,
@@ -118,9 +118,9 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
         const deportesBuscados: number[] = event.target.value;
 
         if (deportesBuscados.length !== 0)
-            this.setState({ jugadoresMostrados: this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, deportesBuscados)), deportesMostrados: deportesBuscados });
+            this.setState({ jugadoresMostrados: this.state.jugadores.filter((jugador: iJugador) => this.criterioDeporte(jugador, deportesBuscados)), deportesMostrados: deportesBuscados, categoriaMostrada: 0 });
         else
-            this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [] });
+            this.setState({ jugadoresMostrados: this.state.jugadores, deportesMostrados: [], categoriaMostrada: 0 });
     }
 
     actualizarJugadores = () => {
@@ -131,7 +131,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
         BD.getJugadoresDB().find({ selector: { nombre: { $gte: null } }, sort: ['nombre'] })
             .then((resultado) => {
                 jugadoresRecibidos = resultado.docs.map(doc => docToJugador(doc));
-                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos });
+                this.setState({ jugadores: jugadoresRecibidos, jugadoresMostrados: jugadoresRecibidos, categoriaMostrada:0 });
             })
             .catch(() => { this.setState({ toastParams: { mostrar: true, mensaje: "No se pudo descargar la lista de jugadores." } }) });
     }
@@ -143,7 +143,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
 
     componentDidUpdate = (prevProps: any) => {
 
-        if (prevProps.location.pathname !== this.props.location.pathname)
+        if ((prevProps.location.pathname !== this.props.location.pathname) && (this.props.location.pathname.localeCompare('/listado') === 0))
             this.actualizarJugadores();
     }
 
@@ -153,7 +153,12 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
             <Link to={`/listado/jugador/${jugador.dni}`} style={{ textDecoration: 'none' }} key={jugador.dni}>
                 <IonItem>
                     <IonLabel>
-                        <h2>{jugador.nombre}</h2>
+                        {
+                            (!jugador._attachments) ?
+                                    <h2>{`${jugador.nombre} `}<IonIcon color="danger" icon={document} /></h2>            
+                                :
+                                    <h2>{jugador.nombre}</h2>
+                        }
                         <h3 className='datos'>{'DNI: ' + jugador.dni}</h3>
                     </IonLabel>
                 </IonItem>
@@ -170,7 +175,13 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
                         <IonSelect cancelText="Cancelar" multiple={true} placeholder='Deporte' onIonChange={this.filtrarPorDeporte}>
                             {this.renderOpciones(deportes)}
                         </IonSelect>
-                        <IonSelect cancelText="Cancelar" placeholder='Categoría' disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol} onIonChange={this.filtrarPorCategoria}>
+                        <IonSelect
+                            value={this.state.categoriaMostrada}
+                            cancelText="Cancelar"
+                            placeholder='Categoría'
+                            disabled={this.state.deportesMostrados.length !== 1 || this.state.deportesMostrados[0] !== DEPORTES.futbol}
+                            onIonChange={this.filtrarPorCategoria}
+                        >
                             {this.renderOpciones(categorias)}
                         </IonSelect>
                     </IonItem>
@@ -193,7 +204,7 @@ class Listado extends React.Component<RouteComponentProps<{}>> {
                         <IonRefresherContent></IonRefresherContent>
                     </IonRefresher>
                     <IonFab vertical="bottom" horizontal="end" slot="fixed">
-                        <IonFabButton size="small" href="/listado/registrarJugador">
+                        <IonFabButton size="small" routerLink="/listado/registrarJugador">
                             <IonIcon icon={add} />
                         </IonFabButton>
                     </IonFab>

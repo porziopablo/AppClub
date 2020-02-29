@@ -1,32 +1,23 @@
 import React, { useState } from 'react';
-import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonPopover } from '@ionic/react';
+import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonModal, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonHeader } from '@ionic/react';
 import '../theme/registrarJugador.css';
-import { iJugador } from '../interfaces';
+import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
-
-interface imagen {
-    url: string,
-    nombre: string
-}
-
-//SE TIENE QUE BLOQUEAR SI O SI LA SUBIDA DE IMAGENES ANTES DE TENER EL DNI
-//VER STRING PLANILLAMEDICA INNECESARIA
-//Boton para atras o redireccionar
-//Dejar mas lindo boton planilla
+import { MAX_IMG, DEPORTES, NOMBRE_DEPORTES, NOMBRE_GENEROS, GENEROS } from '../interfaces';
 
 const RegistrarJugador: React.FC = () => {
 
-    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', planillaMedica: '' });
+    const [jugador, setJugador] = useState<iJugador>({ '_id': '', nombre: '', dni: '', categoria: 0, deportes: [], telResponsable: '', fechaNacimiento: '', _attachments: {}, genero: 0 });
     const [toast, setToast] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
     const [toastColor, setToastColor] = useState('danger');
     const [telefono, setTelefono] = useState('');
     const [mostrarPopover, setMostrarPopover] = useState(false);
     const [imagenesParaSubir, setImagenesParaSubir] = useState<FileList | File[]>([]);
-    const [imagenesParaMostrar, setImagenesParaMostrar] = useState<imagen[]>([]);
+    const [tipoTelefono, setTipoTelefono] = useState("");
 
     function guardarNombre(event: any) {
         let jug: iJugador = {
@@ -37,7 +28,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -51,7 +43,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -65,7 +58,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: event.target.value.split('T')[0],
-            planillaMedica: jugador.planillaMedica
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -79,7 +73,8 @@ const RegistrarJugador: React.FC = () => {
             deportes: event.target.value,
             telResponsable: jugador.telResponsable,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
@@ -93,69 +88,57 @@ const RegistrarJugador: React.FC = () => {
             deportes: jugador.deportes,
             telResponsable: tel,
             fechaNacimiento: jugador.fechaNacimiento,
-            planillaMedica: jugador.planillaMedica
+            _attachments: jugador._attachments,
+            genero: jugador.genero
         }
         setJugador(jug);
     }
 
-    async function guardarPlanilla() {
-        const imagenesPMostrar = imagenesParaMostrar.slice();
-        const URL = (window.URL || window.webkitURL);
+    function guardarPlanilla(doc: any) {
+        doc._attachments = {};
 
-        try {
-            const doc = await BD.getJugadoresDB().get(jugador.dni);
+        for (let i = 0; i < imagenesParaSubir.length; i++) {
+            let nombre = new Date().toISOString().replace(/:/gi, '-') + '_' + imagenesParaSubir[i].name; /* evita nombre repetido */
 
-            if (!doc._attachments) /* si no tiene ninguna foto, hay que crear _attachments */
-                doc._attachments = {};
-
-            for (let i = 0; i < imagenesParaSubir.length; i++) {
-
-                let nombre = new Date().toISOString().replace(/:/gi, '-') + '_' + imagenesParaSubir[i].name; /* evita nombre repetido */
-                let url = URL.createObjectURL(imagenesParaSubir[i]);
-
-                doc._attachments[nombre] = {
-                    content_type: imagenesParaSubir[i].type,
-                    data: imagenesParaSubir[i]
-                };
-
-                imagenesParaMostrar.push({
-                    url: url,
-                    nombre: nombre
-                });
-            }
-
-            await BD.getJugadoresDB().upsert(doc._id, () => doc);
-            (document.getElementById('formImagenes') as HTMLFormElement).reset();
-            setImagenesParaMostrar(imagenesPMostrar);
-            setMostrarPopover(false);
-            setToastColor("success");
-            setToastMsg("Im�genes subidas con �xito.");
-            setToast(true);
+            doc._attachments[nombre] = {
+                content_type: imagenesParaSubir[i].type,
+                data: imagenesParaSubir[i]
+            };
         }
-        catch (error) {
-            setToastColor("danger");
-            setToastMsg("Error al subir las imagenes");
-            setToast(true);
-        }
+
+        return doc;
     }
 
-    function todosFormatosCorrectos(){
+    function guardarGenero(event: any){
+        let jug: iJugador = {
+            '_id': jugador._id,
+            nombre: jugador.nombre,
+            dni: jugador.dni,
+            categoria: jugador.categoria,
+            deportes: jugador.deportes,
+            telResponsable: jugador.telResponsable,
+            fechaNacimiento: jugador.fechaNacimiento,
+            _attachments: jugador._attachments,
+            genero: event.target.value
+        }
+        setJugador(jug);
+    }
 
+    function todosFormatosCorrectos() {
         let i = 0;
-
         while ((i < imagenesParaSubir.length) && (imagenesParaSubir[i].type.lastIndexOf('image/') > -1))
             i++;
-
         return (i === imagenesParaSubir.length);
     }
 
-    function renderVistaPrevia(){
-
+    function renderVistaPrevia() {
         let respuesta = [];
         const URL = (window.URL || window.webkitURL);
 
-        if (!imagenesParaSubir.length)
-            respuesta.push(<IonItem color="light" key='no_img'>No hay im�genes seleccionadas para subir.</IonItem>);
+        if (imagenesParaSubir.length > MAX_IMG)
+            respuesta.push(<IonItem color="danger" key='no_img'>{`El máximo de imágenes por jugador es ${MAX_IMG}. Elegí menos imágenes.`}</IonItem>);
+        else if (!imagenesParaSubir.length)
+            respuesta.push(<IonItem color="light" key='no_img'>No hay imágenes seleccionadas para subir.</IonItem>);
         else
             for (let i = 0; i < imagenesParaSubir.length; i++) {
                 if (imagenesParaSubir[i].type.lastIndexOf('image/') > -1) {
@@ -184,16 +167,25 @@ const RegistrarJugador: React.FC = () => {
         return respuesta;
     }
 
-    function renderFormImagenes(){
+    function renderModalImagenes() {
         return (
-            <form id="formImagenes">
-                <IonItem color="light">
-                    <div>
+            <IonModal
+                isOpen={mostrarPopover}
+            >
+                <IonHeader>
+                    <IonItem color="light">
                         <IonButton fill="outline"
                             onClick={() => { document.getElementById('inputImagenes')!.click() }}
                         >
-                            ELEGIR IM�GENES
-                    </IonButton>
+                            ELEGIR IMÁGENES
+                            </IonButton>
+                        <IonButton
+                            slot="end"
+                            onClick={() => { setMostrarPopover(false); setImagenesParaSubir([]) }}
+                            fill="outline"
+                        >
+                            CERRAR
+                            </IonButton>
                         <input
                             type="file"
                             multiple
@@ -202,18 +194,44 @@ const RegistrarJugador: React.FC = () => {
                             accept="image/*"
                             id="inputImagenes"
                             onChange={() => {
-                                setImagenesParaSubir((document.getElementById('inputImagenes') as HTMLInputElement).files!);
+                                setImagenesParaSubir((document.getElementById('inputImagenes') as HTMLInputElement).files!)
                             }}
                         />
-                    </div>
-                </IonItem>
-                {renderVistaPrevia()}
-                <IonItem color="light" hidden={(imagenesParaSubir.length === 0) || !todosFormatosCorrectos()}>
-                    <IonButton onClick={() => { setMostrarPopover(false) }} fill="outline">
-                        Listo
+                    </IonItem>
+                </IonHeader>
+                <IonContent id="vistaPrevia" color="light">
+                    {renderVistaPrevia()}
+                    <IonItem color="light" hidden={(imagenesParaSubir.length === 0) || !todosFormatosCorrectos()}>
+                        <IonButton onClick={() => { setMostrarPopover(false) }} fill="outline">
+                            Listo
                     </IonButton>
-                </IonItem>
-            </form>);
+                    </IonItem>
+                </IonContent>
+            </IonModal>);
+    }
+
+    function renderSelectDeportes() {
+        const deportes = [
+            { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
+            { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
+        ];
+
+        return (
+            deportes.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
+    }
+
+    function renderSelectGeneros() {
+        const generos = [
+            { nombre: NOMBRE_GENEROS[GENEROS.femenino], valor: GENEROS.femenino },
+            { nombre: NOMBRE_GENEROS[GENEROS.masculino], valor: GENEROS.masculino },
+        ];
+
+        return (
+            generos.map((opcion) => (
+                <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
+            )));
     }
 
     function handleRegistrar(event: any) {
@@ -229,35 +247,47 @@ const RegistrarJugador: React.FC = () => {
             setToastMsg("Debe seleccionar una fecha de nacimiento");
             setToast(true);
         }
+        else if (jugador.genero === 0) {
+            setToastMsg("Debe seleccionar algún género");
+            setToast(true);
+        }
+        else if (jugador.telResponsable === "") {
+            setToastMsg("Debe ingresar un telefono");
+            setToast(true);
+        }
         else if (jugador.deportes.length === 0) {
-            setToastMsg("Debe seleccionar algun deporte");
+            setToastMsg("Debe seleccionar algún deporte");
             setToast(true);
         }
         else {
-            let arr = Array.from(jugador.telResponsable);
-            arr.splice(3, 0, '9');
+            const tel = Array.from(jugador.telResponsable);
+            let doc: any;
+            if ((tipoTelefono.localeCompare(TIPO_MOVIL) === 0) && (jugador.telResponsable.indexOf(PREFIJO_MOVIL) === -1)) {
+                tel.splice(3, 0, '9');
+            }
             let jug: iJugador = {
                 '_id': jugador._id,
                 nombre: jugador.nombre,
                 dni: jugador.dni,
-                categoria: jugador.categoria,
+                categoria: BD.calcularCategoria(jugador),
                 deportes: jugador.deportes,
-                telResponsable: (arr.join('')),
+                telResponsable: tel.join(''),
                 fechaNacimiento: jugador.fechaNacimiento,
-                planillaMedica: jugador.planillaMedica
+                _attachments: jugador._attachments,
+                genero: jugador.genero
             }
-            BD.getJugadoresDB().put(jug)
+            doc = guardarPlanilla(jug);
+            BD.getJugadoresDB().put(doc)
                 .then(res => {
                     setToastColor("success");
-                    setToastMsg("El jugador se ha cargado con exito");
+                    setToastMsg("El jugador se ha cargado con éxito.");
                     setToast(true);
-                    guardarPlanilla();
+                    
                 })
                 .catch(err => {
                     setToastColor("danger");
-                    setToastMsg("ERROR al cargar al jugador, intentelo mas tarde.");
+                    setToastMsg("ERROR al cargar al jugador.");
                     setToast(true);
-                    console.log(err);
                 });
         }
     }
@@ -285,18 +315,52 @@ const RegistrarJugador: React.FC = () => {
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating"><IonText class='label-modal'>Fecha de nacimiento</IonText></IonLabel>
-                        <IonDatetime onIonChange={guardarFechaNacimiento} displayFormat="DD MM YY" placeholder="Seleccionar fecha"></IonDatetime>
+                        <IonDatetime
+                            onIonChange={guardarFechaNacimiento}
+                            displayFormat="DD/MM/YYYY"
+                            pickerFormat="DD/MMM/YYYY"
+                            monthShortNames={['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']}
+                            placeholder="Seleccionar fecha"
+                            cancelText="Cancelar"
+                            doneText="OK"
+                        >
+
+                        </IonDatetime>
                     </IonItem>
                     <IonItem>
-                        <IonLabel><IonText class='label-modal'>Deportes que realiza</IonText></IonLabel>
-                        <IonSelect onIonChange={guardarDeportes} multiple={true} cancelText="Cancelar" okText="Aceptar">
-                            <IonSelectOption value="2">Futbol</IonSelectOption>
-                            <IonSelectOption value="1">Basket</IonSelectOption>
+                        <IonLabel><IonText class='label-modal'>Género</IonText></IonLabel>
+                        <IonSelect
+                            interface="popover"
+                            cancelText="Cancelar"
+                            onIonChange={guardarGenero}
+                        >
+                            {renderSelectGeneros()}
                         </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonText class='label-modal'>Telefono del responsable:</IonText>
+                        <IonLabel><IonText class='label-modal'>Teléfono del responsable</IonText></IonLabel>
+                        <IonSelect
+                            interface="popover"
+                            cancelText="Cancelar"
+                            placeholder='Tipo'
+                            value={tipoTelefono}
+                            onIonChange={(event: any) => { setTipoTelefono(event.target.value) }}
+                    >
+                            <IonSelectOption value={TIPO_FIJO} key={TIPO_FIJO} >Fijo</IonSelectOption>
+                            <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>Móvil</IonSelectOption>
+                        </IonSelect>
                     </IonItem>
+                    <IonItem>
+                        <IonLabel><IonText class='label-modal'>Deportes</IonText></IonLabel>
+                        <IonSelect
+                            multiple={true}
+                            cancelText="Cancelar"
+                            onIonChange={guardarDeportes}
+                        >
+                            {renderSelectDeportes()}
+                        </IonSelect>
+                    </IonItem>
+                    {/*renderCategoria()*/}
                     <IonItem>
                         <PhoneInput
                             defaultCountry="AR"
@@ -308,17 +372,12 @@ const RegistrarJugador: React.FC = () => {
                     <IonItem>
                         <IonButton style={{ textDecoration: 'none' }} fill="outline" onClick={() => { setMostrarPopover(true) }}>
                             <IonIcon slot="start" icon={camera}></IonIcon>
-                            <IonText class='label-modal'> Planilla medica </IonText>
+                            <IonText class='label-modal'> Planilla médica </IonText>
                         </IonButton>
                     </IonItem>
-                    <IonPopover
-                        isOpen={mostrarPopover}
-                        onDidDismiss={() => { setMostrarPopover(false) }}
-                    >
-                        {renderFormImagenes()}
-                    </IonPopover>
+                    {renderModalImagenes()}
                     <div>
-                        <IonButton onClick={handleRegistrar} id='botModal'>Registrar jugador</IonButton>
+                        <IonButton onClick={handleRegistrar} id='botModal' fill="outline" >Registrar jugador</IonButton>
                     </div>
                 </form>
             </IonContent>
@@ -327,4 +386,3 @@ const RegistrarJugador: React.FC = () => {
 };
 
 export default RegistrarJugador;
-/*UTF8*/

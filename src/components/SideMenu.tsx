@@ -1,8 +1,8 @@
 import React from 'react';
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonMenuToggle, IonIcon, IonLabel, IonItem, IonText, IonGrid, IonRow, IonCol, IonButton, IonAlert, IonToast } from "@ionic/react";
 import { RouteComponentProps, withRouter } from 'react-router';
-import {cog, medical, informationCircle } from 'ionicons/icons';
-import { iProfesor } from '../interfaces';
+import { cog, medical, informationCircle, colorWand } from 'ionicons/icons';
+import { iProfesor, ADMIN_NAME } from '../interfaces';
 import BD from '../BD';
 
 interface iPagina {
@@ -13,7 +13,9 @@ interface iPagina {
 
 interface iState {
     usuarioActual: iProfesor,
+    roles: string[];
     paginas: iPagina[],
+    paginasAdmin: iPagina[],
     mostrarAlerta: boolean,
     toastParams: {
         mostrar: boolean,
@@ -21,25 +23,31 @@ interface iState {
     }
 }
 
-const paginas: iPagina[] = [
-    { titulo: 'Emergencia', ruta: '/emergencia', icono: medical },
-    { titulo: 'Configuración', ruta: '/configuracion', icono: cog },
-    { titulo: 'Acerca de esta App', ruta: '/about', icono: informationCircle }
-];
-
-const usuarioPorDefecto: iProfesor = {
-    _id: "0",
-    nombre: "",
-    dni: "0",
-    email: "",
-    pass: ""
-}
-
 class SideMenu extends React.Component<RouteComponentProps<{}>> {
 
+    paginas: iPagina[] = [
+        { titulo: 'Emergencia', ruta: '/emergencia', icono: medical },
+        { titulo: 'Configuración', ruta: '/configuracion/', icono: cog },
+        { titulo: 'Acerca de esta App', ruta: '/about', icono: informationCircle }
+    ];
+
+    paginasAdmin: iPagina[] = [...this.paginas,
+        { titulo: 'Opciones de Administrador', ruta: '/opcionesAdmin', icono: colorWand },
+    ];
+
+    usuarioPorDefecto: iProfesor = {
+        _id: "0",
+        nombre: "",
+        dni: "0",
+        email: "",
+        pass: ""
+    }
+
     state: iState = {
-        usuarioActual: usuarioPorDefecto,
-        paginas: paginas,
+        usuarioActual: this.usuarioPorDefecto,
+        roles: [],
+        paginas: this.paginas,
+        paginasAdmin: this.paginasAdmin,
         mostrarAlerta: false,
         toastParams: {
             mostrar: false,
@@ -51,24 +59,37 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
 
         try {
             const respuesta = await BD.getProfesoresDB().getSession();
-            if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
+            if (respuesta.userCtx.name) {
                 const usuarioActual = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
-                this.setState({ usuarioActual: usuarioActual })
+                this.setState({ usuarioActual: usuarioActual });
+                this.setState({ roles: usuarioActual.roles })
+                let i = 0; 
+                while (i < this.state.paginas.length) {
+                    if (this.state.paginas[i].titulo === 'Configuración') {
+                        const arr = this.state.paginas.slice();
+                        arr[i].ruta = `/configuracion/${this.state.usuarioActual.dni}`;
+                        this.setState({
+                            paginas: arr
+                        })
+                        break;
+                    }
+                    i++;
+                }
             }
         }
         catch (error) {
-            console.log(error);
-            this.setState({
-                toastParams: {
-                    mostrar: true,
-                    mensaje: "No se pudo descargar el usuario actual."
-                }
-            })
+
+            if ((this.props.location.pathname.toLowerCase().localeCompare('/login') !== 0) && (error.status === 404))
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: "No se pudo descargar el usuario actual."
+                    }
+                });
         }
     }
 
     renderMenuItems = () => (
-
         this.state.paginas.map((page: iPagina) => (
             <IonMenuToggle key={page.titulo} auto-hide="false">
                 <IonItem button
@@ -81,11 +102,24 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
         ))
     )
 
+    renderMenuAdminItems = () => (
+        this.state.paginasAdmin.map((page: iPagina) => (
+            <IonMenuToggle key={page.titulo} auto-hide="false">
+                <IonItem button
+                    color={(window.location.pathname === page.ruta) ? 'primary' : ''}
+                    onClick={() => this.props.history.push(page.ruta)}>
+                    <IonIcon slot="start" icon={page.icono}></IonIcon>
+                    <IonLabel>{page.titulo}</IonLabel>
+                </IonItem>
+            </IonMenuToggle>
+        ))   
+    )
+
     cerrarSesion = async () => {
 
         try {
             await BD.getProfesoresDB().logOut();
-            this.setState({ usuarioActual: usuarioPorDefecto });
+            this.setState({ usuarioActual: this.usuarioPorDefecto });
             window.location.href = '/logIn';
         }
         catch (error) {
@@ -120,11 +154,10 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                     <IonItem>
                         <IonText>
                             <h4>{this.state.usuarioActual.nombre}</h4>
-                            {this.state.usuarioActual.email}
                         </IonText>
                     </IonItem>
                     <IonList>
-                        {this.renderMenuItems()}
+                        {(this.state.roles.indexOf(ADMIN_NAME) !== -1) ? this.renderMenuAdminItems() : this.renderMenuItems()}
                     </IonList>
                     <IonGrid>
                         <IonRow align-content-center>
@@ -135,7 +168,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
                                 <IonAlert
                                     isOpen={this.state.mostrarAlerta}
                                     onDidDismiss={() => { this.setState({ mostrarAlerta: false }) }}
-                                    header={'¿Estás seguro que quieres cerrar sesión?'}
+                                    header={'¿Realmente querés cerrar sesión?'}
                                     buttons={['Cancelar', { text: 'Cerrar Sesión', handler: this.cerrarSesion }]}
                                 />
                             </IonCol>
@@ -151,7 +184,3 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
 export default withRouter(
     SideMenu
 );
-
-/*
- *  ARREGLAR: cuando estas en una pestaña, hija de algun elemento de esos, que no se deseleccione 
- */
