@@ -1,7 +1,7 @@
 ﻿import React, { useState, FormEvent, useEffect } from 'react';
 import { IonHeader, IonPage, IonContent, IonList, IonItem, IonModal, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonLabel, IonInput, IonText, IonToast, IonCheckbox, IonAlert, IonFab, IonFabButton } from '@ionic/react';
 import { create, arrowBack } from 'ionicons/icons';
-import { regEmail } from '../interfaces';
+import { regEmail, ADMIN_NAME } from '../interfaces';
 import { RouteComponentProps, Redirect, useHistory } from 'react-router';
 import '../theme/configuracion.css';
 import db from '../BD';
@@ -50,7 +50,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                 setMetadata(rta);
                 setRoles(rta.roles!);
                 setEmail(metadata.email);
-                setIsAdmin((roles.indexOf("superteacher")) !== -1);
+                setIsAdmin((roles.indexOf(ADMIN_NAME)) !== -1);
             }).catch(err => {
                 setToastColor("danger");
                 setToastMsg("Error al obtener datos del profesor");
@@ -135,7 +135,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     }
 
     const renderOpcionesAdmin = () => {
-        if ((sessionPropia.roles.indexOf("superteacher") !== -1) && (sessionPropia.name !== dniUser)) {
+        if ((sessionPropia.roles.indexOf(ADMIN_NAME) !== -1) && (sessionPropia.name !== dniUser)) {
             return (
                 <div>
                     <IonItem>
@@ -145,7 +145,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                             onClick={() => {
                                 if (!isAdmin) {
                                     const arr = roles.slice();
-                                    arr.push('superteacher')
+                                    arr.push(ADMIN_NAME)
                                     db.getUsersDB().putUser(dniUser, {
                                         roles: arr,
                                     }).then(rta => {
@@ -161,7 +161,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                                 }
                                 else {
                                     const arr = roles.slice();
-                                    arr.splice(arr.indexOf('superteacher'), 1)
+                                    arr.splice(arr.indexOf(ADMIN_NAME), 1)
                                     db.getUsersDB().putUser(dniUser, {
                                         roles: arr,
                                     }).then(rta => {

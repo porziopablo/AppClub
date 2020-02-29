@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonModal, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonHeader } from '@ionic/react';
 import '../theme/registrarJugador.css';
-import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO } from '../interfaces';
+import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_CAT_FUTBOL } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'
@@ -109,21 +109,6 @@ const RegistrarJugador: React.FC = () => {
         return doc;
     }
 
-    //function guardarCategoria(event: any) {
-    //    let jug: iJugador = {
-    //        '_id': jugador._id,
-    //        nombre: jugador.nombre,
-    //        dni: jugador.dni,
-    //        categoria: event.target.value,
-    //        deportes: jugador.deportes,
-    //        telResponsable: jugador.telResponsable,
-    //        fechaNacimiento: jugador.fechaNacimiento,
-    //        _attachments: jugador._attachments,
-    //        genero: jugador.genero
-    //    }
-    //    setJugador(jug);
-    //}
-
     function guardarGenero(event: any){
         let jug: iJugador = {
             '_id': jugador._id,
@@ -225,34 +210,6 @@ const RegistrarJugador: React.FC = () => {
             </IonModal>);
     }
 
-    //function renderCategoria() {
-    //    const categorias = [
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
-    //        { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
-    //    ]
-
-    //    let respuesta = null;
-    //    if (jugador.deportes.includes(DEPORTES.futbol))
-    //        respuesta = (
-    //            <IonItem>
-    //                <IonLabel><IonText class='label-modal'>Categoría Fútbol</IonText></IonLabel>
-    //                <IonSelect cancelText="Cancelar" onIonChange={guardarCategoria}>
-    //                    {categorias.map((opcion) => (
-    //                        <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
-    //                    ))}
-    //                </IonSelect>
-    //            </IonItem>
-    //        );
-
-    //    return respuesta;
-    //}
-
     function renderSelectDeportes() {
         const deportes = [
             { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
@@ -276,9 +233,6 @@ const RegistrarJugador: React.FC = () => {
                 <IonSelectOption value={opcion.valor} key={opcion.valor}>{opcion.nombre}</IonSelectOption>
             )));
     }
-
-
-
 
     function handleRegistrar(event: any) {
         if (jugador.nombre === "") {
@@ -305,10 +259,6 @@ const RegistrarJugador: React.FC = () => {
             setToastMsg("Debe seleccionar algún deporte");
             setToast(true);
         }
-        //else if (jugador.deportes.includes(DEPORTES.futbol) && (jugador.categoria === undefined)) {
-        //    setToastMsg("Debe ingresar una categoria");
-        //    setToast(true);
-        //}
         else {
             const tel = Array.from(jugador.telResponsable);
             let doc: any;
@@ -319,7 +269,7 @@ const RegistrarJugador: React.FC = () => {
                 '_id': jugador._id,
                 nombre: jugador.nombre,
                 dni: jugador.dni,
-                categoria: jugador.categoria,
+                categoria: BD.calcularCategoria(jugador),
                 deportes: jugador.deportes,
                 telResponsable: tel.join(''),
                 fechaNacimiento: jugador.fechaNacimiento,
