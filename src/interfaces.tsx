@@ -61,6 +61,13 @@ export interface iProfesor {
     pass: string,
 }
 
+export interface iProfesorPend {
+    nombre: string,
+    dni: string, /* ID */
+    email: string,
+    pass: string,
+}
+
 export interface iJugador {
     '_id': string,
     nombre: string,

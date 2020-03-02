@@ -99,7 +99,7 @@ const App: React.FC = () => (
                             <IonIcon icon={people} />
                             <IonLabel id={(window.location.pathname === "/logIn") ? 'esconder' : ''}>Jugadores</IonLabel>
                         </IonTabButton>
-                        <IonTabButton tab="Cobros" layout={(window.location.pathname === "/logIn") ? "icon-hide" : "icon-top"} disabled={(window.location.pathname === "/logIn")} href="/cobros" selected={(window.location.pathname.lastIndexOf("/cobros") > -1)}>
+                    <IonTabButton tab="Cobros" layout={(window.location.pathname === "/logIn") ? "icon-hide" : "icon-top"} disabled={(window.location.pathname === "/logIn")} href="/cobros" selected={(window.location.pathname.lastIndexOf("/cobros") > -1) || (window.location.pathname.lastIndexOf("/historial") > -1)}>
                             <IonIcon icon={logoUsd} />
                             <IonLabel id={(window.location.pathname === "/logIn") ? 'esconder' : ''}>Cobros</IonLabel>
                         </IonTabButton>
