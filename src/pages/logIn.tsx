@@ -3,11 +3,10 @@ import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox,
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
 
-import { maxNumDni, regEmail, regDni, regNombre, iProfesor, iBalance, iProfesorPend } from '../interfaces';
+import { maxNumDni, regEmail, regDni, regNombre, iBalance, iProfesorPend } from '../interfaces';
 
 import db from '../BD';
 
-//const bcrypt = require('bcrypt-nodejs');
 const base64 = require('base-64');
 const utf8 = require('utf8');
 
@@ -101,76 +100,6 @@ const LogIn: React.FC = () => {
                     setMostrarError(true);
                 })
 
-            /*bcrypt.genSalt(10, (err: any, salt: any) => {
-                if (err) {
-                    console.log(err);
-                }
-                bcrypt.hash(profesor.pass, salt, null, (err: any, hash: any) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    console.log('hash:' + hash);
-                    bcrypt.compare('a', hash, (err: any, iguales: any) => {
-                        if (err) {
-                            console.log('error');
-                        }
-                        console.log(iguales);
-                    })
-                    /*profesor.pass = hash;
-                    console.log(hash);
-                    db.getPendientesDB().post(profesor)
-                        .then((respuesta) => {
-                            if (respuesta.ok) {
-                                setShowSuccessReg(true);
-                            }
-                            else
-                                alert('Intente nuevamente');
-                            (document.getElementById('registro') as HTMLFormElement).reset();
-                        })
-                        .catch((error) => {
-                            (document.getElementById('dni') as HTMLInputElement).value = '';
-                            (document.getElementById('dniconf') as HTMLInputElement).value = '';
-                            (document.getElementById('pass') as HTMLInputElement).value = '';
-                            (document.getElementById('passConf') as HTMLInputElement).value = '';
-                            setMsjError('Error al registrarse, intente nuevamente.')
-                            setMostrarError(true);
-                        })
-                })
-            })
-
-
-            /*db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
-                metadata: {
-                    email: profesor.email,
-                    nombre: profesor.nombre,
-                    dni: profesor.dni,
-                }
-            }
-            ).then((respuesta) => {
-                if (respuesta.ok) {
-                    setShowSuccessReg(true);
-                    balance.nombreProfesor = profesor.nombre;
-                    balance._id = profesor.dni;
-                    db.getBalancesDB().post(balance);
-                }
-                else
-                    alert('Intente nuevamente');
-                (document.getElementById('registro') as HTMLFormElement).reset();
-            }
-            ).catch((error: Error) => {
-                if (error.name === 'conflict') {
-                    setExistingUserReg(true);
-                    (document.getElementById('dni') as HTMLInputElement).value = '';
-                    (document.getElementById('dniconf') as HTMLInputElement).value = '';
-                    (document.getElementById('pass') as HTMLInputElement).value = '';
-                    (document.getElementById('passConf') as HTMLInputElement).value = '';
-                }
-                else {
-                    setMsjError('Error al registrarse, intente nuevamente.')
-                    setMostrarError(true);
-                }
-            })
-            */
         }
         else {
 
@@ -241,12 +170,31 @@ const LogIn: React.FC = () => {
         setIncorrectPass(false);
         setNoExistingUserLog(false);
         const data = new FormData(event.target as HTMLFormElement);
+        const guardar = String(data.get("guardarUser"));
         const usuario = String(data.get('usuario'));
         const pass = String(data.get('pass'));
-        
+        var passAux;
+
+
         db.getProfesoresDB().logIn(usuario, pass)
             .then((respuesta) => {
                 if (respuesta.ok) {
+                    if (guardar === "on") {
+                        //hacer hash contraseña
+                        passAux = utf8.encode(pass);
+                        passAux = base64.encode(passAux);
+                        document.cookie = "username=" + usuario + "; expires=Thu, 18 Dec 2099 12:00:00 UTC";
+                        document.cookie = "pass=" + passAux + "; expires=Thu, 18 Dec 2099 12:00:00 UTC";
+                        document.cookie = "recordar=true; expires=Thu, 18 Dec 2099 12:00:00 UTC";
+                    }
+                    else {
+                        if (getCookie("recordar") !== "") {
+                            document.cookie = "recordar=; expires=Thu, 18 Dec 2009 12:00:00 UTC";
+                            document.cookie = "username=; expires=Thu, 18 Dec 2009 12:00:00 UTC";
+                            document.cookie = "pass=; expires=Thu, 18 Dec 2009 12:00:00 UTC";
+                        }
+
+                    }
                     window.location.href = '/home';
                 }
                 else
@@ -266,8 +214,33 @@ const LogIn: React.FC = () => {
                     setMsjError('Error al iniciar sesion, intente nuevamente.');
                     setMostrarError(true);
                 }
-                    
+
             })
+    }
+
+    function getCookie(cname: string) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    function obtenerPass(pass: string) {
+        var passAux;
+
+        passAux = base64.decode(pass);
+        passAux = utf8.decode(passAux);
+        
+        return passAux;
     }
 
     return (
@@ -288,20 +261,24 @@ const LogIn: React.FC = () => {
                     <IonItem id='div1'>
                         <IonLabel position="floating">
                             <IonText class={(noExistingUserLog) ? 'label-login-warning' : 'label-login'}>DNI</IonText>
-                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Usuario o contraseña invalido.</IonText>
+                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Usuario o contraseña incorrectos.</IonText>
                         </IonLabel>
-                        <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" ></IonInput>
+                        <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" value={(getCookie("recordar") === "") ? "" : getCookie("username")}></IonInput>
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating">
-                            <IonText class={(incorrectPass || noExistingUserLog) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
-                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Ingrese correctamente la contraseña</IonText>
+                            <IonText class={(incorrectPass) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
+                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Inegrese correctamente la contraseña</IonText>
                         </IonLabel>
-                        <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'}></IonInput>
+                        <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'} value={(getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"))}></IonInput>
                     </IonItem>
                     <div id='verPas'>
                         <IonLabel >Mostrar contraseña</IonLabel>
-                        <IonCheckbox class='CB' onClick={() => setShowPass(!showPass)}></IonCheckbox>
+                        <IonCheckbox class='CB' onClick={() => setShowPass(!showPass)} ></IonCheckbox>
+                    </div>
+                    <div id='guardarUser'>
+                        <IonLabel >Recordar usuario y contraseña</IonLabel>
+                        <IonCheckbox name="guardarUser" class='CB' checked={(getCookie("recordar") === "") ? false : true} ></IonCheckbox>
                     </div>
                     <IonButton type='submit' class='botLog' >Iniciar Sesion</IonButton>
                 </form>

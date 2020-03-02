@@ -11,6 +11,7 @@ PouchDB.plugin(require('pouchdb-authentication'));
 //Para que la aplicacion funcione correctamente, el documento _design/_auth de la base de datos _users debe estar
 //como se indica en el archivo auth.txt de este proyecto. Esto es una configuracion adicional que se le ha hecho
 //a la configuracion por defecto del plugin pouchdb-authentication.
+//En los permisos de _users debe agregarse en admins,roles al profesor_root.
 
 class BaseDatos {
 

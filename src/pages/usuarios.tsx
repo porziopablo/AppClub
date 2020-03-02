@@ -6,6 +6,9 @@ import { iProfesor } from '../interfaces';
 import BD from '../BD';
 import { Link } from 'react-router-dom';
 
+const base64 = require('base-64');
+const utf8 = require('utf8');
+
 interface UserDetailPageProps extends RouteComponentProps<{
     tipo: string;
 }> { }
@@ -16,7 +19,6 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
     const [nuevos, setNuevos] = useState(false);
     useEffect(() => {
-        console.log("1")
         if (tipo === "nuevos") {
             setNuevos(true);
         }
@@ -70,19 +72,20 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
     function handleRechazarPendiente(event: any) {
         if (selected) {
-            const doc = usuarios.filter(obj => obj.dni === selected);
-            BD.getPendientesDB().get(doc[0].dni).then(function (documento: any) {
-                BD.getPendientesDB().remove(documento)
-                    .then(res => {
-                        setToastColor("success");
-                        setToastMsg("Se ha rechazado al usuario pendiente con éxito");
-                        setToast(true);
-                        actualizarUsuarios();
-                    }).catch(res => {
-                        setToastColor("danger");
-                        setToastMsg("ERROR al rechazar al usuario pendiente");
-                        setToast(true);
-                    });
+            BD.getPendientesDB().get(selected)
+                .then((doc) => {
+                    BD.getPendientesDB().remove(doc)
+                        .then(res => {
+                            setToastColor("success");
+                            setToastMsg("Se ha rechazado al usuario pendiente con éxito");
+                            setToast(true);
+                            actualizarUsuarios();
+                        }).catch(res => {
+                            setToastColor("danger");
+                            setToastMsg("ERROR al rechazar al usuario pendiente");
+                            setToast(true);
+                        });
+
             }).catch(function (err: Error) {
                 console.log(err);
                 setToastColor("danger");
@@ -94,15 +97,17 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
     }
 
     function handleAceptarPendiente(event: any) {
+
         if (selected) {
             let aPostear: iProfesor = { '_id': '', nombre: '', dni: '', email: '', pass: '' }
             BD.getPendientesDB().get(selected).then(function (doc: any) {
-                aPostear._id = doc._id;
+                console.log(doc);
                 aPostear.nombre = doc.nombre;
                 aPostear.dni = doc.dni;
                 aPostear.email = doc.email;
-                aPostear.pass = doc.pass;
-                BD.getPendientesDB().remove(doc);
+                aPostear.pass = base64.decode(doc.pass);
+                aPostear.pass = utf8.decode(aPostear.pass);
+                console.log(aPostear);
                 BD.getProfesoresDB().signUp(aPostear.dni, aPostear.pass, {
                     metadata: {
                         email: aPostear.email,
@@ -110,13 +115,18 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                         dni: aPostear.dni,
                     }
                 }).then(res => {
+                    BD.getPendientesDB().remove(doc);
                     setToastColor("success");
                     setToastMsg("Se ha aceptado al usuario pendiente con éxito");
                     setToast(true);
                     actualizarUsuarios();
-                }).catch(res => {
+                }).catch(error => {
+                    console.log(error);
                     setToastColor("danger");
-                    setToastMsg("ERROR al aceptar al usuario pendiente");
+                    if (error.name === "conflict")
+                        setToastMsg("ERROR ya existe un usuario con este DNI.");
+                    else
+                        setToastMsg("ERROR al aceptar al usuario pendiente.");
                     setToast(true);
                 });
             }).catch(function (err: Error) {
@@ -126,6 +136,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 setToast(true);
             });
             setSelected("");
+            renderUsuariosPendientes();
         } 
     }
 
@@ -143,16 +154,17 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
     const renderUsuariosPendientes = () => {
         return (
             usuarios.map((usuario: iProfesor) => (
-                <IonItem key={usuario.dni}>
+                <IonItem key={usuario._id}>
                     <IonLabel>
-                        <h2>{usuario.nombre}</h2>
+                        <h2>{usuario.nombre} DNI: {usuario.dni}</h2>
                     </IonLabel>
-                        <IonRadio value={usuario.dni} onIonSelect={handleSeleccion} />
+                        <IonRadio value={usuario._id} onIonSelect={handleSeleccion} />
                 </IonItem>
             )));
     }
 
     const renderUsuarios = () => {
+        console.log(usuarios);
         return (
             usuarios.map((usuario: iProfesor) => (
                 <Link to={`/configuracion/${usuario.dni}`} style={{ textDecoration: 'none' }} key={usuario.dni}>
