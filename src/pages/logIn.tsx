@@ -42,7 +42,6 @@ const LogIn: React.FC = () => {
     const [msjError, setMsjError] = useState('');
     const [showPass, setShowPass] = useState(false);
     const [showModalReg, setShowModalReg] = useState(false);
-    const [existingUserReg, setExistingUserReg] = useState(false);
     const [differentDni, setDifferentDni] = useState(false);
     const [differentPass, setDifferentPass] = useState(false);
     const [showSuccessReg, setShowSuccessReg] = useState(false);
@@ -63,7 +62,6 @@ const LogIn: React.FC = () => {
         setMostrarError(false);
         setDifferentPass(false);
         setDifferentDni(false);
-        setExistingUserReg(false);
         setInvalidDni(false);
         setInvalidEmail(false);
         setInvalidPass(false);
@@ -111,6 +109,8 @@ const LogIn: React.FC = () => {
                 (document.getElementById('pass') as HTMLInputElement).value = '';
                 (document.getElementById('passConf') as HTMLInputElement).value = '';
                 setIvalidName(true);
+                setMsjError('Nombre o apellido con caracteres inválidos.');
+                setMostrarError(true);
             }
             else {
                 if (!regDni.test(profesor.dni)) {
@@ -120,6 +120,8 @@ const LogIn: React.FC = () => {
                     (document.getElementById('pass') as HTMLInputElement).value = '';
                     (document.getElementById('passConf') as HTMLInputElement).value = '';
                     setInvalidDni(true);
+                    setMsjError('El DNI ingresado contiene caracteres inválidos.');
+                    setMostrarError(true);
                 }
                 else {
                     if (profesor.dni !== data.get('dniconf')) {
@@ -128,12 +130,16 @@ const LogIn: React.FC = () => {
                         (document.getElementById('dniconf') as HTMLInputElement).value = '';
                         (document.getElementById('pass') as HTMLInputElement).value = '';
                         (document.getElementById('passConf') as HTMLInputElement).value = '';
+                        setMsjError('Ingrese el DNI correcto.');
+                        setMostrarError(true); 
                     }
                     else {
                         if (!regPass.test(profesor.pass)) {
                             //contraseña con caracteres no validos
                             (document.getElementById('pass') as HTMLInputElement).value = '';
                             (document.getElementById('passConf') as HTMLInputElement).value = '';
+                            setMsjError('La contraseña contiene caracteres inválidos.');
+                            setMostrarError(true);
                             setInvalidPass(true);
                         }
                         else {
@@ -141,21 +147,27 @@ const LogIn: React.FC = () => {
                                 //pass y pass conf diferentes
                                 (document.getElementById('pass') as HTMLInputElement).value = '';
                                 (document.getElementById('passConf') as HTMLInputElement).value = '';
-                                setDifferentPass(true);
+                                setDifferentPass(true); 
+                                setMsjError('Ingrese la contraseña correcta.');
+                                setMostrarError(true);
                             }
                             else {
                                 if (!regEmail.test(profesor.email)) {
                                     //email invalido
                                     (document.getElementById('pass') as HTMLInputElement).value = '';
                                     (document.getElementById('passConf') as HTMLInputElement).value = '';
-                                    setInvalidEmail(true);
+                                    setInvalidEmail(true); 
+                                    setMsjError('El correo electrónico no es valido.');
+                                    setMostrarError(true);
                                 }
                                 else {
                                     //email y emailconf diferentes
                                     (document.getElementById('pass') as HTMLInputElement).value = '';
                                     (document.getElementById('passConf') as HTMLInputElement).value = '';
                                     (document.getElementById('emailconf') as HTMLInputElement).value = '';
-                                    setDifferentEmail(true);
+                                    setDifferentEmail(true); 
+                                    setMsjError('El correo electrónico no coincide.');
+                                    setMostrarError(true);
                                 }
                             }
                         }
@@ -211,7 +223,7 @@ const LogIn: React.FC = () => {
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
                 }
                 else {
-                    setMsjError('Error al iniciar sesion, intente nuevamente.');
+                    setMsjError('Error al iniciar sesión, intente nuevamente.');
                     setMostrarError(true);
                 }
 
@@ -254,7 +266,7 @@ const LogIn: React.FC = () => {
                     onDidDismiss={() => setMostrarError(false)}
                     message={msjError}
                     color="danger"
-                    showCloseButton={true}
+                    duration={3500}
                     closeButtonText="CERRAR"
                 />
                 <form id='login' onSubmit={logIn}>
@@ -268,7 +280,7 @@ const LogIn: React.FC = () => {
                     <IonItem>
                         <IonLabel position="floating">
                             <IonText class={(incorrectPass) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
-                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Inegrese correctamente la contraseña</IonText>
+                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Ingrese correctamente la contraseña.</IonText>
                         </IonLabel>
                         <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'} value={(getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"))}></IonInput>
                     </IonItem>
@@ -280,7 +292,7 @@ const LogIn: React.FC = () => {
                         <IonLabel >Recordar usuario y contraseña</IonLabel>
                         <IonCheckbox name="guardarUser" class='CB' checked={(getCookie("recordar") === "") ? false : true} ></IonCheckbox>
                     </div>
-                    <IonButton type='submit' class='botLog' >Iniciar Sesion</IonButton>
+                    <IonButton type='submit' class='botLog' >Iniciar Sesión</IonButton>
                 </form>
                 <IonModal isOpen={showModalReg}>
                     <IonContent id="regModal">
@@ -293,63 +305,55 @@ const LogIn: React.FC = () => {
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(invalidName) ? 'label-modal-warning' : 'label-modal'}>Apellido</IonText>
-                                <IonText class={(invalidName) ? 'regError' : 'esconder'}>Nombre o apellido con caracteres invalidos.</IonText>
                             </IonLabel>
                             <IonInput id='apellido' name='apellido' required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(existingUserReg || invalidDni || differentDni) ? 'label-modal-warning' : 'label-modal'}>DNI</IonText>
-                                <IonText class={(existingUserReg) ? 'regError' : 'esconder'}>El DNI ingresado ya existe.</IonText>
-                                <IonText class={(invalidDni) ? 'regError' : 'esconder'}>El DNI ingresado contiene caracteres invalidos.</IonText>
+                                <IonText class={(invalidDni || differentDni) ? 'label-modal-warning' : 'label-modal'}>DNI</IonText>
                             </IonLabel>
                             <IonInput id='dni' name='dni' maxlength={maxNumDni} required type="text" min={"0"}></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentDni) ? 'label-modal-warning' : 'label-modal'}>Confirmar DNI</IonText>
-                                <IonText class={(differentDni) ? 'regError' : 'esconder'}>Ingrese el DNI correcto.</IonText>
                             </IonLabel>
                             <IonInput id='dniconf' name='dniconf' maxlength={maxNumDni} required type="text" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentPass || invalidPass) ? 'label-modal-warning' : 'label-modal'}>Contraseña</IonText>
-                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres invalidos.</IonText>
                             </IonLabel>
                             <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentPass) ? 'label-modal-warning' : 'label-modal'}>Confirmar contraseña</IonText>
-                                <IonText class={(differentPass) ? 'regError' : 'esconder'}>Ingrese la contraseña correcta.</IonText>
                             </IonLabel>
                             <IonInput id='passConf' name='passconf' required type="password"></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(invalidEmail) ? 'label-modal-warning' : 'label-modal'}>Correo electronico</IonText>
-                                <IonText class={(invalidEmail) ? 'regError' : 'esconder'}>El correo electronico no es valido.</IonText>
+                                    <IonText class={(invalidEmail) ? 'label-modal-warning' : 'label-modal'}>Correo electrónico</IonText>
                             </IonLabel>
                             <IonInput name='email' required type="email" ></IonInput>
                         </IonItem>
                         <IonItem>
                             <IonLabel position="floating">
-                                <IonText class={(differentEmail) ? 'label-modal-warning' : 'label-modal'}>Confirmar correo electronico</IonText>
-                                <IonText class={(differentEmail) ? 'regError' : 'esconder'}>El correo electronico no coincide.</IonText>
+                                    <IonText class={(differentEmail) ? 'label-modal-warning' : 'label-modal'}>Confirmar correo electrónico</IonText>
                             </IonLabel>
                             <IonInput id='emailconf' name='emailconf' required type="email" ></IonInput>
                         </IonItem>
                         <IonAlert
                             isOpen={showSuccessReg}
                             onDidDismiss={() => { setShowSuccessReg(false); setShowModalReg(false); }}
-                            header={'Solicitud de cuenta creada con exito!'}
+                            header={'Solicitud de cuenta creada con éxito!'}
                             message={'Cierre para continuar.'}
                             buttons={['Cerrar']}
                         />
                         <div>
                             <IonButton type='submit' class='botLog'>Registrarse</IonButton>
-                            <IonButton onClick={() => {
+                                <IonButton onClick={() => {
                                 setShowModalReg(false);
                                 (document.getElementById('pass') as HTMLInputElement).value = '';
                                 (document.getElementById('passConf') as HTMLInputElement).value = '';
