@@ -3,17 +3,18 @@ import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox,
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
 
-import { maxNumDni, regEmail, regDni, regNombre, iProfesor, iBalance } from '../interfaces';
+import { maxNumDni, regEmail, regDni, regNombre, iProfesor, iBalance, iProfesorPend } from '../interfaces';
 
 import db from '../BD';
 
-const bcrypt = require('bcrypt-nodejs');
+//const bcrypt = require('bcrypt-nodejs');
+const base64 = require('base-64');
+const utf8 = require('utf8');
 
 const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
 
 
-const profesor: iProfesor = {
-    '_id': '',
+const profesor: iProfesorPend = {
     nombre: '',
     dni: '',
     email: '',
@@ -69,6 +70,7 @@ const LogIn: React.FC = () => {
         setInvalidPass(false);
         setIvalidName(false);
         setDifferentEmail(false);
+        var aux = '';
 
         profesor.dni = String(data.get('dni'));
         profesor.pass = String(data.get('pass'));
@@ -79,7 +81,65 @@ const LogIn: React.FC = () => {
 
         if ((regNombre.test(profesor.nombre)) && (regDni.test(profesor.dni)) && (profesor.dni === data.get('dniconf')) && (regPass.test(profesor.pass)) && (profesor.pass === data.get('passconf')) && regEmail.test(profesor.email) && (profesor.email === data.get('emailconf'))) {
 
-            db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
+            aux = utf8.encode(profesor.pass);
+            profesor.pass = base64.encode(aux);
+            db.getPendientesDB().post(profesor)
+                .then((respuesta) => {
+                    if (respuesta.ok) {
+                        setShowSuccessReg(true);
+                    }
+                    else
+                        alert('Intente nuevamente');
+                    (document.getElementById('registro') as HTMLFormElement).reset();
+                })
+                .catch((error) => {
+                    (document.getElementById('dni') as HTMLInputElement).value = '';
+                    (document.getElementById('dniconf') as HTMLInputElement).value = '';
+                    (document.getElementById('pass') as HTMLInputElement).value = '';
+                    (document.getElementById('passConf') as HTMLInputElement).value = '';
+                    setMsjError('Error al registrarse, intente nuevamente.')
+                    setMostrarError(true);
+                })
+
+            /*bcrypt.genSalt(10, (err: any, salt: any) => {
+                if (err) {
+                    console.log(err);
+                }
+                bcrypt.hash(profesor.pass, salt, null, (err: any, hash: any) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log('hash:' + hash);
+                    bcrypt.compare('a', hash, (err: any, iguales: any) => {
+                        if (err) {
+                            console.log('error');
+                        }
+                        console.log(iguales);
+                    })
+                    /*profesor.pass = hash;
+                    console.log(hash);
+                    db.getPendientesDB().post(profesor)
+                        .then((respuesta) => {
+                            if (respuesta.ok) {
+                                setShowSuccessReg(true);
+                            }
+                            else
+                                alert('Intente nuevamente');
+                            (document.getElementById('registro') as HTMLFormElement).reset();
+                        })
+                        .catch((error) => {
+                            (document.getElementById('dni') as HTMLInputElement).value = '';
+                            (document.getElementById('dniconf') as HTMLInputElement).value = '';
+                            (document.getElementById('pass') as HTMLInputElement).value = '';
+                            (document.getElementById('passConf') as HTMLInputElement).value = '';
+                            setMsjError('Error al registrarse, intente nuevamente.')
+                            setMostrarError(true);
+                        })
+                })
+            })
+
+
+            /*db.getProfesoresDB().signUp(profesor.dni, profesor.pass, {
                 metadata: {
                     email: profesor.email,
                     nombre: profesor.nombre,
@@ -110,7 +170,7 @@ const LogIn: React.FC = () => {
                     setMostrarError(true);
                 }
             })
-
+            */
         }
         else {
 
@@ -235,7 +295,7 @@ const LogIn: React.FC = () => {
                     <IonItem>
                         <IonLabel position="floating">
                             <IonText class={(incorrectPass || noExistingUserLog) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
-                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Inegrese correctamente la contraseña</IonText>
+                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Ingrese correctamente la contraseña</IonText>
                         </IonLabel>
                         <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'}></IonInput>
                     </IonItem>
@@ -306,7 +366,7 @@ const LogIn: React.FC = () => {
                         <IonAlert
                             isOpen={showSuccessReg}
                             onDidDismiss={() => { setShowSuccessReg(false); setShowModalReg(false); }}
-                            header={'Cuenta creada con exito!'}
+                            header={'Solicitud de cuenta creada con exito!'}
                             message={'Cierre para continuar.'}
                             buttons={['Cerrar']}
                         />
