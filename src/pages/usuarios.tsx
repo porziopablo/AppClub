@@ -64,7 +64,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
     useEffect(() => {
         actualizarUsuarios();// eslint-disable-next-line
-    }, []);
+    }, [match]);
 
     function handleSeleccion(event: any) {
         setSelected(event.target.value);
@@ -101,13 +101,11 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
         if (selected) {
             let aPostear: iProfesor = { '_id': '', nombre: '', dni: '', email: '', pass: '' }
             BD.getPendientesDB().get(selected).then(function (doc: any) {
-                console.log(doc);
                 aPostear.nombre = doc.nombre;
                 aPostear.dni = doc.dni;
                 aPostear.email = doc.email;
                 aPostear.pass = base64.decode(doc.pass);
                 aPostear.pass = utf8.decode(aPostear.pass);
-                console.log(aPostear);
                 BD.getProfesoresDB().signUp(aPostear.dni, aPostear.pass, {
                     metadata: {
                         email: aPostear.email,
@@ -164,7 +162,6 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
     }
 
     const renderUsuarios = () => {
-        console.log(usuarios);
         return (
             usuarios.map((usuario: iProfesor) => (
                 <Link to={`/configuracion/${usuario.dni}`} style={{ textDecoration: 'none' }} key={usuario.dni}>
@@ -197,7 +194,7 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                 <IonList>
                     <IonRadioGroup>
                         <IonListHeader>
-                            <IonLabel>Lista de usuarios {nuevos ? "nuevos" : "existentes"}</IonLabel>
+                            <IonLabel>Lista de usuarios {match.params.tipo}</IonLabel>
                         </IonListHeader>
                         {nuevos ? renderUsuariosPendientes() : renderUsuarios() }
                     </IonRadioGroup>

@@ -338,19 +338,6 @@ const RegistrarJugador: React.FC = () => {
                         </IonSelect>
                     </IonItem>
                     <IonItem>
-                        <IonLabel><IonText class='label-modal'>Teléfono del responsable</IonText></IonLabel>
-                        <IonSelect
-                            interface="popover"
-                            cancelText="Cancelar"
-                            placeholder='Tipo'
-                            value={tipoTelefono}
-                            onIonChange={(event: any) => { setTipoTelefono(event.target.value) }}
-                    >
-                            <IonSelectOption value={TIPO_FIJO} key={TIPO_FIJO} >Fijo</IonSelectOption>
-                            <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>Móvil</IonSelectOption>
-                        </IonSelect>
-                    </IonItem>
-                    <IonItem>
                         <IonLabel><IonText class='label-modal'>Deportes</IonText></IonLabel>
                         <IonSelect
                             multiple={true}
@@ -360,7 +347,19 @@ const RegistrarJugador: React.FC = () => {
                             {renderSelectDeportes()}
                         </IonSelect>
                     </IonItem>
-                    {/*renderCategoria()*/}
+                    <IonItem>
+                        <IonLabel><IonText class='label-modal'>Teléfono del responsable</IonText></IonLabel>
+                        <IonSelect
+                            interface="popover"
+                            cancelText="Cancelar"
+                            placeholder='Tipo'
+                            value={tipoTelefono}
+                            onIonChange={(event: any) => { setTipoTelefono(event.target.value) }}
+                        >
+                            <IonSelectOption value={TIPO_FIJO} key={TIPO_FIJO} >Fijo</IonSelectOption>
+                            <IonSelectOption value={TIPO_MOVIL} key={TIPO_MOVIL}>Móvil</IonSelectOption>
+                        </IonSelect>
+                    </IonItem>
                     <IonItem>
                         <PhoneInput
                             defaultCountry="AR"
