@@ -40,23 +40,40 @@ class BaseDatos {
 
             /* creacion de cada bd */
 
-            this.jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
-            this.profesoresDB = new PouchDB('http://localhost:5984/profesoresdb');
-            this.usersDB = new PouchDB('http://localhost:5984/_users');
-            
-            this.balancesDB = new PouchDB('http://localhost:5984/balancesdb');
-            this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
-            this.historialBalancesDB = new PouchDB('http://localhost:5984/historialbalancesdb');
-            this.pendientesDB = new PouchDB('http://localhost:5984/usuariospendientesdb');
+            this.jugadoresDB = new PouchDB('http://10.2.9.172:8000/jugadoresdb');
+            this.usersDB = new PouchDB('http://10.2.9.172:8000/_users');
 
-            this.cat1fDB = new PouchDB('http://localhost:5984/asist1f');
-            this.cat1mDB = new PouchDB('http://localhost:5984/asist1m');
-            this.cat5DB = new PouchDB('http://localhost:5984/asist5');
-            this.cat7DB = new PouchDB('http://localhost:5984/asist7');
-            this.cat9DB = new PouchDB('http://localhost:5984/asist9');
-            this.cat11DB = new PouchDB('http://localhost:5984/asist11');
-            this.cat13DB = new PouchDB('http://localhost:5984/asist13');
-            this.cat15DB = new PouchDB('http://localhost:5984/asist15');
+            this.balancesDB = new PouchDB('http://10.2.9.172:8000/balancesdb');
+            this.pagosDB = new PouchDB('http://10.2.9.172:8000/pagosdb');
+            this.historialBalancesDB = new PouchDB('http://10.2.9.172:8000/historialbalancesdb');
+            this.pendientesDB = new PouchDB('http://10.2.9.172:8000/usuariospendientesdb');
+
+            this.cat1fDB = new PouchDB('http://10.2.9.172:8000/asist1f');
+            this.cat1mDB = new PouchDB('http://10.2.9.172:8000/asist1m');
+            this.cat5DB = new PouchDB('http://10.2.9.172:8000/asist5');
+            this.cat7DB = new PouchDB('http://10.2.9.172:8000/asist7');
+            this.cat9DB = new PouchDB('http://10.2.9.172:8000/asist9');
+            this.cat11DB = new PouchDB('http://10.2.9.172:8000/asist11');
+            this.cat13DB = new PouchDB('http://10.2.9.172:8000/asist13');
+            this.cat15DB = new PouchDB('http://10.2.9.172:8000/asist15');
+
+            //this.jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
+            //this.profesoresDB = new PouchDB('http://localhost:5984/profesoresdb');
+            //this.usersDB = new PouchDB('http://localhost:5984/_users');
+            
+            //this.balancesDB = new PouchDB('http://localhost:5984/balancesdb');
+            //this.pagosDB = new PouchDB('http://localhost:5984/pagosdb');
+            //this.historialBalancesDB = new PouchDB('http://localhost:5984/historialbalancesdb');
+            //this.pendientesDB = new PouchDB('http://localhost:5984/usuariospendientesdb');
+
+            //this.cat1fDB = new PouchDB('http://localhost:5984/asist1f');
+            //this.cat1mDB = new PouchDB('http://localhost:5984/asist1m');
+            //this.cat5DB = new PouchDB('http://localhost:5984/asist5');
+            //this.cat7DB = new PouchDB('http://localhost:5984/asist7');
+            //this.cat9DB = new PouchDB('http://localhost:5984/asist9');
+            //this.cat11DB = new PouchDB('http://localhost:5984/asist11');
+            //this.cat13DB = new PouchDB('http://localhost:5984/asist13');
+            //this.cat15DB = new PouchDB('http://localhost:5984/asist15');
 
             /* creacion de indices */
 
@@ -79,9 +96,6 @@ class BaseDatos {
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
                 .catch(console.log)
 
-            this.profesoresDB.createIndex({ index: { fields: ['dni'], name: "indiceProfe", ddoc: "indiceProfe" } })
-                .catch(console.log)
-
             this.pendientesDB.createIndex({ index: { fields: ['dni'], name: "indicePendiente", ddoc: "indicePendiente" } })
                 .catch(console.log)
 
@@ -97,8 +111,15 @@ class BaseDatos {
         return this.jugadoresDB;
     }
 
+
     getProfesoresDB() {
-        return this.profesoresDB;
+
+        /* NO ES UN ERROR DEVOLVER BALANCES, SIMPLEMENTE ES PARA PODER 
+           ACCEDER A LOS METODOS DEL PLUG-IN AUTHENTICATOR, QUE PUEDEN
+           SER ACCEDIDOS DESDE CUALQUIER INSTANCIA DE POUCHDB Y QUE SIRVEN 
+           PARA EL MANEJO DE USUARIOS */
+
+        return this.balancesDB;
     }
 
     getUsersDB() {
