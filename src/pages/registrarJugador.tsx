@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IonPage, IonIcon, IonToast, IonContent, IonText, IonItem, IonModal, IonLabel, IonInput, IonButton, IonDatetime, IonSelect, IonSelectOption, IonHeader } from '@ionic/react';
 import '../theme/registrarJugador.css';
-import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_CAT_FUTBOL } from '../interfaces';
+import { iJugador, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO } from '../interfaces';
 import BD from '../BD';
 import { camera } from 'ionicons/icons';
 import PhoneInput from 'react-phone-number-input'

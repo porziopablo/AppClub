@@ -2,7 +2,7 @@
 import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup, IonToast, IonRefresher, IonRefresherContent } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
 import '../theme/usuarios.css';
-import { iProfesor } from '../interfaces';
+import { iProfesor, iBalance } from '../interfaces';
 import BD from '../BD';
 import { Link } from 'react-router-dom';
 
@@ -12,6 +12,14 @@ const utf8 = require('utf8');
 interface UserDetailPageProps extends RouteComponentProps<{
     tipo: string;
 }> { }
+
+const balance: iBalance = {
+    '_id': '',
+    fechaCancelacion: '',
+    nombreProfesor: '',
+    total: 0,
+
+}
 
 const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
 
@@ -112,7 +120,11 @@ const Usuarios: React.FC<UserDetailPageProps> = ({ match }) => {
                         nombre: aPostear.nombre,
                         dni: aPostear.dni,
                     }
+                    
                 }).then(res => {
+                    balance.nombreProfesor = aPostear.nombre;
+                    balance._id = aPostear.dni;
+                    BD.getBalancesDB().upsert(balance._id, () => balance);
                     BD.getPendientesDB().remove(doc);
                     setToastColor("success");
                     setToastMsg("Se ha aceptado al usuario pendiente con éxito");

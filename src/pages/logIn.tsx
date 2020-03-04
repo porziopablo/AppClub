@@ -3,7 +3,7 @@ import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox,
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
 
-import { maxNumDni, regEmail, regDni, regNombre, iBalance, iProfesorPend } from '../interfaces';
+import { maxNumDni, regEmail, regDni, regNombre, iProfesorPend } from '../interfaces';
 
 import db from '../BD';
 
@@ -26,15 +26,6 @@ interface iState {
         mensaje: string,
     }
 }
-
-const balance: iBalance ={
-    '_id':'',
-    fechaCancelacion: '',
-    nombreProfesor: '',
-    total: 0,
-
-}
-
 
 const LogIn: React.FC = () => {
 
