@@ -204,14 +204,17 @@ const LogIn: React.FC = () => {
                     alert('Intente nuevamente');
             })
             .catch((error: Error) => {
-                console.log(error);
                 if (error.name === 'unauthorized') {
                     setNoExistingUserLog(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
+                    setMsjError('Usuario o contraseña incorrectos.');
+                    setMostrarError(true); 
                 }
                 else if (error.name === 'forbidden') {
                     setIncorrectPass(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
+                    setMsjError('Ingrese correctamente la contraseña.');
+                    setMostrarError(true); 
                 }
                 else {
                     setMsjError('Error al iniciar sesión, intente nuevamente.');
@@ -264,14 +267,12 @@ const LogIn: React.FC = () => {
                     <IonItem id='div1'>
                         <IonLabel position="floating">
                             <IonText class={(noExistingUserLog) ? 'label-login-warning' : 'label-login'}>DNI</IonText>
-                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Usuario o contraseña incorrectos.</IonText>
                         </IonLabel>
                         <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" value={(getCookie("recordar") === "") ? "" : getCookie("username")}></IonInput>
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating">
-                            <IonText class={(incorrectPass) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
-                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Ingrese correctamente la contraseña.</IonText>
+                            <IonText class={(incorrectPass || noExistingUserLog) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
                         </IonLabel>
                         <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'} value={(getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"))}></IonInput>
                     </IonItem>
