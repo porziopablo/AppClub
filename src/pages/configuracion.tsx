@@ -10,7 +10,7 @@ interface UserDetailPageProps extends RouteComponentProps<{
     dniUser: string;
 }> { }
 
-const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
+const regPass = /^[A-Za-z0-9/*\-,.]+([A-Za-z0-9/*\-,.]+)*$/;
 
 const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     const dniUser = match.params.dniUser;
@@ -18,7 +18,6 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     const [showModalPass, setShowModalPass] = useState(false);
     const [sessionPropia, setSessionPropia] = useState<any>({ name: 0, roles: []});
     useEffect(() => {
-        console.log("aa")
         //obtener sesion del profesor pasado por parametro
         db.getProfesoresDB().getSession()
             .then(rta => {
@@ -45,7 +44,6 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     let history = useHistory();
 
     useEffect(() => {
-        console.log("aa")
         //obtener sesion del profesor pasado por parametro
         db.getProfesoresDB().getUser(dniUser)
             .then(rta => {
@@ -310,7 +308,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentPass || invalidPass) ? 'label-modal-warning' : 'label-modal'}>Nueva contraseña</IonText>
-                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres inválidos.</IonText>
+                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres inválidos. Utilize caracteres alfanumericos /*-,.</IonText>
                             </IonLabel>
                             <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>
