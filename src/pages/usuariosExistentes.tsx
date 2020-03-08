@@ -15,7 +15,6 @@ const UsuariosExistentes: React.FC = () => {
     let history = useHistory();
 
     function actualizarUsuarios() {
-        console.log("aa")
         let usuariosRecibidos: iProfesor[] = [];
         const docToProfesor = (doc: any): iProfesor => doc;
 
@@ -32,7 +31,6 @@ const UsuariosExistentes: React.FC = () => {
     }
 
     useEffect(() => {
-        console.log("aa")
         actualizarUsuarios();
     }, []);
 
