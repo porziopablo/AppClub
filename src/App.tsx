@@ -27,7 +27,8 @@ import Jugador from './pages/jugador';
 import Configuracion from './pages/configuracion';
 import LogIn from './pages/logIn';
 import OpcionesAdmin from './pages/opcionesAdmin';
-import Usuarios from './pages/usuarios';
+import UsuariosExistentes from './pages/usuariosExistentes';
+import UsuariosNuevos from './pages/usuariosNuevos';
 import About from './pages/about';
 import Historial from './pages/historialBalances';
 import AsistenciaCatTomar from './pages/asistenciaCategoriaT';
@@ -83,7 +84,6 @@ const App: React.FC = () => (
                         <Route path="/configuracion/:dniUser" component={Configuracion} />
                         <Route path="/logIn" component={LogIn} exact={true} />
                         <Route path="/opcionesAdmin" component={OpcionesAdmin} exact={true} />
-                        <Route path="/usuarios" component={Usuarios} exact={true} />
                         <Route path="/about" component={About} exact={true} />
                         <Route path="/cobros/historial" component={Historial} exact={true} />
                         <Route path="/asistenciaCatTomar" component={AsistenciaCatTomar} exact={true} />
@@ -91,7 +91,8 @@ const App: React.FC = () => (
                         <Route path="/asistenciaList/:id" component={AsistenciaList} />
                         <Route path="/asistenciaHist/:id" component={AsistenciaHist} />
                         <Route path="/listado/jugador/:dni/pagosJugador" component={PagosJugador} />
-                        <Route path="/usuarios/:tipo" component={Usuarios} />
+                        <Route path="/usuariosExistentes" component={UsuariosExistentes} exact={true}/>
+                        <Route path="/usuariosNuevos" component={UsuariosNuevos} exact={true}/>
                         <Route path="/listado/registrarJugador" component={RegistrarJugador} exact={true} />
                     </IonRouterOutlet>
                     <IonTabBar slot="bottom">
