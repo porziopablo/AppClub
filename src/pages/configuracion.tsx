@@ -18,6 +18,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     const [showModalPass, setShowModalPass] = useState(false);
     const [sessionPropia, setSessionPropia] = useState<any>({ name: 0, roles: []});
     useEffect(() => {
+        console.log("aa")
         //obtener sesion del profesor pasado por parametro
         db.getProfesoresDB().getSession()
             .then(rta => {
@@ -44,6 +45,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     let history = useHistory();
 
     useEffect(() => {
+        console.log("aa")
         //obtener sesion del profesor pasado por parametro
         db.getProfesoresDB().getUser(dniUser)
             .then(rta => {
@@ -98,11 +100,11 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
         const data = new FormData(event.target as HTMLFormElement);
         const pass = String(data.get('pass'));
         if (pass !== (document.getElementById('passConf') as HTMLInputElement).value) {
-            //email y emailconf diferentes
+            //pass y passconf diferentes
             setDifferentPass(true);
         }
         else if (!regPass.test(pass)) {
-            //email invalido
+            //pass invalido
             setInvalidPass(true);
         }
         else {
@@ -112,7 +114,10 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                 setToastColor("success");
                 setToastMsg("La contraseña se ha cambiado con éxito");
                 setToast(true);
-            }).catch(err => {
+                if (sessionPropia.name === dniUser) {
+                    history.push('/logIn');
+                }
+                }).catch(err => {
                 setToastColor("danger");
                 setToastMsg("Error al cambiar la contraseña");
                 setToast(true);
@@ -203,7 +208,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                         size="small"
                         onClick={() => {
                             if (sessionPropia.name !== dniUser) {
-                                history.push(`/usuarios/existentes`)
+                                history.push(`/usuariosExistentes`)
                             }
                             else {
                                 history.push(`/home`)
