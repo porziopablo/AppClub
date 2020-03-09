@@ -10,7 +10,7 @@ interface UserDetailPageProps extends RouteComponentProps<{
     dniUser: string;
 }> { }
 
-const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
+const regPass = /^[A-Za-z0-9/*\-,.]+([A-Za-z0-9/*\-,.]+)*$/;
 
 const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
     const dniUser = match.params.dniUser;
@@ -98,11 +98,11 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
         const data = new FormData(event.target as HTMLFormElement);
         const pass = String(data.get('pass'));
         if (pass !== (document.getElementById('passConf') as HTMLInputElement).value) {
-            //email y emailconf diferentes
+            //pass y passconf diferentes
             setDifferentPass(true);
         }
         else if (!regPass.test(pass)) {
-            //email invalido
+            //pass invalido
             setInvalidPass(true);
         }
         else {
@@ -112,7 +112,10 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                 setToastColor("success");
                 setToastMsg("La contraseña se ha cambiado con éxito");
                 setToast(true);
-            }).catch(err => {
+                if (sessionPropia.name === dniUser) {
+                    history.push('/logIn');
+                }
+                }).catch(err => {
                 setToastColor("danger");
                 setToastMsg("Error al cambiar la contraseña");
                 setToast(true);
@@ -203,7 +206,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                         size="small"
                         onClick={() => {
                             if (sessionPropia.name !== dniUser) {
-                                history.push(`/usuarios/existentes`)
+                                history.push(`/usuariosExistentes`)
                             }
                             else {
                                 history.push(`/home`)
@@ -305,7 +308,7 @@ const Configuracion: React.FC<UserDetailPageProps> = ({ match }) => {
                         <IonItem>
                             <IonLabel position="floating">
                                 <IonText class={(differentPass || invalidPass) ? 'label-modal-warning' : 'label-modal'}>Nueva contraseña</IonText>
-                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres inválidos.</IonText>
+                                <IonText class={(invalidPass) ? 'regError' : 'esconder'}>La contraseña contiene caracteres inválidos. Utilize caracteres alfanumericos /*-,.</IonText>
                             </IonLabel>
                             <IonInput id='pass' name='pass' required type="password" ></IonInput>
                         </IonItem>
