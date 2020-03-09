@@ -76,7 +76,7 @@ const AsistenciaHist: React.FC<UserDetailPageProps> = ({ match }) => {
                 setFechas(fechasBuscadas);
             })
             .catch(res => { setToast(true)});
-    }, []);
+    }, [cat]);
 
     const renderFechas = () => {
         return (

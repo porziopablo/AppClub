@@ -58,6 +58,8 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         const docToJugador = (doc: any): iJugador => doc;
         let jugadoresBuscados: iJugador[] = [];
 
+        setPresentes([]);
+        setDisabled(true);
         BD.getJugadoresDB().find({
                 selector: {
                     categoria: +cat
@@ -114,11 +116,13 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 setToastMsg("Presentes cargados con éxito");
                 setColor("success");
                 setToast(true);
+                setPresentes([]);
             })
             .catch(res => {
                 setToastMsg("ERROR: presentes no fueron cargados");
                 setColor("danger");
                 setToast(true);
+                setPresentes([]);
             })
    
     }
