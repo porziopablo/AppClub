@@ -200,11 +200,11 @@ class Cobros extends React.Component {
                 {
                     text: [
                         '\nMar Del Plata, Argentina', ' - Fecha: ', { text: fecha.toLocaleString('es-AR'), bold: true },
-                        '\n\nRecibí de ', { text: this.state.nombreJugador, bold: true }, ' - DNI: ',
+                        '\n\nRecibí de ', { text: this.state.nombreJugador.toUpperCase(), bold: true }, ' - DNI: ',
                         { text: this.state.pagoActual.dniJugador, bold: true },
                         '\nLa suma de $ ', { text: this.state.pagoActual.monto.toLocaleString('es-AR'), bold: true }, ' PESOS. ',
                         '\nEn concepto de ', { text: 'CUOTA DEL CLUB.', bold: true },
-                        '\nRecibido por ', { text: this.state.usuarioActual.nombre, bold: true },
+                        '\nRecibido por ', { text: this.state.usuarioActual.nombre.toUpperCase(), bold: true },
                         ' - DNI: ', { text: this.state.usuarioActual.dni, bold: true },
                     ],
                     style: 'parrafo'

@@ -1,4 +1,4 @@
-﻿import React, { useState, FormEvent } from 'react';
+﻿import React, { useState, FormEvent, useEffect } from 'react';
 import { IonPage, IonContent, IonLabel, IonInput, IonItem, IonText, IonCheckbox, IonButton, IonModal, IonAlert, IonToast } from '@ionic/react';
 import logoClub from '../images/logoclub.jpg'
 import '../theme/logIn.css';
@@ -10,7 +10,7 @@ import db from '../BD';
 const base64 = require('base-64');
 const utf8 = require('utf8');
 
-const regPass = /^[A-Za-zÀ-ÖØ-öø-ÿ0-9]+([A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*$/;
+const regPass = /^[A-Za-z0-9/*\-,.]+([A-Za-z0-9/*\-,.]+)*$/;
 
 
 const profesor: iProfesorPend = {
@@ -44,6 +44,7 @@ const LogIn: React.FC = () => {
     const [invalidPass, setInvalidPass] = useState(false);
     const [mostrarError, setMostrarError] = useState(false);
     const [differentEmail, setDifferentEmail] = useState(false);
+
 
 
 
@@ -129,7 +130,7 @@ const LogIn: React.FC = () => {
                             //contraseña con caracteres no validos
                             (document.getElementById('pass') as HTMLInputElement).value = '';
                             (document.getElementById('passConf') as HTMLInputElement).value = '';
-                            setMsjError('La contraseña contiene caracteres inválidos.');
+                            setMsjError('La contraseña contiene caracteres inválidos. Utilize caracteres alfanumericos /*-,.');
                             setMostrarError(true);
                             setInvalidPass(true);
                         }
@@ -204,14 +205,17 @@ const LogIn: React.FC = () => {
                     alert('Intente nuevamente');
             })
             .catch((error: Error) => {
-                console.log(error);
                 if (error.name === 'unauthorized') {
                     setNoExistingUserLog(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
+                    setMsjError('Usuario o contraseña incorrectos.');
+                    setMostrarError(true); 
                 }
                 else if (error.name === 'forbidden') {
                     setIncorrectPass(true);
                     (document.getElementById('passlog') as HTMLInputElement).value = '';
+                    setMsjError('Ingrese correctamente la contraseña.');
+                    setMostrarError(true); 
                 }
                 else {
                     setMsjError('Error al iniciar sesión, intente nuevamente.');
@@ -246,6 +250,12 @@ const LogIn: React.FC = () => {
         return passAux;
     }
 
+    useEffect(() => {
+        (document.getElementById('usuario') as HTMLInputElement).value = (getCookie("recordar") === "") ? "" : getCookie("username");
+        (document.getElementById('passlog') as HTMLInputElement).value = (getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"));
+        (document.getElementById('recUsCB') as HTMLIonCheckboxElement).checked = (getCookie("recordar") === "") ? false : true;
+    }, [getCookie("recordar")]);
+
     return (
         <IonPage>
             <IonContent id="contLog">
@@ -264,16 +274,14 @@ const LogIn: React.FC = () => {
                     <IonItem id='div1'>
                         <IonLabel position="floating">
                             <IonText class={(noExistingUserLog) ? 'label-login-warning' : 'label-login'}>DNI</IonText>
-                            <IonText class={(noExistingUserLog) ? 'regError' : 'esconder'}>Usuario o contraseña incorrectos.</IonText>
                         </IonLabel>
-                        <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" value={(getCookie("recordar") === "") ? "" : getCookie("username")}></IonInput>
+                        <IonInput id='usuario' maxlength={maxNumDni} required name='usuario' type="text" ></IonInput>
                     </IonItem>
                     <IonItem>
                         <IonLabel position="floating">
-                            <IonText class={(incorrectPass) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
-                            <IonText class={(incorrectPass) ? 'regError' : 'esconder'}>Ingrese correctamente la contraseña.</IonText>
+                            <IonText class={(incorrectPass || noExistingUserLog) ? 'label-login-warning' : 'label-login'}>Contraseña</IonText>
                         </IonLabel>
-                        <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'} value={(getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"))}></IonInput>
+                        <IonInput id='passlog' required name='pass' type={(showPass === true) ? 'text' : 'password'} ></IonInput>
                     </IonItem>
                     <div id='verPas'>
                         <IonLabel >Mostrar contraseña</IonLabel>
@@ -281,7 +289,7 @@ const LogIn: React.FC = () => {
                     </div>
                     <div id='guardarUser'>
                         <IonLabel >Recordar usuario y contraseña</IonLabel>
-                        <IonCheckbox name="guardarUser" class='CB' checked={(getCookie("recordar") === "") ? false : true} ></IonCheckbox>
+                        <IonCheckbox id='recUsCB' name="guardarUser" class='CB'  ></IonCheckbox>
                     </div>
                     <IonButton type='submit' class='botLog' >Iniciar Sesión</IonButton>
                 </form>

@@ -135,7 +135,7 @@ class SideMenu extends React.Component<RouteComponentProps<{}>> {
     render() {
 
         return (
-            <IonMenu type="overlay" contentId="main" disabled={(window.location.pathname === "/logIn") ? true : false}>
+            <IonMenu type="overlay" contentId="main" disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? true : false}>
                 <IonHeader>
                     <IonToolbar>
                         <IonTitle>

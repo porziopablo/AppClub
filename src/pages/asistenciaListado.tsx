@@ -8,7 +8,6 @@ import Find from 'pouchdb-find'
 import { arrowBack } from 'ionicons/icons';
 PouchDB.plugin(Find)
 
-const jugadoresDB = new PouchDB('http://localhost:5984/jugadoresdb');
 let categoriaDB!: PouchDB.Database<{}>; 
 
 interface UserDetailPageProps extends RouteComponentProps<{
@@ -59,7 +58,9 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
         const docToJugador = (doc: any): iJugador => doc;
         let jugadoresBuscados: iJugador[] = [];
 
-        jugadoresDB.find({
+        setPresentes([]);
+        setDisabled(true);
+        BD.getJugadoresDB().find({
                 selector: {
                     categoria: +cat
                 }
@@ -115,11 +116,13 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 setToastMsg("Presentes cargados con éxito");
                 setColor("success");
                 setToast(true);
+                setPresentes([]);
             })
             .catch(res => {
                 setToastMsg("ERROR: presentes no fueron cargados");
                 setColor("danger");
                 setToast(true);
+                setPresentes([]);
             })
    
     }
