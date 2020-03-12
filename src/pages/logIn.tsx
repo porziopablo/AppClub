@@ -44,11 +44,13 @@ const LogIn: React.FC = () => {
     const [invalidPass, setInvalidPass] = useState(false);
     const [mostrarError, setMostrarError] = useState(false);
     const [differentEmail, setDifferentEmail] = useState(false);
-
+    let cookieRec = getCookie("recordar");
 
 
 
     function handleSubmit(event: FormEvent) {
+
+        
         event.preventDefault();
         const data = new FormData(event.target as HTMLFormElement);
         setMostrarError(false);
@@ -254,7 +256,7 @@ const LogIn: React.FC = () => {
         (document.getElementById('usuario') as HTMLInputElement).value = (getCookie("recordar") === "") ? "" : getCookie("username");
         (document.getElementById('passlog') as HTMLInputElement).value = (getCookie("recordar") === "") ? "" : obtenerPass(getCookie("pass"));
         (document.getElementById('recUsCB') as HTMLIonCheckboxElement).checked = (getCookie("recordar") === "") ? false : true;
-    }, [getCookie("recordar")]);
+    }, [cookieRec]);
 
     return (
         <IonPage>
