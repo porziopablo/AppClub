@@ -73,7 +73,7 @@ class Cobros extends React.Component {
 
         try {
             const respuesta = await BD.getProfesoresDB().getSession();
-            if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
+            if (respuesta.userCtx.name) {
                 const usuarioActual: any = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
                 const balanceActual = await BD.getBalancesDB().get(usuarioActual.dni);
                 this.setState({ balance: balanceActual, usuarioActual: usuarioActual })
@@ -119,7 +119,7 @@ class Cobros extends React.Component {
                 const fechaString = fechaActual.toISOString();
 
                 const pago: iPago = {
-                    _id: dni + "/" + fechaString.split('T')[0] + "/" + this.state.usuarioActual.dni,
+                    _id: dni + "_" + fechaString.split('T')[0] + "_" + this.state.usuarioActual.dni,
                     fecha: fechaString,
                     dniProfesor: this.state.usuarioActual.dni,
                     monto: monto,
@@ -180,7 +180,7 @@ class Cobros extends React.Component {
             pageSize: 'A6',
             pageOrientation: 'landscape',
             info: {
-                title: `comprobante_${this.state.pagoActual._id.replace('/', '_')}`,
+                title: `comprobante_${this.state.pagoActual._id}`,
                 author: 'Club Social y Deportivo 2 de Mayo',
             },
             content: [
@@ -227,15 +227,14 @@ class Cobros extends React.Component {
         const grabarPDF = async (buffer: any) => {
 
             const arregloBinario = new Uint8Array(buffer).buffer;
-            const ruta = File.externalApplicationStorageDirectory + '/';
             const nombreArch = `${docDefinition.info.title}.pdf`;
 
             if (File.externalApplicationStorageDirectory) /* podria no estar montado el directorio externo */
                 try {
-                    const fileEntry = await File.createFile(ruta, nombreArch, true);
+                    const fileEntry = await File.createFile(File.externalApplicationStorageDirectory, nombreArch, true);
                     fileEntry.createWriter((fileWriter) => {
                         fileWriter.onwriteend = () => {
-                            FileOpener.open(ruta + nombreArch, 'application/pdf')
+                            FileOpener.open(File.externalApplicationStorageDirectory + nombreArch, 'application/pdf')
                                 .then(() => { this.setState({ ocultarBotonComprobante: true }); })
                                 .catch(() => {
                                     this.setState({
@@ -244,7 +243,7 @@ class Cobros extends React.Component {
                                             mensaje: 'No se pudo abrir el comprobante.',
                                             esError: true
                                         }
-                                    })
+                                    });
                                 });
                         };
                         fileWriter.onerror = () => {
