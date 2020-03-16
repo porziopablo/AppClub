@@ -3,6 +3,9 @@ import { IonPage, IonContent, IonItem, IonLabel, IonInput, IonItemGroup, IonButt
 import { checkmarkCircle } from 'ionicons/icons';
 import { iPago, iProfesor, iBalance, iJugador } from '../interfaces';
 import BD from '../BD';
+import { FileOpener } from '@ionic-native/file-opener';
+import { isPlatform } from '@ionic/react';
+import { File } from '@ionic-native/file';
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -221,8 +224,66 @@ class Cobros extends React.Component {
             }
         };
 
-        pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`);
-        this.setState({ ocultarBotonComprobante: true });
+        const grabarPDF = async (buffer: any) => {
+
+            const arregloBinario = new Uint8Array(buffer).buffer;
+            const ruta = File.externalApplicationStorageDirectory + '/';
+            const nombreArch = `${docDefinition.info.title}.pdf`;
+
+            if (File.externalApplicationStorageDirectory) /* podria no estar montado el directorio externo */
+                try {
+                    const fileEntry = await File.createFile(ruta, nombreArch, true);
+                    fileEntry.createWriter((fileWriter) => {
+                        fileWriter.onwriteend = () => {
+                            FileOpener.open(ruta + nombreArch, 'application/pdf')
+                                .then(() => { this.setState({ ocultarBotonComprobante: true }); })
+                                .catch(() => {
+                                    this.setState({
+                                        toastParams: {
+                                            mostrar: true,
+                                            mensaje: 'No se pudo abrir el comprobante.',
+                                            esError: true
+                                        }
+                                    })
+                                });
+                        };
+                        fileWriter.onerror = () => {
+                            this.setState({
+                                toastParams: {
+                                    mostrar: true,
+                                    mensaje: 'No se pudo generar el comprobante.',
+                                    esError: true
+                                }
+                            });
+                        };
+                        fileWriter.write(arregloBinario);
+                    });
+                }
+                catch (error) {
+                    this.setState({
+                        toastParams: {
+                            mostrar: true,
+                            mensaje: 'No se pudo generar el archivo.',
+                            esError: true
+                        }
+                    });
+                }
+            else
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: 'No se pudo generar el archivo.',
+                        esError: true
+                    }
+                });
+        }
+
+        if (isPlatform('cordova') || isPlatform('capacitor'))
+            pdfMake.createPdf(docDefinition).getBuffer(grabarPDF) /* ANDROID */
+        else {
+            pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`); /* VERSION WEB */
+            this.setState({ ocultarBotonComprobante: true });
+        }
     }
 
     cancelarBalance = async () => {
