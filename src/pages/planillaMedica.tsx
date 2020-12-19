@@ -104,9 +104,9 @@ class PlanillaMedica extends React.Component<tipoProps> {
 
             swiper.removeAllSlides();
 
-            this.state.imagenesParaMostrar.forEach((img: imagen) => {
+            this.state.imagenesParaMostrar.forEach((img: imagen) => { /* div class="swiper-zoom-container" para poder hacer zoom */
                 swiper.appendSlide(
-                    `<IonSlide class='swiper-slide' key="${img.nombre}"><img src="${img.url}" alt="${img.nombre}"/></IonSlide>`
+                    `<IonSlide class='swiper-slide' key="${img.nombre}"><div class="swiper-zoom-container"><img src="${img.url}" alt="${img.nombre}"/></div></IonSlide>`
                 );
             });
             swiper.update();

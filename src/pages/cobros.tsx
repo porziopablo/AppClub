@@ -3,6 +3,9 @@ import { IonPage, IonContent, IonItem, IonLabel, IonInput, IonItemGroup, IonButt
 import { checkmarkCircle } from 'ionicons/icons';
 import { iPago, iProfesor, iBalance, iJugador } from '../interfaces';
 import BD from '../BD';
+import { FileOpener } from '@ionic-native/file-opener';
+import { isPlatform } from '@ionic/react';
+import { File } from '@ionic-native/file';
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -70,7 +73,7 @@ class Cobros extends React.Component {
 
         try {
             const respuesta = await BD.getProfesoresDB().getSession();
-            if (respuesta.userCtx.name) { // Si se asegura llegar a esta vista logueado, entonces el if sobra
+            if (respuesta.userCtx.name) {
                 const usuarioActual: any = await BD.getProfesoresDB().getUser(respuesta.userCtx.name);
                 const balanceActual = await BD.getBalancesDB().get(usuarioActual.dni);
                 this.setState({ balance: balanceActual, usuarioActual: usuarioActual })
@@ -116,7 +119,7 @@ class Cobros extends React.Component {
                 const fechaString = fechaActual.toISOString();
 
                 const pago: iPago = {
-                    _id: dni + "/" + fechaString.split('T')[0] + "/" + this.state.usuarioActual.dni,
+                    _id: dni + "_" + fechaString.split('T')[0] + "_" + this.state.usuarioActual.dni,
                     fecha: fechaString,
                     dniProfesor: this.state.usuarioActual.dni,
                     monto: monto,
@@ -177,7 +180,7 @@ class Cobros extends React.Component {
             pageSize: 'A6',
             pageOrientation: 'landscape',
             info: {
-                title: `comprobante_${this.state.pagoActual._id.replace('/', '_')}`,
+                title: `comprobante_${this.state.pagoActual._id}`,
                 author: 'Club Social y Deportivo 2 de Mayo',
             },
             content: [
@@ -221,8 +224,65 @@ class Cobros extends React.Component {
             }
         };
 
-        pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`);
-        this.setState({ ocultarBotonComprobante: true });
+        const grabarPDF = async (buffer: any) => {
+
+            const arregloBinario = new Uint8Array(buffer).buffer;
+            const nombreArch = `${docDefinition.info.title}.pdf`;
+
+            if (File.externalApplicationStorageDirectory) /* podria no estar montado el directorio externo */
+                try {
+                    const fileEntry = await File.createFile(File.externalApplicationStorageDirectory, nombreArch, true);
+                    fileEntry.createWriter((fileWriter) => {
+                        fileWriter.onwriteend = () => {
+                            FileOpener.open(File.externalApplicationStorageDirectory + nombreArch, 'application/pdf')
+                                .then(() => { this.setState({ ocultarBotonComprobante: true }); })
+                                .catch(() => {
+                                    this.setState({
+                                        toastParams: {
+                                            mostrar: true,
+                                            mensaje: 'No se pudo abrir el comprobante.',
+                                            esError: true
+                                        }
+                                    });
+                                });
+                        };
+                        fileWriter.onerror = () => {
+                            this.setState({
+                                toastParams: {
+                                    mostrar: true,
+                                    mensaje: 'No se pudo generar el comprobante.',
+                                    esError: true
+                                }
+                            });
+                        };
+                        fileWriter.write(arregloBinario);
+                    });
+                }
+                catch (error) {
+                    this.setState({
+                        toastParams: {
+                            mostrar: true,
+                            mensaje: 'No se pudo generar el archivo.',
+                            esError: true
+                        }
+                    });
+                }
+            else
+                this.setState({
+                    toastParams: {
+                        mostrar: true,
+                        mensaje: 'No se pudo generar el archivo.',
+                        esError: true
+                    }
+                });
+        }
+
+        if (isPlatform('cordova') || isPlatform('capacitor'))
+            pdfMake.createPdf(docDefinition).getBuffer(grabarPDF) /* ANDROID */
+        else {
+            pdfMake.createPdf(docDefinition).download(`${docDefinition.info.title}.pdf`); /* VERSION WEB */
+            this.setState({ ocultarBotonComprobante: true });
+        }
     }
 
     cancelarBalance = async () => {
