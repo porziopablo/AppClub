@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^1.5.1",
+    "@capacitor/core": "1.5.1",
     "@ionic-native/core": "^5.22.0",
     "@ionic-native/file": "^5.22.0",
     "@ionic-native/file-opener": "^5.22.0",
@@ -59,6 +61,7 @@
   },
   "description": "An Ionic project",
   "devDependencies": {
+    "@capacitor/cli": "1.5.1",
     "@types/pouchdb": "^6.4.0"
   }
 }

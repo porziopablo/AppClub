@@ -1,5 +1,7 @@
 {
   "name": "appClub",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "react"
 }
