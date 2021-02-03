@@ -3,7 +3,7 @@ import { IonPage, IonContent, IonItem, IonLabel, IonButton, IonIcon, IonAlert, I
 import { RouteComponentProps } from 'react-router';
 import { call } from 'ionicons/icons';
 import '../theme/jugador.css';
-import { iJugador, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_GENEROS, GENEROS } from '../interfaces';
+import { iJugador, CATEGORIAS, DEPORTES, NOMBRE_CAT_FUTBOL, NOMBRE_DEPORTES, regNombre, TIPO_MOVIL, PREFIJO_MOVIL, TIPO_FIJO, NOMBRE_GENEROS, GENEROS } from '../interfaces';
 import BD from '../BD';
 import PhoneInput from 'react-phone-number-input'
 import 'react-phone-number-input/style.css'
@@ -30,14 +30,43 @@ interface iOpcion {
     valor: number,
 }
 
-const deportes: iOpcion[] = [
+const deportes: iOpcion[] = [ // lista de opciones de deportes
     { nombre: NOMBRE_DEPORTES[DEPORTES.basket], valor: DEPORTES.basket },
     { nombre: NOMBRE_DEPORTES[DEPORTES.futbol], valor: DEPORTES.futbol },
 ];
 
-const generos: iOpcion[] = [
+const generos: iOpcion[] = [ // lista de opciones de generos
     { nombre: NOMBRE_GENEROS[GENEROS.femenino], valor: GENEROS.femenino },
     { nombre: NOMBRE_GENEROS[GENEROS.masculino], valor: GENEROS.masculino },
+];
+
+const categoria: iOpcion[] = [ // lista de opciones de categorias
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
+];
+
+const categoriaF: iOpcion[] = [ // lista de opciones de categorias
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraFemenina], valor: CATEGORIAS.primeraFemenina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
+];
+
+const categoriaM: iOpcion[] = [ // lista de opciones de categorias
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.primeraMasculina], valor: CATEGORIAS.primeraMasculina },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.quinta], valor: CATEGORIAS.quinta },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.septima], valor: CATEGORIAS.septima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.novena], valor: CATEGORIAS.novena },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.undecima], valor: CATEGORIAS.undecima },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoTercera], valor: CATEGORIAS.decimoTercera },
+    { nombre: NOMBRE_CAT_FUTBOL[CATEGORIAS.decimoQuinta], valor: CATEGORIAS.decimoQuinta },
 ];
 
 const jugadorPorDefecto: iJugador = {              /* valores por defecto para inicializar vista */
@@ -115,7 +144,7 @@ class Jugador extends React.Component<tipoProps> {
 
         let respuesta = null;
 
-        if (this.state.isReadOnly && this.state.jugador.deportes.includes(DEPORTES.futbol))
+        if (this.state.isReadOnly && this.state.jugador.deportes.includes(DEPORTES.futbol))  //si es solo lectura y el deporte es futbola (basket no tiene categoria)
             respuesta = (
                 <IonItem>
                     <IonLabel>Categoría Fútbol</IonLabel>
@@ -123,13 +152,55 @@ class Jugador extends React.Component<tipoProps> {
                 </IonItem>
             );
         else
-            if (!this.state.isReadOnly && this.state.jugadorTemp.deportes.includes(DEPORTES.futbol))
-                respuesta = (
-                    <IonItem>
-                        <IonLabel>Categoría Fútbol</IonLabel>
-                        <h4>{NOMBRE_CAT_FUTBOL[BD.calcularCategoria(this.state.jugadorTemp)]}</h4>
-                    </IonItem>
-                );
+            if (!this.state.isReadOnly && this.state.jugadorTemp.deportes.includes(DEPORTES.futbol)) //esta en modo edicion, por lo que se puede cambiar la categoria
+                if (this.state.jugadorTemp.genero === GENEROS.masculino) {
+                    respuesta = (
+                        <IonItem>
+                            <IonLabel>Categoría Fútbol</IonLabel>
+                            <IonSelect
+                                interface='popover'
+                                cancelText="Cancelar"
+                                value={this.state.jugadorTemp.categoria}
+                                onIonChange={this.guardarCategoria}
+                            >
+                                {this.renderOpciones(categoriaM)}
+                            </IonSelect>
+
+                        </IonItem>
+                    );
+                }
+                else if (this.state.jugadorTemp.genero === GENEROS.femenino) {
+                    respuesta = (
+                        <IonItem>
+                            <IonLabel>Categoría Fútbol</IonLabel>
+                            <IonSelect
+                                interface='popover'
+                                cancelText="Cancelar"
+                                value={this.state.jugadorTemp.categoria}
+                                onIonChange={this.guardarCategoria}
+                            >
+                                {this.renderOpciones(categoriaF)}
+                            </IonSelect>
+
+                        </IonItem>
+                    );
+                }
+                else {
+                    respuesta = (
+                        <IonItem>
+                            <IonLabel>Categoría Fútbol</IonLabel>
+                            <IonSelect
+                                interface='popover'
+                                cancelText="Cancelar"
+                                value={this.state.jugadorTemp.categoria}
+                                onIonChange={this.guardarCategoria}
+                            >
+                                {this.renderOpciones(categoria)}
+                            </IonSelect>
+
+                        </IonItem>
+                    );
+                }
 
         return respuesta;
     }
@@ -163,6 +234,16 @@ class Jugador extends React.Component<tipoProps> {
             }
         }));
     }
+
+    guardarCategoria = (event: any) => {  //Se agrega el cambio al jugador temporal antes de aplicarlo al original
+        this.setState((prevState: iState) => ({
+            jugadorTemp: {
+                ...prevState.jugadorTemp,
+                categoria: event.target.value
+            }
+        }));
+    }
+
 
     guardarDeportes = (event: any) => {
 
@@ -212,7 +293,7 @@ class Jugador extends React.Component<tipoProps> {
                         telefono.splice(3, 0, '9');
                         jugador.telResponsable = telefono.join('');
                 };
-                jugador.categoria = BD.calcularCategoria(jugador);
+                //jugador.categoria = BD.calcularCategoria(jugador); Esto ya no se utiliza ya que la categoria se puede editar, por lo que no deberia ser actualizada automaticamente.
                 BD.getJugadoresDB().upsert(jugador._id, () => jugador)
                     .then(() => {
                         this.setState({
