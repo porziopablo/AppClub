@@ -19,19 +19,22 @@ PouchDB.plugin(Auth);
 ////////////////           DATOS                    ///////////////////
 
 const metadata = {
-    email: 'email@outlook.com', // email del profesor
-    nombre: 'Maximiliano Pedazo',   // nombre del profesor
-    dni: '33888888',            // dni del profesor
+    email: 'aaaa@aaaa.com',     // email del profesor
+    nombre: 'User Prueba 1',   // nombre del profesor
+    dni: '',                // dni del profesor
 }
 
-const password = "coso";        // password del profesor
+const password = "";        // password del profesor
 
-const host = 'localhost';       // host donde esta BD
-const puerto = 5984;            // puerto de BD
+const host = '200.0.183.33';       // host donde esta BD
+const puerto = 55986;            // puerto de BD
+
+const adminUser = "" // usuario admin de la base de datos
+const adminPass = ""       // clave admin de la base de datos
 
 /////////////////////////////////////////////////////////////////////
 
-const baseDatos = new PouchDB(`http://${host}:${puerto}/balancesdb`);
+const baseDatos = new PouchDB(`http://${adminUser}:${adminPass}@${host}:${puerto}/balancesdb`);
 const balance = {
     '_id': '',
     fechaCancelacion: '',
@@ -40,7 +43,10 @@ const balance = {
 };
 
 baseDatos.signUp(metadata.dni, password, {
-    metadata: metadata
+    metadata: metadata,
+    roles: [
+        "profesor", "profesor_root"
+    ],
 }).then(res => {
     balance.nombreProfesor = metadata.nombre;
     balance._id = metadata.dni;
