@@ -285,6 +285,8 @@ class Jugador extends React.Component<tipoProps> {
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El teléfono debe tener al menos un carácter." } });
         else if (jugador.deportes.length < 1)
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar al menos un deporte." } });
+        else if (jugador.categoria === 0 && jugador.deportes.includes(DEPORTES.futbol))
+            this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "Debe seleccionar una categoria." } });
         else if (!regNombre.test(jugador.nombre))
             this.setState({ toastParams: { mostrar: true, esError: true, mensaje: "El nombre debe tener al menos un carácter, sólo se permiten letras, y espacios (no contiguos)." } });
         else {  /* Si es movil, debe ir 9 luego de +54 */
