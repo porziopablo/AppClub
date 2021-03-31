@@ -2,7 +2,7 @@
 import { IonPage, IonItem, IonLabel, IonContent, IonList, IonButton, IonRadio, IonListHeader, IonRadioGroup, IonToast, IonRefresher, IonRefresherContent, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import { useHistory } from 'react-router';
 import '../theme/usuarios.css';
-import { iProfesor, iBalance } from '../interfaces';
+import { iProfesor, iBalance, TEACHER_NAME } from '../interfaces';
 import BD from '../BD';
 import { arrowBack } from 'ionicons/icons';
 
@@ -89,7 +89,10 @@ const UsuariosNuevos: React.FC = () => {
                         email: aPostear.email,
                         nombre: aPostear.nombre,
                         dni: aPostear.dni,
-                    }
+                    },
+                    roles: [
+                        TEACHER_NAME
+                    ]
                 }).then(res => {
                     balance.nombreProfesor = aPostear.nombre;
                     balance._id = aPostear.dni;

@@ -117,12 +117,14 @@ const AsistenciaList: React.FC<UserDetailPageProps> = ({ match }) => {
                 setColor("success");
                 setToast(true);
                 setPresentes([]);
+                setDisabled(true);
             })
             .catch(res => {
                 setToastMsg("ERROR: presentes no fueron cargados");
                 setColor("danger");
                 setToast(true);
                 setPresentes([]);
+                setDisabled(true);
             })
    
     }

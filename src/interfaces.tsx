@@ -13,6 +13,7 @@ export const regEmail = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^
 export const maxNumDni = 8;
 
 export const ADMIN_NAME: string = 'profesor_root'
+export const TEACHER_NAME: string = 'profesor'
 
 export const MAX_IMG = 5;
 
