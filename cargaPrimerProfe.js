@@ -26,15 +26,17 @@ const metadata = {
 
 const password = "";        // password del profesor
 
-const host = '200.0.183.33';       // host donde esta BD
-const puerto = 55986;            // puerto de BD
+const host = 'couchdb-unmdp.mooo.com';       // host donde esta BD
+const puerto = 6984;            // puerto de BD
 
 const adminUser = "" // usuario admin de la base de datos
 const adminPass = ""       // clave admin de la base de datos
 
 /////////////////////////////////////////////////////////////////////
 
-const baseDatos = new PouchDB(`http://${adminUser}:${adminPass}@${host}:${puerto}/balancesdb`);
+const baseDatos = new PouchDB(`https://${adminUser}:${adminPass}@${host}:${puerto}/balancesdb`);
+
+
 const balance = {
     '_id': '',
     fechaCancelacion: '',
@@ -48,6 +50,7 @@ baseDatos.signUp(metadata.dni, password, {
         "profesor", "profesor_root"
     ],
 }).then(res => {
+ 
     balance.nombreProfesor = metadata.nombre;
     balance._id = metadata.dni;
     baseDatos.upsert(balance._id, () => balance);
