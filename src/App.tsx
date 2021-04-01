@@ -63,14 +63,14 @@ const App: React.FC = () => (
 
         <IonApp>
             <IonReactRouter>
-                <SideMenu />
+            {((window.location.pathname !== "/logIn") && (window.location.pathname !== "/")) && <SideMenu />}
             <IonHeader id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>
                     <IonToolbar> Club Dos de Mayo
                         <IonButtons slot="start">
                             <IonMenuButton autoHide={false}></IonMenuButton>
                         </IonButtons>
                     </IonToolbar>
-                </IonHeader>
+            </IonHeader>
                 <IonTabs>
                     <IonRouterOutlet id="main">
                         <Route path="/cobros" component={Cobros} exact={true} />
@@ -91,22 +91,22 @@ const App: React.FC = () => (
                         <Route path="/asistenciaList/:id" component={AsistenciaList} />
                         <Route path="/asistenciaHist/:id" component={AsistenciaHist} />
                         <Route path="/listado/jugador/:dni/pagosJugador" component={PagosJugador} />
-                        <Route path="/usuariosExistentes" component={UsuariosExistentes} exact={true}/>
-                        <Route path="/usuariosNuevos" component={UsuariosNuevos} exact={true}/>
+                        <Route path="/usuariosExistentes" component={UsuariosExistentes} exact={true} />
+                        <Route path="/usuariosNuevos" component={UsuariosNuevos} exact={true} />
                         <Route path="/listado/registrarJugador" component={RegistrarJugador} exact={true} />
-                    </IonRouterOutlet>
+                </IonRouterOutlet>
                     <IonTabBar slot="bottom">
-                    <IonTabButton tab="jugadores" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/listado" selected={(window.location.pathname.lastIndexOf("/listado") > -1)}>
+                        <IonTabButton tab="jugadores" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/listado" selected={(window.location.pathname.lastIndexOf("/listado") > -1)}>
                             <IonIcon icon={people} />
-                        <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Jugadores</IonLabel>
+                            <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Jugadores</IonLabel>
                         </IonTabButton>
-                    <IonTabButton tab="Cobros" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/cobros" selected={(window.location.pathname.lastIndexOf("/cobros") > -1) || (window.location.pathname.lastIndexOf("/historial") > -1)}>
+                        <IonTabButton tab="Cobros" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/cobros" selected={(window.location.pathname.lastIndexOf("/cobros") > -1) || (window.location.pathname.lastIndexOf("/historial") > -1)}>
                             <IonIcon icon={logoUsd} />
-                        <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Cobros</IonLabel>
+                            <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Cobros</IonLabel>
                         </IonTabButton>
-                    <IonTabButton tab="Asistencia" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/asistencia" selected={(window.location.pathname.lastIndexOf("/asistencia") > -1)}>
+                        <IonTabButton tab="Asistencia" layout={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? "icon-hide" : "icon-top"} disabled={((window.location.pathname === "/logIn") || (window.location.pathname === "/"))} href="/asistencia" selected={(window.location.pathname.lastIndexOf("/asistencia") > -1)}>
                             <IonIcon icon={checkbox} />
-                        <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Asistencia</IonLabel>
+                            <IonLabel id={((window.location.pathname === "/logIn") || (window.location.pathname === "/")) ? 'esconder' : ''}>Asistencia</IonLabel>
                         </IonTabButton>
                     </IonTabBar>
                 </IonTabs>
