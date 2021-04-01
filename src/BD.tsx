@@ -1,11 +1,13 @@
 import PouchDB from 'pouchdb'; 
 import Find from 'pouchdb-find';
 import Auth from 'pouchdb-authentication'
-import { iJugador, DEPORTES, GENEROS, CATEGORIAS, ADMIN_NAME } from './interfaces';
+import { iJugador, DEPORTES, GENEROS, CATEGORIAS } from './interfaces';
+import configSv from './configSv.json';
 PouchDB.plugin(Find);
 PouchDB.plugin(Auth);
 PouchDB.plugin(require('pouchdb-upsert'));
 PouchDB.plugin(require('pouchdb-authentication'));
+
 
 //  LEEME:
 //Para que la aplicacion funcione correctamente, el documento _design/_auth de la base de datos _users debe estar
@@ -39,40 +41,23 @@ class BaseDatos {
 
             /* creacion de cada bd */
 
-            //this.jugadoresDB = new PouchDB('http://200.0.183.33:55986/jugadoresdb');
-            //this.usersDB = new PouchDB('http://200.0.183.33:55986/_users');
+            this.jugadoresDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/jugadoresdb`);
+            this.usersDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/_users`);
 
-            //this.balancesDB = new PouchDB('http://200.0.183.33:55986/balancesdb');
-            //this.pagosDB = new PouchDB('http://200.0.183.33:55986/pagosdb');
-            //this.historialBalancesDB = new PouchDB('http://200.0.183.33:55986/historialbalancesdb');
-            //this.pendientesDB = new PouchDB('http://200.0.183.33:55986/usuariospendientesdb');
+            this.balancesDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/balancesdb`);
+            this.pagosDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/pagosdb`);
+            this.historialBalancesDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/historialbalancesdb`);
+            this.pendientesDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/usuariospendientesdb`);
 
-            //this.cat1fDB = new PouchDB('http://200.0.183.33:55986/asist1f');
-            //this.cat1mDB = new PouchDB('http://200.0.183.33:55986/asist1m');
-            //this.cat5DB = new PouchDB('http://200.0.183.33:55986/asist5');
-            //this.cat7DB = new PouchDB('http://200.0.183.33:55986/asist7');
-            //this.cat9DB = new PouchDB('http://200.0.183.33:55986/asist9');
-            //this.cat11DB = new PouchDB('http://200.0.183.33:55986/asist11');
-            //this.cat13DB = new PouchDB('http://200.0.183.33:55986/asist13');
-            //this.cat15DB = new PouchDB('http://200.0.183.33:55986/asist15');
+            this.cat1fDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist1f`);
+            this.cat1mDB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist1m`);
+            this.cat5DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist5`);
+            this.cat7DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist7`);
+            this.cat9DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist9`);
+            this.cat11DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist11`);
+            this.cat13DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist13`);
+            this.cat15DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist15`);
 
-            this.jugadoresDB = new PouchDB('http://192.168.0.9:5984/jugadoresdb');
-            this.profesoresDB = new PouchDB('http://192.168.0.9:5984/profesoresdb');
-            this.usersDB = new PouchDB('http://192.168.0.9:5984/_users');
-            
-            this.balancesDB = new PouchDB('http://192.168.0.9:5984/balancesdb');
-            this.pagosDB = new PouchDB('http://192.168.0.9:5984/pagosdb');
-            this.historialBalancesDB = new PouchDB('http://192.168.0.9:5984/historialbalancesdb');
-            this.pendientesDB = new PouchDB('http://192.168.0.9:5984/usuariospendientesdb');
-
-            this.cat1fDB = new PouchDB('http://192.168.0.9:5984/asist1f');
-            this.cat1mDB = new PouchDB('http://192.168.0.9:5984/asist1m');
-            this.cat5DB = new PouchDB('http://192.168.0.9:5984/asist5');
-            this.cat7DB = new PouchDB('http://192.168.0.9:5984/asist7');
-            this.cat9DB = new PouchDB('http://192.168.0.9:5984/asist9');
-            this.cat11DB = new PouchDB('http://192.168.0.9:5984/asist11');
-            this.cat13DB = new PouchDB('http://192.168.0.9:5984/asist13');
-            this.cat15DB = new PouchDB('http://192.168.0.9:5984/asist15');
 
             /* creacion de indices */
 
@@ -82,15 +67,17 @@ class BaseDatos {
             this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
                 .catch(console.log)
 
-            this.getUsersDB().getSession()
-                .then(res => {
-                    if (res.userCtx.roles!.indexOf(ADMIN_NAME) >= 0) {
-                        this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-                           .catch(console.log)
-                    }
-                }).catch(err => {
-                    console.log(err);
-                });
+            //this.getUsersDB().getSession()
+            //    .then(res => {
+            //        if (res.userCtx.roles!.indexOf(ADMIN_NAME) >= 0) {
+            //            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
+            //               .catch(console.log)
+            //        }
+            //    }).catch(err => {
+            //        console.log(err);
+            //    });
+
+            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
 
             this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
                 .catch(console.log)
@@ -195,7 +182,6 @@ class BaseDatos {
         return categoria;
     }
 }
-
 const BD = new BaseDatos();
 Object.freeze(BD);
 
