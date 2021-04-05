@@ -59,33 +59,6 @@ class BaseDatos {
             this.cat15DB = new PouchDB(`${configSv.ip}:${configSv.puerto}/asist15`);
 
 
-            /* creacion de indices */
-
-            //this.jugadoresDB.createIndex({ index: { fields: ['nombre'], name: "indiceNombre", ddoc: "indiceNombre" } })
-            //    .catch(console.log)
-
-            //this.jugadoresDB.createIndex({ index: { fields: ['categoria'], name: "indiceCat", ddoc: "indiceCat" } })
-            //    .catch(console.log)
-
-            ////this.getUsersDB().getSession()
-            ////    .then(res => {
-            ////        if (res.userCtx.roles!.indexOf(ADMIN_NAME) >= 0) {
-            ////            this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-            ////               .catch(console.log)
-            ////        }
-            ////    }).catch(err => {
-            ////        console.log(err);
-            ////    });
-
-            //this.usersDB.createIndex({ index: { fields: ['name'], name: "indiceUser", ddoc: "indiceUser" } })
-            //    .catch(console.log)
-
-            //this.pagosDB.createIndex({ index: { fields: ['dniJugador'], name: "indicePago", ddoc: "indicePago" } })
-            //    .catch(console.log)
-
-            //this.pendientesDB.createIndex({ index: { fields: ['dni'], name: "indicePendiente", ddoc: "indicePendiente" } })
-            //    .catch(console.log)
-
             BaseDatos.instance = this;
         }
 
