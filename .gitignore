@@ -24,4 +24,4 @@ yarn-debug.log*
 yarn-error.log*
 *.suo
 *.sqlite
-*.json
+#*.json
