@@ -1,6 +1,6 @@
 # App Club 2 de Mayo
 
-Aplicación para Club Dos de Mayo, en el contexto de PPS en la Facultad de Ingeniería, UNMdP. 2020
+Aplicación en Android para Club Dos de Mayo, en el contexto de PPS en la Facultad de Ingeniería, UNMdP. 2020
 
 
 **Tech Stack**
